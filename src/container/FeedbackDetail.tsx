@@ -4,12 +4,12 @@ import {
   Typography,
   Card,
   CardContent,
-  Grid,
   Button,
   Divider,
   Chip,
   TextField,
 } from "@mui/material";
+import Grid from "@mui/material/Grid2";
 
 interface FeedbackDetailProps {
   id: string;
@@ -51,22 +51,22 @@ const FeedbackDetail: React.FC<FeedbackDetailProps> = ({
             Thông tin khách hàng
           </Typography>
           <Grid container spacing={2} sx={{ mb: 2 }}>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ mobile: 12, desktop: 6 }}>
               <Typography variant="body1">
                 <strong>Tên khách hàng:</strong> {customerName}
               </Typography>
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ mobile: 12, desktop: 6 }}>
               <Typography variant="body1">
                 <strong>Số điện thoại:</strong> {phone}
               </Typography>
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ mobile: 12, desktop: 6 }}>
               <Typography variant="body1">
                 <strong>Email:</strong> {email}
               </Typography>
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ mobile: 12, desktop: 6 }}>
               <Typography variant="body1">
                 <strong>ID Đơn hàng:</strong> {orderId}
               </Typography>
@@ -80,22 +80,22 @@ const FeedbackDetail: React.FC<FeedbackDetailProps> = ({
             Nội dung phản hồi
           </Typography>
           <Grid container spacing={2} sx={{ mb: 2 }}>
-            <Grid item xs={12}>
+            <Grid size={{ mobile: 12 }}>
               <Typography variant="body1">
                 <strong>Loại phản hồi:</strong> {feedbackType}
               </Typography>
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={{ mobile: 12 }}>
               <Typography variant="body1">
                 <strong>Nội dung:</strong> {content}
               </Typography>
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={{ mobile: 12 }}>
               <Typography variant="body1">
                 <strong>Thời gian gửi:</strong> {createdAt}
               </Typography>
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={{ mobile: 12 }}>
               <Typography variant="body1">
                 <strong>Mức độ ưu tiên:</strong>{" "}
                 <Chip
@@ -119,7 +119,7 @@ const FeedbackDetail: React.FC<FeedbackDetailProps> = ({
             Trạng thái xử lý
           </Typography>
           <Grid container spacing={2} sx={{ mb: 2 }}>
-            <Grid item xs={12}>
+            <Grid size={{ mobile: 6 }}>
               <Typography variant="body1">
                 <strong>Trạng thái:</strong>{" "}
                 <Chip
