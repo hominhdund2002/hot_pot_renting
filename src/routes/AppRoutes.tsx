@@ -15,7 +15,7 @@ const AppRoute: React.FC = () => {
     <Routes>
       <Route
         key="layoutAdmin"
-        path={config.routes.home}
+        path={config.adminRoutes.dashboard}
         element={<AdminLayout />}
       >
         <Route
