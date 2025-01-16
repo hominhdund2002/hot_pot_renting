@@ -4,4 +4,5 @@ export const routes = {
 
 export const adminRoutes = {
   dashboard: "/dashboard",
+  feedbackDetail: "/dashboard/feedback/:id",
 };

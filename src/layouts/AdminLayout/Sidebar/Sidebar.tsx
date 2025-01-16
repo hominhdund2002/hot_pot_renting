@@ -1,5 +1,12 @@
-import React from "react";
-import { Box, List, ListItem, ListItemIcon, ListItemText } from "@mui/material";
+import React, { useState } from "react";
+import {
+  Box,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Collapse,
+} from "@mui/material";
 import { Link, useLocation } from "react-router-dom";
 import {
   Dashboard as DashboardIcon,
@@ -18,19 +25,41 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ isCollapsed }) => {
   const location = useLocation();
+  const [open, setOpen] = useState<string | null>(null); // Track which menu is open
   const cx = classNames.bind(styles);
 
   const menuItems: MenuItem[] = [
     { icon: <DashboardIcon />, label: "Dashboard", path: "/dashboard" },
-    { icon: <PeopleIcon />, label: "Users", path: "/users" },
+    {
+      icon: <PeopleIcon />,
+      label: "Users",
+      path: "/users",
+      children: [
+        { label: "User List", path: "/users/list" },
+        { label: "User Roles", path: "/users/roles" },
+      ],
+    },
     { icon: <InventoryIcon />, label: "Products", path: "/products" },
-    { icon: <BarChartIcon />, label: "Analytics", path: "/analytics" },
+    {
+      icon: <BarChartIcon />,
+      label: "Analytics",
+      path: "",
+      children: [
+        { label: "Sales", path: "/analytics/sales" },
+        { label: "Traffic", path: "/analytics/traffic" },
+      ],
+    },
     { icon: <SettingsIcon />, label: "Settings", path: "/settings" },
   ];
 
-  const isActive = (path: string): boolean => {
-    return location.pathname === path;
+  const handleClick = (label: string) => {
+    // Toggle open/close state for child menus
+    setOpen(open === label ? null : label);
   };
+
+  // const isActive = (path: string): boolean => {
+  //   return location.pathname === path;
+  // };
 
   return (
     <Box
@@ -46,17 +75,42 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed }) => {
 
       <List component="nav" className={cx("nav-menu")}>
         {menuItems.map((item, index) => (
-          <ListItem
-            key={index}
-            component={Link}
-            to={item.path}
-            className={cx("nav-item", {
-              active: location.pathname === item.path,
-            })}
-          >
-            <ListItemIcon className={cx("nav-icon")}>{item.icon}</ListItemIcon>
-            {!isCollapsed && <ListItemText primary={item.label} />}
-          </ListItem>
+          <React.Fragment key={index}>
+            <ListItem
+              component={Link}
+              to={item.path}
+              onClick={() => item.children && handleClick(item.label)}
+              className={cx("nav-item", {
+                active: location.pathname === item.path,
+                expanded: open === item.label, // Highlight expanded menu
+              })}
+            >
+              <ListItemIcon className={cx("nav-icon")}>
+                {item.icon}
+              </ListItemIcon>
+              {!isCollapsed && <ListItemText primary={item.label} />}
+            </ListItem>
+
+            {item.children && (
+              <Collapse in={open === item.label} timeout="auto" unmountOnExit>
+                <List component="div" disablePadding>
+                  {item.children.map((child, index) => (
+                    <ListItem
+                      key={index}
+                      component={Link}
+                      to={child.path}
+                      className={cx("nav-item", {
+                        active: location.pathname === child.path,
+                      })}
+                    >
+                      <ListItemIcon className={cx("nav-icon")}></ListItemIcon>
+                      {!isCollapsed && <ListItemText primary={child.label} />}
+                    </ListItem>
+                  ))}
+                </List>
+              </Collapse>
+            )}
+          </React.Fragment>
         ))}
       </List>
     </Box>
