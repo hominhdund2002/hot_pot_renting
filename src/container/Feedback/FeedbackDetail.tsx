@@ -4,10 +4,8 @@ import {
   Typography,
   Card,
   CardContent,
-  Button,
   Divider,
   Chip,
-  TextField,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 
@@ -25,7 +23,6 @@ interface FeedbackDetailProps {
 }
 
 const FeedbackDetail: React.FC<FeedbackDetailProps> = ({
-  id,
   customerName,
   phone,
   email,
@@ -37,7 +34,7 @@ const FeedbackDetail: React.FC<FeedbackDetailProps> = ({
   priority,
 }) => {
   return (
-    <Box p={4}>
+    <Box>
       <Card variant="outlined">
         <CardContent>
           {/* Title */}
