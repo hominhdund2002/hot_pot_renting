@@ -1,5 +1,12 @@
-import React, { useCallback } from "react";
-import { Box, Card, CardContent, Typography } from "@mui/material";
+import React, { useCallback, useState, lazy, Suspense } from "react";
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Stack,
+  Typography,
+} from "@mui/material";
 import Grid2 from "@mui/material/Grid2";
 import * as Yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -16,7 +23,9 @@ import {
 } from "../../components/hook-form";
 // import { toast } from "react-toastify";
 import { LoadingButton } from "@mui/lab";
+import { HotpotMeat } from "../../types/meat";
 
+const MeatSelectorModal = lazy(() => import("./ModalCombo/MeatSelectModal"));
 // const LabelStyle = styled(Typography)(({ theme }) => ({
 //   ...theme.typography.subtitle2,
 //   color: theme.palette.text.secondary,
@@ -29,12 +38,6 @@ import { LoadingButton } from "@mui/lab";
 //   name: string;
 //   price: number;
 // }
-
-interface HotpotMeat {
-  id: number;
-  name: string;
-  price: number;
-}
 
 interface HotpotVegetable {
   id: number;
@@ -73,6 +76,20 @@ interface CreateHotPotFormSchema {
   vegetables: (string | undefined)[] | undefined;
 }
 const HotpotComboCreate: React.FC = () => {
+  const [openMeatsModal, setOpenMeatsModal] = useState<boolean>(false);
+  const [selectedMeats, setSelectedMeats] = useState<HotpotMeat[]>([]);
+
+  //meat modal
+
+  const handleOpenMeatsModal = () => {
+    setOpenMeatsModal(true);
+  };
+
+  const handleModalSubmit = (selectedMeats: HotpotMeat[]) => {
+    setSelectedMeats(selectedMeats);
+    setOpenMeatsModal(false);
+  };
+
   const defaultValues = {
     name: "",
     description: "",
@@ -177,9 +194,14 @@ const HotpotComboCreate: React.FC = () => {
             </Grid2>
 
             <Grid2 size={{ mobile: 12, desktop: 6 }}>
-              <Typography variant="h6" gutterBottom>
-                Select Meats
-              </Typography>
+              <Stack display="flex" direction="row" spacing={3}>
+                <Typography variant="h6" gutterBottom>
+                  Chọn thịt cho lẩu
+                </Typography>
+                <Button variant="contained" onClick={handleOpenMeatsModal}>
+                  Chọn thịt
+                </Button>
+              </Stack>
               <RHFMultiCheckbox
                 name="meats"
                 options={meats.map((meat) => ({
@@ -191,7 +213,7 @@ const HotpotComboCreate: React.FC = () => {
 
             <Grid2 size={{ mobile: 12, desktop: 6 }}>
               <Typography variant="h6" gutterBottom>
-                Select Vegetables
+                Chọn rau lẩu
               </Typography>
               <RHFMultiCheckbox
                 name="vegetables"
@@ -225,6 +247,17 @@ const HotpotComboCreate: React.FC = () => {
           </Grid2>
         </CardContent>
       </Card>
+
+      {openMeatsModal && (
+        <Suspense fallback={<div>Loading...</div>}>
+          <MeatSelectorModal
+            open={openMeatsModal}
+            handleCloseMeatModal={() => setOpenMeatsModal(false)}
+            onSendMeat={handleModalSubmit}
+            selectBefore={selectedMeats}
+          />
+        </Suspense>
+      )}
     </FormProvider>
   );
 };
