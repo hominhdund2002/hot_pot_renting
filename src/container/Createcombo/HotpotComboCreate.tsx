@@ -4,6 +4,7 @@ import {
   Button,
   Card,
   CardContent,
+  Divider,
   Stack,
   Typography,
 } from "@mui/material";
@@ -11,21 +12,17 @@ import Grid2 from "@mui/material/Grid2";
 import * as Yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
-import {
-  FormProvider,
-  // RHFAutoComplete,
-  // RHFSelect,
-  // RHFTextField,
-  // RHFTextFieldNumber,
-  // RHFUploadMultiFile,
-  RHFMultiCheckbox,
-  RHFUploadMultiFile,
-} from "../../components/hook-form";
+import { FormProvider, RHFUploadMultiFile } from "../../components/hook-form";
 // import { toast } from "react-toastify";
 import { LoadingButton } from "@mui/lab";
 import { HotpotMeat } from "../../types/meat";
+import { HotpotVegetable } from "../../types/vegetable";
+import { CreateHotPotFormSchema } from "../../types/hotpot";
 
 const MeatSelectorModal = lazy(() => import("./ModalCombo/MeatSelectModal"));
+const VegetablesSelectorModal = lazy(
+  () => import("./ModalCombo/VegetableSelectModal")
+);
 // const LabelStyle = styled(Typography)(({ theme }) => ({
 //   ...theme.typography.subtitle2,
 //   color: theme.palette.text.secondary,
@@ -39,12 +36,6 @@ const MeatSelectorModal = lazy(() => import("./ModalCombo/MeatSelectModal"));
 //   price: number;
 // }
 
-interface HotpotVegetable {
-  id: number;
-  name: string;
-  price: number;
-}
-
 // Sample data
 // const bases: HotpotBase[] = [
 //   { id: 1, name: "Spicy Sichuan Broth", price: 12 },
@@ -53,34 +44,17 @@ interface HotpotVegetable {
 //   { id: 4, name: "Mushroom Vegetarian Broth", price: 11 },
 // ];
 
-const meats: HotpotMeat[] = [
-  { id: 1, name: "Sliced Beef", price: 8 },
-  { id: 2, name: "Lamb", price: 9 },
-  { id: 3, name: "Pork Belly", price: 7 },
-  { id: 4, name: "Chicken", price: 6 },
-];
-
-const vegetables: HotpotVegetable[] = [
-  { id: 1, name: "Napa Cabbage", price: 3 },
-  { id: 2, name: "Mushroom Mix", price: 4 },
-  { id: 3, name: "Corn", price: 2 },
-  { id: 4, name: "Spinach", price: 3 },
-  { id: 5, name: "Tofu", price: 3 },
-];
-
-interface CreateHotPotFormSchema {
-  name: string;
-  description: string;
-  imageURL: (string | undefined)[] | undefined;
-  meats: (string | undefined)[] | undefined;
-  vegetables: (string | undefined)[] | undefined;
-}
 const HotpotComboCreate: React.FC = () => {
   const [openMeatsModal, setOpenMeatsModal] = useState<boolean>(false);
   const [selectedMeats, setSelectedMeats] = useState<HotpotMeat[]>([]);
 
-  //meat modal
+  const [openVegetablesModal, setOpenVegetablesModal] =
+    useState<boolean>(false);
+  const [selectedVegetables, setSelectedVegetables] = useState<
+    HotpotVegetable[]
+  >([]);
 
+  //meat modal
   const handleOpenMeatsModal = () => {
     setOpenMeatsModal(true);
   };
@@ -90,12 +64,24 @@ const HotpotComboCreate: React.FC = () => {
     setOpenMeatsModal(false);
   };
 
+  // vegetable modal
+
+  const handleOpenVegetablesModal = () => {
+    setOpenVegetablesModal(true);
+  };
+
+  const handleModalSubmitVegetable = (
+    selectedVegetables: HotpotVegetable[]
+  ) => {
+    setSelectedVegetables(selectedVegetables);
+    setOpenVegetablesModal(false);
+  };
+
+  //yub
   const defaultValues = {
     name: "",
     description: "",
     imageURL: [],
-    meats: [],
-    vegetables: [],
   };
 
   const validationSchema = Yup.object().shape({
@@ -108,8 +94,6 @@ const HotpotComboCreate: React.FC = () => {
       .required("Bắt buộc có mô tả")
       .min(10, "Tối thiểu 10 kí tự"),
     imageURL: Yup.array().of(Yup.string()).min(1, "Bắt buộc có hình"),
-    meats: Yup.array().of(Yup.string()).min(1, "Bắt buộc chọn 1"),
-    vegetables: Yup.array().of(Yup.string()).min(1, "Bắt buộc chọn 1"),
   });
 
   const methods = useForm<CreateHotPotFormSchema>({
@@ -172,7 +156,7 @@ const HotpotComboCreate: React.FC = () => {
 
   return (
     <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
-      <Card sx={{ maxWidth: "100%", margin: "auto", mt: 4 }}>
+      <Card sx={{ maxWidth: "100%", margin: "auto", mt: 4, p: 3 }}>
         <CardContent>
           <Typography variant="h5" gutterBottom>
             Tạo mới thực đơn lẩu
@@ -194,34 +178,43 @@ const HotpotComboCreate: React.FC = () => {
             </Grid2>
 
             <Grid2 size={{ mobile: 12, desktop: 6 }}>
-              <Stack display="flex" direction="row" spacing={3}>
-                <Typography variant="h6" gutterBottom>
-                  Chọn thịt cho lẩu
-                </Typography>
-                <Button variant="contained" onClick={handleOpenMeatsModal}>
-                  Chọn thịt
-                </Button>
+              <Stack spacing={3}>
+                <Box sx={{ display: "flex" }}>
+                  <Typography variant="h6" gutterBottom sx={{ mr: 3 }}>
+                    Chọn thịt cho lẩu:
+                  </Typography>
+                  <Button variant="contained" onClick={handleOpenMeatsModal}>
+                    Chọn thịt:
+                  </Button>
+                </Box>
+                {selectedMeats?.map((meat, idx) => (
+                  <React.Fragment key={idx}>
+                    <Stack display="flex" direction="column">
+                      {idx + 1} : {meat.name}
+                    </Stack>
+                    <Divider />
+                  </React.Fragment>
+                ))}
+                <Box sx={{ display: "flex" }}>
+                  <Typography variant="h6" gutterBottom sx={{ mr: 3 }}>
+                    Chọn rau cho lẩu:
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    onClick={handleOpenVegetablesModal}
+                  >
+                    Chọn rau
+                  </Button>
+                </Box>
+                {selectedVegetables?.map((vegetable, idx) => (
+                  <React.Fragment key={idx}>
+                    <Stack display="flex" direction="column">
+                      {idx + 1} : {vegetable.name}
+                    </Stack>
+                    <Divider />
+                  </React.Fragment>
+                ))}
               </Stack>
-              <RHFMultiCheckbox
-                name="meats"
-                options={meats.map((meat) => ({
-                  label: `${meat.name} ($${meat.price})`,
-                  value: meat.id,
-                }))}
-              />
-            </Grid2>
-
-            <Grid2 size={{ mobile: 12, desktop: 6 }}>
-              <Typography variant="h6" gutterBottom>
-                Chọn rau lẩu
-              </Typography>
-              <RHFMultiCheckbox
-                name="vegetables"
-                options={vegetables.map((vegetable) => ({
-                  label: `${vegetable.name} ($${vegetable.price})`,
-                  value: vegetable.id,
-                }))}
-              />
             </Grid2>
 
             <Grid2 size={{ mobile: 12 }}>
@@ -255,6 +248,17 @@ const HotpotComboCreate: React.FC = () => {
             handleCloseMeatModal={() => setOpenMeatsModal(false)}
             onSendMeat={handleModalSubmit}
             selectBefore={selectedMeats}
+          />
+        </Suspense>
+      )}
+
+      {openVegetablesModal && (
+        <Suspense fallback={<div>Loading...</div>}>
+          <VegetablesSelectorModal
+            open={openVegetablesModal}
+            handleCloseVegetableModal={() => setOpenVegetablesModal(false)}
+            onSendVegetable={handleModalSubmitVegetable}
+            selectBefore={selectedVegetables}
           />
         </Suspense>
       )}

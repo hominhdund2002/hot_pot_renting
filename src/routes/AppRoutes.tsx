@@ -5,8 +5,9 @@ import Home from "../pages/Home/Home";
 import StaffLayout from "../layouts/StaffLayout/StaffLayout";
 import Dashboard from "../pages/Admin/Dashboard/Dashboard";
 import AdminLayout from "../layouts/AdminLayout/LayoutAdmin";
-import FeedbackDetailPage from "../pages/Admin/Feedback/Feedback";
-import CreateCombo from "../pages/Admin/Combohotpot/CreateCombo";
+import FeedbackDetailPage from "../pages/Admin/Feedback/FeedbackDetailPage";
+import CreateCombo from "../pages/Admin/Combohotpot/CreateComboPage";
+import FeedbackPage from "../pages/Admin/Feedback/FeedbackPage";
 
 // import CheckRoute from "./CheckRoute";
 // import RequireAuth from "./RequireAuth";
@@ -24,6 +25,11 @@ const AppRoute: React.FC = () => {
           key="dashboard"
           path={config.adminRoutes.dashboard}
           element={<Dashboard />}
+        />
+        <Route
+          key="feedbackTable"
+          path={config.adminRoutes.feedback}
+          element={<FeedbackPage />}
         />
         <Route
           key="feedbackDetail"

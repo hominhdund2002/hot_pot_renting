@@ -38,8 +38,8 @@ const MeatSelectorModal: React.FC<AddMeatsForHotpot> = ({
     setChooseMeats(
       (prev) =>
         prev.some((meat) => meat.id === id)
-          ? prev.filter((meat) => meat.id !== id) // Deselect if already selected
-          : [...prev, meats.find((meat) => meat.id === id)!] // Select if not already selected
+          ? prev.filter((meat) => meat.id !== id)
+          : [...prev, meats.find((meat) => meat.id === id)!] ///exlcamation make sure it not return null
     );
   };
 

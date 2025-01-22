@@ -18,6 +18,8 @@ import {
 import { MenuItem } from "../../../types/menu";
 import classNames from "classnames/bind";
 import styles from "./Sidebar.module.scss";
+import Iconify from "../../../components/Iconify";
+import config from "../../../configs";
 
 interface SidebarProps {
   isCollapsed: boolean;
@@ -25,7 +27,7 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ isCollapsed }) => {
   const location = useLocation();
-  const [open, setOpen] = useState<string | null>(null); // Track which menu is open
+  const [open, setOpen] = useState<string | null>(null);
   const cx = classNames.bind(styles);
 
   const menuItems: MenuItem[] = [
@@ -50,10 +52,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed }) => {
       ],
     },
     { icon: <SettingsIcon />, label: "Settings", path: "/settings" },
+    {
+      icon: <Iconify icon={"ri:feedback-line"} />,
+      label: "Feedback",
+      path: config.adminRoutes.feedback,
+    },
   ];
 
   const handleClick = (label: string) => {
-    // Toggle open/close state for child menus
     setOpen(open === label ? null : label);
   };
 
@@ -82,7 +88,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed }) => {
               onClick={() => item.children && handleClick(item.label)}
               className={cx("nav-item", {
                 active: location.pathname === item.path,
-                expanded: open === item.label, // Highlight expanded menu
+                expanded: open === item.label,
               })}
             >
               <ListItemIcon className={cx("nav-icon")}>
