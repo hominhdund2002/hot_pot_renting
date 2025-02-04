@@ -7,4 +7,5 @@ export const adminRoutes = {
   feedbackDetail: "/dashboard/feedback/:id",
   feedback: "/dashboard/feedback",
   createHotPotCombo: "/dashboard/createCombo",
+  profile: "/profile",
 };

@@ -12,12 +12,19 @@ import Grid2 from "@mui/material/Grid2";
 import * as Yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
-import { FormProvider, RHFUploadMultiFile } from "../../components/hook-form";
+import {
+  FormProvider,
+  RHFEditor,
+  RHFTextField,
+  RHFUploadMultiFile,
+} from "../../components/hook-form";
 // import { toast } from "react-toastify";
 import { LoadingButton } from "@mui/lab";
 import { HotpotMeat } from "../../types/meat";
 import { HotpotVegetable } from "../../types/vegetable";
 import { CreateHotPotFormSchema } from "../../types/hotpot";
+import uploadImageToFirebase from "../../firebase/uploadImageToFirebase";
+import config from "../../configs";
 
 const MeatSelectorModal = lazy(() => import("./ModalCombo/MeatSelectModal"));
 const VegetablesSelectorModal = lazy(
@@ -122,25 +129,16 @@ const HotpotComboCreate: React.FC = () => {
     async (acceptedFiles: any) => {
       const images = values.imageURL || [];
 
-      //   const uploadedImages = await Promise.all(
-      //     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      //     acceptedFiles.map(async (file: any) => {
-      //       const downloadURL = await uploadImageToFirebase(file);
-      //       return downloadURL;
-      //     })
-      //   );
+      const uploadedImages = await Promise.all(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        acceptedFiles.map(async (file: any) => {
+          const downloadURL = await uploadImageToFirebase(file);
+          return downloadURL;
+        })
+      );
 
-      //   // Update the form with the new image URLs
-      //   setValue("imageURL", [...images, ...uploadedImages]);
-
-      setValue("imageURL", [
-        ...images,
-        ...acceptedFiles.map((file: Blob | MediaSource) =>
-          Object.assign(file, {
-            preview: URL.createObjectURL(file),
-          })
-        ),
-      ]);
+      // Update the form with the new image URLs
+      setValue("imageURL", [...images, ...uploadedImages]);
     },
     [setValue, values.imageURL]
   );
@@ -164,9 +162,24 @@ const HotpotComboCreate: React.FC = () => {
 
           <Grid2 container spacing={3}>
             <Grid2 size={{ mobile: 12, desktop: 6 }}>
+              <RHFTextField
+                name="hotpotName"
+                label={config.Vntext.CreateCombo.hotpotName}
+                sx={{ mb: 2 }}
+              />
+
+              <RHFTextField
+                name="description"
+                label={config.Vntext.CreateCombo.description}
+                sx={{ mb: 2 }}
+              />
+
+              <div>
+                <RHFEditor simple name="newsContent" label="Nội dung" />
+              </div>
               <div>
                 <RHFUploadMultiFile
-                  label="Hình ảnh"
+                  label={config.Vntext.CreateCombo.image}
                   showPreview
                   name="imageURL"
                   maxSize={3145728}
@@ -216,28 +229,25 @@ const HotpotComboCreate: React.FC = () => {
                 ))}
               </Stack>
             </Grid2>
-
-            <Grid2 size={{ mobile: 12 }}>
-              <Box
-                sx={{
-                  mt: 2,
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}
-              >
-                {/* <Typography variant="h6">Total: ${calculateTotal()}</Typography> */}
-                <LoadingButton
-                  type="submit"
-                  variant="contained"
-                  size="large"
-                  loading={isSubmitting}
-                >
-                  Thêm sản phẩm
-                </LoadingButton>
-              </Box>
-            </Grid2>
           </Grid2>
+          <Box
+            sx={{
+              mt: 2,
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <LoadingButton
+              type="submit"
+              variant="contained"
+              size="large"
+              loading={isSubmitting}
+              sx={{ ml: "auto" }}
+            >
+              Thêm món lẩu mới
+            </LoadingButton>
+          </Box>
         </CardContent>
       </Card>
 
