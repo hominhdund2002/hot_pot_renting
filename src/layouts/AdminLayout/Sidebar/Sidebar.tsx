@@ -12,7 +12,6 @@ import {
   Dashboard as DashboardIcon,
   People as PeopleIcon,
   Inventory as InventoryIcon,
-  BarChart as BarChartIcon,
   Settings as SettingsIcon,
 } from "@mui/icons-material";
 import { MenuItem } from "../../../types/menu";
@@ -31,30 +30,33 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed }) => {
   const cx = classNames.bind(styles);
 
   const menuItems: MenuItem[] = [
-    { icon: <DashboardIcon />, label: "Dashboard", path: "/dashboard" },
+    {
+      icon: <DashboardIcon />,
+      label: config.Vntext.SideBar.Dashboard,
+      path: "/dashboard",
+    },
     {
       icon: <PeopleIcon />,
-      label: "Users",
+      label: config.Vntext.SideBar.Users,
       path: "/users",
       children: [
         { label: "User List", path: "/users/list" },
         { label: "User Roles", path: "/users/roles" },
       ],
     },
-    { icon: <InventoryIcon />, label: "Products", path: "/products" },
     {
-      icon: <BarChartIcon />,
-      label: "Analytics",
-      path: "",
-      children: [
-        { label: "Sales", path: "/analytics/sales" },
-        { label: "Traffic", path: "/analytics/traffic" },
-      ],
+      icon: <InventoryIcon />,
+      label: config.Vntext.SideBar.Hotpot,
+      path: "/products",
     },
-    { icon: <SettingsIcon />, label: "Settings", path: "/settings" },
+    {
+      icon: <SettingsIcon />,
+      label: config.Vntext.SideBar.Settings,
+      path: "/settings",
+    },
     {
       icon: <Iconify icon={"ri:feedback-line"} />,
-      label: "Feedback",
+      label: config.Vntext.SideBar.Feedback,
       path: config.adminRoutes.feedback,
     },
   ];

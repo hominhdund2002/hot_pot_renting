@@ -4,18 +4,23 @@ import {
   Toolbar,
   IconButton,
   InputBase,
-  Badge,
   Avatar,
   Box,
+  Menu,
+  MenuItem,
+  ListItemIcon,
+  Divider,
 } from "@mui/material";
 import {
   Menu as MenuIcon,
   Search as SearchIcon,
-  Notifications as NotificationsIcon,
   MenuOpen as MenuOpenIcon,
 } from "@mui/icons-material";
 import classNames from "classnames/bind";
 import styles from "./Navbar.module.scss";
+import { Link, useNavigate } from "react-router-dom";
+import Logout from "@mui/icons-material/Logout";
+import config from "../../../configs";
 
 interface NavbarProps {
   onMenuClick?: () => void;
@@ -24,11 +29,38 @@ interface NavbarProps {
 
 const Navbar: React.FC<NavbarProps> = ({ onMenuClick, isSidebarCollapsed }) => {
   const cx = classNames.bind(styles);
+
+  const jsonString = localStorage.getItem("loginInfo");
+  const user = JSON.parse(jsonString || "{}");
+  const [name, setName] = React.useState(
+    user?.data?.fullName ? user?.data?.fullName : "U"
+  );
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const navigate = useNavigate();
+
+  const open = Boolean(anchorEl);
+
+  const setAbrevName = () => {
+    const temp = name.substring(0, 1) || "";
+    setName(temp);
+  };
+
+  React.useEffect(() => {
+    setAbrevName();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
   return (
     <AppBar
       position="sticky"
       color="inherit"
-      elevation={0}
+      elevation={4}
       className={cx("navbar")}
     >
       <Toolbar>
@@ -37,6 +69,7 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuClick, isSidebarCollapsed }) => {
           color="inherit"
           onClick={onMenuClick}
           aria-label="menu"
+          sx={{ mr: 2 }}
         >
           {!isSidebarCollapsed ? <MenuIcon /> : <MenuOpenIcon />}
         </IconButton>
@@ -51,14 +84,54 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuClick, isSidebarCollapsed }) => {
         </Box>
 
         <Box className={cx("navbar-actions")}>
-          <IconButton aria-label="notifications">
-            <Badge badgeContent={4} color="error">
-              <NotificationsIcon />
-            </Badge>
+          <IconButton
+            onClick={handleClick}
+            size="small"
+            sx={{ ml: 2 }}
+            aria-controls={open ? "account-menu" : undefined}
+            aria-haspopup="true"
+            aria-expanded={open ? "true" : undefined}
+          >
+            <Avatar className={cx("user-avatar")}>{name}</Avatar>
           </IconButton>
-          <Avatar className={cx("user-avatar")}>U</Avatar>
         </Box>
       </Toolbar>
+      <Menu
+        anchorEl={anchorEl}
+        id="account-menu"
+        open={open}
+        onClose={handleClose}
+        sx={{
+          padding: "10px",
+          overflow: "visible",
+          mt: 1.5,
+          "& .MuiAvatar-root": {
+            width: 32,
+            height: 20,
+            ml: -0.5,
+            mr: 1,
+            zIndex: 1,
+          },
+        }}
+        transformOrigin={{ horizontal: "right", vertical: "top" }}
+        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+      >
+        <MenuItem>
+          <Link
+            to={config.adminRoutes.profile}
+            style={{ textDecoration: "none", color: "inherit" }}
+          >
+            Thông tin cá nhân
+          </Link>
+        </MenuItem>
+        <Divider />
+        <MenuItem sx={{ color: "red" }}>
+          <ListItemIcon>
+            <Logout fontSize="small" />
+          </ListItemIcon>
+          Đăng xuất
+        </MenuItem>
+      </Menu>
     </AppBar>
   );
 };
