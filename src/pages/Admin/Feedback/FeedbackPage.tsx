@@ -1,22 +1,22 @@
 import React from "react";
-import { Container } from "@mui/material";
 import HeaderBreadcrumbs from "../../../components/HeaderBreadcrumbs";
 import FeedbackTable from "../../../container/Feedback/FeedbackTable";
+import ContainerWrapper from "../../../components/Container";
+import config from "../../../configs";
 
 const FeedbackPage: React.FC = () => {
   return (
     <>
-      <Container sx={{ width: "100% !important", maxWidth: "none !important" }}>
+      <ContainerWrapper>
         <HeaderBreadcrumbs
-          heading="Thêm mới thực đơn lẩu"
+          heading={config.Vntext.Feedback.feedbackPage}
           links={[
-            { name: "Thống kê" },
-            { name: "Thực đơn lẩu" },
-            { name: "Thêm mới thực đơn lẩu" },
+            { name: config.Vntext.Dashboard.dashboard },
+            { name: config.Vntext.Feedback.feedbackPage },
           ]}
         />
         <FeedbackTable />{" "}
-      </Container>
+      </ContainerWrapper>
     </>
   );
 };

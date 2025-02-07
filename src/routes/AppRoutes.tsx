@@ -6,8 +6,9 @@ import StaffLayout from "../layouts/StaffLayout/StaffLayout";
 import Dashboard from "../pages/Admin/Dashboard/Dashboard";
 import AdminLayout from "../layouts/AdminLayout/LayoutAdmin";
 import FeedbackDetailPage from "../pages/Admin/Feedback/FeedbackDetailPage";
-import CreateCombo from "../pages/Admin/Combohotpot/CreateComboPage";
 import FeedbackPage from "../pages/Admin/Feedback/FeedbackPage";
+import CreateComboPage from "../pages/Admin/Combohotpot/CreateComboPage";
+import CreateIngredientsPage from "../pages/Admin/CreateIngredients/CreateIngredientsPage";
 
 // import CheckRoute from "./CheckRoute";
 // import RequireAuth from "./RequireAuth";
@@ -39,7 +40,12 @@ const AppRoute: React.FC = () => {
         <Route
           key="createCombo"
           path={config.adminRoutes.createHotPotCombo}
-          element={<CreateCombo />}
+          element={<CreateComboPage />}
+        />
+        <Route
+          key="createIngredients"
+          path={config.adminRoutes.createIngredients}
+          element={<CreateIngredientsPage />}
         />
       </Route>
       <Route key="layout" path={config.routes.home} element={<StaffLayout />}>
