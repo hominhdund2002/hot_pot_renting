@@ -4,16 +4,16 @@ import HeaderBreadcrumbs from "../../../components/HeaderBreadcrumbs";
 import ContainerWrapper from "../../../components/Container";
 import config from "../../../configs";
 
-const CreateComboPage: React.FC = () => {
+const CreateIngredientsPage: React.FC = () => {
   return (
     <>
       <ContainerWrapper>
         <HeaderBreadcrumbs
-          heading={config.Vntext.CreateCombo.addNewMenu}
+          heading={config.Vntext.CreateIngredients.addNewIngredients}
           links={[
             { name: config.Vntext.Dashboard.dashboard },
-            { name: config.Vntext.CreateCombo.Menu },
-            { name: config.Vntext.CreateCombo.addNewMenu },
+            { name: config.Vntext.CreateIngredients.hotpotIngredients },
+            { name: config.Vntext.CreateIngredients.createIngredients },
           ]}
         />
 
@@ -23,4 +23,4 @@ const CreateComboPage: React.FC = () => {
   );
 };
 
-export default CreateComboPage;
+export default CreateIngredientsPage;

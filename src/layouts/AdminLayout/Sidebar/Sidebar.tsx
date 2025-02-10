@@ -33,12 +33,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed }) => {
     {
       icon: <DashboardIcon />,
       label: config.Vntext.SideBar.Dashboard,
-      path: "/dashboard",
+      path: config.adminRoutes.dashboard,
     },
     {
       icon: <PeopleIcon />,
       label: config.Vntext.SideBar.Users,
-      path: "/users",
+      path: "/",
       children: [
         { label: "User List", path: "/users/list" },
         { label: "User Roles", path: "/users/roles" },
@@ -46,8 +46,18 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed }) => {
     },
     {
       icon: <InventoryIcon />,
-      label: config.Vntext.SideBar.Hotpot,
-      path: "/products",
+      label: config.Vntext.SideBar.Hotpot.hotpotSidebar,
+      path: "/",
+      children: [
+        {
+          label: config.Vntext.SideBar.Hotpot.hotpotCombo,
+          path: config.adminRoutes.tableHotPotCombo,
+        },
+        {
+          label: config.Vntext.SideBar.Hotpot.hotpotIngredients,
+          path: config.adminRoutes.tableIngredients,
+        },
+      ],
     },
     {
       icon: <SettingsIcon />,
@@ -74,7 +84,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed }) => {
       component="aside"
       className={cx("sidebar", { collapsed: isCollapsed })}
     >
-      <Link to="/dashboard" className={cx("logo-wrapper")}>
+      <Link to={config.adminRoutes.dashboard} className={cx("logo-wrapper")}>
         <Box className={cx("logo")}>
           <span className={cx("logo-text")}>LS</span>
         </Box>

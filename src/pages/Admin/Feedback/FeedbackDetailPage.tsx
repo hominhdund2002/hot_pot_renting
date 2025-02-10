@@ -1,7 +1,8 @@
 import React from "react";
 import FeedbackDetail from "../../../container/Feedback/FeedbackDetail";
-import { Container } from "@mui/material";
 import HeaderBreadcrumbs from "../../../components/HeaderBreadcrumbs";
+import ContainerWrapper from "../../../components/Container";
+import config from "../../../configs";
 
 const FeedbackDetailPage: React.FC = () => {
   const feedbackData = {
@@ -18,17 +19,17 @@ const FeedbackDetailPage: React.FC = () => {
   };
   return (
     <>
-      <Container sx={{ width: "100% !important", maxWidth: "none !important" }}>
+      <ContainerWrapper>
         <HeaderBreadcrumbs
-          heading="Thêm mới thực đơn lẩu"
+          heading={config.Vntext.Feedback.feedbackDetail}
           links={[
-            { name: "Thống kê" },
-            { name: "Thực đơn lẩu" },
-            { name: "Thêm mới thực đơn lẩu" },
+            { name: config.Vntext.Dashboard.dashboard },
+            { name: config.Vntext.Feedback.feedbackPage },
+            { name: config.Vntext.Feedback.feedbackDetailId },
           ]}
         />
         <FeedbackDetail {...feedbackData} />{" "}
-      </Container>
+      </ContainerWrapper>
     </>
   );
 };
