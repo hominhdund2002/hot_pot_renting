@@ -11,4 +11,5 @@ export const adminRoutes = {
   profile: "/profile",
   tableIngredients: "/dashboard/ingredients",
   createIngredients: "/dashboard/createIngredients",
+  manageUsers:"/dashboard/listUsers"
 };
