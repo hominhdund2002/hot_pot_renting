@@ -1,6 +1,6 @@
 import React from "react";
 import HeaderBreadcrumbs from "../../../components/HeaderBreadcrumbs";
-import FeedbackTable from "../../../container/Feedback/FeedbackTable";
+import FeedbackTable from "../../../containers/Feedback/FeedbackTable";
 import ContainerWrapper from "../../../components/Container";
 import config from "../../../configs";
 

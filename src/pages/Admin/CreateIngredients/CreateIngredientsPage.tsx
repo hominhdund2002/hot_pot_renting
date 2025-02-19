@@ -1,5 +1,5 @@
 import React from "react";
-import HotpotComboCreate from "../../../container/Createcombo/HotpotComboCreate";
+import HotpotComboCreate from "../../../containers/Createcombo/HotpotComboCreate";
 import HeaderBreadcrumbs from "../../../components/HeaderBreadcrumbs";
 import ContainerWrapper from "../../../components/Container";
 import config from "../../../configs";
