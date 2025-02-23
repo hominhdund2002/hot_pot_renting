@@ -2,7 +2,7 @@ import React from "react";
 import HeaderBreadcrumbs from "../../../components/HeaderBreadcrumbs";
 import ContainerWrapper from "../../../components/Container";
 import config from "../../../configs";
-import CreateIngredients from "../../../container/CreateIngredients/CreateIngredients";
+import CreateIngredients from "../../../containers/CreateIngredients/CreateIngredients";
 
 const CreateIngredientsPage: React.FC = () => {
   return (

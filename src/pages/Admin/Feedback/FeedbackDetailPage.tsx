@@ -1,5 +1,5 @@
 import React from "react";
-import FeedbackDetail from "../../../container/Feedback/FeedbackDetail";
+import FeedbackDetail from "../../../containers/Feedback/FeedbackDetail";
 import HeaderBreadcrumbs from "../../../components/HeaderBreadcrumbs";
 import ContainerWrapper from "../../../components/Container";
 import config from "../../../configs";
