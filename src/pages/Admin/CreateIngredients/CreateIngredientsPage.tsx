@@ -1,8 +1,8 @@
 import React from "react";
-import HotpotComboCreate from "../../../container/Createcombo/HotpotComboCreate";
 import HeaderBreadcrumbs from "../../../components/HeaderBreadcrumbs";
 import ContainerWrapper from "../../../components/Container";
 import config from "../../../configs";
+import CreateIngredients from "../../../container/CreateIngredients/CreateIngredients";
 
 const CreateIngredientsPage: React.FC = () => {
   return (
@@ -17,7 +17,7 @@ const CreateIngredientsPage: React.FC = () => {
           ]}
         />
 
-        <HotpotComboCreate />
+        <CreateIngredients />
       </ContainerWrapper>
     </>
   );
