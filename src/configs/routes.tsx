@@ -2,6 +2,10 @@ export const routes = {
   home: "/",
 };
 
+export const authRoute = {
+  authenticate: "auth",
+};
+
 export const adminRoutes = {
   dashboard: "/dashboard",
   feedbackDetail: "/dashboard/feedback/:id",
@@ -11,5 +15,5 @@ export const adminRoutes = {
   profile: "/profile",
   tableIngredients: "/dashboard/ingredients",
   createIngredients: "/dashboard/createIngredients",
-  manageUsers:"/dashboard/listUsers"
+  manageUsers: "/dashboard/listUsers",
 };
