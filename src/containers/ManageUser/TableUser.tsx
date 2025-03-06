@@ -1,25 +1,16 @@
 import { useState } from "react";
 import CTable from "../../components/table/CTable";
 import MenuActionTableUser from "../../components/menuAction/menuActionTableUser/MenuActionTableUser";
+import { Box, TextField } from "@mui/material";
+import Grid from "@mui/material/Grid2";
 
 const TableUsers = () => {
   // declare
   const [selectUserdata, setSelectedUserData] = useState<any>();
-  const [openDetail, setOpenDetail] = useState<boolean>(false);
 
   //select data
   const selecteData = (row: any) => {
     setSelectedUserData(row);
-  };
-
-  //Handle open detail
-  const handleDetail = (row: any) => {
-    console.log("chi tiết: ", row);
-    setOpenDetail(true);
-  };
-
-  const handleClose = () => {
-    setOpenDetail(false);
   };
 
   const fieldData = [
@@ -58,16 +49,37 @@ const TableUsers = () => {
     { id: "gender", label: "Giới tính", align: "center" },
   ];
 
-  // const handleDetail = (row: any) => {
-  //   console.log("Detail clicked for row:", row);
-  // };
-
-  const handleDelete = (row: any) => {
-    console.log("Delete clicked for row:", row);
-  };
-
   return (
     <>
+      <Box sx={{ p: 2 }}>
+        <Grid container spacing={2}>
+          <Grid size={4}>
+            <TextField
+              fullWidth
+              size="small"
+              placeholder="Tìm kiếm"
+              label="Khách hàng"
+            />
+          </Grid>
+          <Grid size={4}>
+            <TextField
+              fullWidth
+              size="small"
+              placeholder="VD: 0378817281"
+              label="Điện thoại"
+            />
+          </Grid>
+          <Grid size={4}>
+            <TextField
+              fullWidth
+              size="small"
+              placeholder="12D/23 PVH, Q12"
+              label="Địa chỉ"
+            />
+          </Grid>
+        </Grid>
+      </Box>
+
       <CTable
         data={fieldData}
         tableHeaderTitle={tableHeader}
@@ -75,15 +87,10 @@ const TableUsers = () => {
         menuAction={
           <MenuActionTableUser
             userData={selectUserdata}
-            onOpenDetail={handleDetail}
+            onOpenDetail={selecteData}
           />
         }
         selectedData={selecteData}
-        isShowDeleteButton={true}
-        isShowDetailButton={true}
-        isShowUpdateButton={true}
-        handleOpenDetail={handleDetail}
-        handleDelete={handleDelete}
       />
     </>
   );

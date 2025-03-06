@@ -1,24 +1,20 @@
 import {
   Box,
-  Button,
   Card,
   CardContent,
   CardHeader,
-  Dialog,
-  IconButton,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
+  TablePagination,
   TableRow,
-  TextField,
   Typography,
   useTheme,
 } from "@mui/material";
 import { alpha, styled } from "@mui/material/styles";
-import React from "react";
-import DetailPopup from "../../containers/ManageUser/Popup/DetailPopup";
+import React, { ReactNode } from "react";
 
 interface CTbaleProps {
   tableHeaderTitle: any;
@@ -26,15 +22,7 @@ interface CTbaleProps {
   title: string;
   menuAction?: any;
   selectedData?: any;
-  handleOpenDetail?: any;
-  handleDelete?: any;
-  handleOpenUpdate?: () => void;
-  closeDetail?: boolean;
-  cancelDelete?: boolean;
-  closeUpdate?: boolean;
-  isShowDetailButton: boolean | true;
-  isShowDeleteButton: boolean | true;
-  isShowUpdateButton: boolean | true;
+  searchTool?: ReactNode;
 }
 // Styled Components
 const StyledCard = styled(Card)(({ theme }) => ({
@@ -60,58 +48,19 @@ const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
   },
 }));
 
-const AnimatedIconButton = styled(IconButton)(({ theme }) => ({
-  transition: "all 0.2s ease-in-out",
-  "&:hover": {
-    transform: "scale(1.1)",
-    backgroundColor: alpha(theme.palette.primary.main, 0.1),
-  },
-}));
-
-const StyledTextField = styled(TextField)(({ theme }) => ({
-  "& .MuiOutlinedInput-root": {
-    borderRadius: 12,
-    backgroundColor: alpha(theme.palette.background.paper, 0.8),
-    transition: "all 0.2s ease-in-out",
-    "&:hover": {
-      backgroundColor: alpha(theme.palette.background.paper, 0.95),
-    },
-    "&.Mui-focused": {
-      backgroundColor: theme.palette.background.paper,
-      boxShadow: `0 4px 12px ${alpha(theme.palette.primary.main, 0.1)}`,
-    },
-  },
-}));
-
-const StyledDialog = styled(Dialog)(({ theme }) => ({
-  "& .MuiDialog-paper": {
-    borderRadius: 16,
-    background: `linear-gradient(135deg, ${alpha(
-      theme.palette.background.paper,
-      0.95
-    )}, ${alpha(theme.palette.background.default, 0.95)})`,
-    backdropFilter: "blur(10px)",
-  },
-}));
-
 const CTable: React.FC<CTbaleProps> = ({
   data,
   tableHeaderTitle,
   title,
   menuAction,
   selectedData,
-  cancelDelete,
-  closeDetail,
-  closeUpdate,
-  handleDelete,
-  handleOpenUpdate,
-  handleOpenDetail,
+  searchTool,
 }) => {
   //Declare
   const theme = useTheme();
 
   return (
-    <Box sx={{ maxWidth: "1400px", mx: "auto", p: 2 }}>
+    <Box sx={{ minWidth: "600px", mx: "auto", p: 2 }}>
       <StyledCard>
         <CardHeader
           title={
@@ -150,21 +99,30 @@ const CTable: React.FC<CTbaleProps> = ({
                         {row[column.id]}
                       </TableCell>
                     ))}
-                    <TableCell>
-                      <Box sx={{ display: "flex", gap: 1 }}>
-                        <Button
-                          size="small"
-                          onClick={() => selectedData && selectedData(row)}
-                        >
-                          {menuAction}
-                        </Button>
-                        {/* {menuAction} */}
-                      </Box>
+                    <TableCell
+                      onClick={() => selectedData && selectedData(row)}
+                    >
+                      {menuAction}
                     </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
+            {/* <TablePagination
+              rowsPerPageOptions={[10, 25, 50]}
+              component="div"
+              count={total}
+              rowsPerPage={size}
+              page={page}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+              labelRowsPerPage="Số hàng trên trang"
+              labelDisplayedRows={({ from, to, count }) => {
+                return `${from}–${to} trên ${
+                  count !== -1 ? count : `nhiều hơn ${to}`
+                }`;
+              }}
+            /> */}
           </StyledTableContainer>
         </CardContent>
       </StyledCard>
