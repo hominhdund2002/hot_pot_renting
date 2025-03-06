@@ -9,6 +9,8 @@ import FeedbackDetailPage from "../pages/Admin/Feedback/FeedbackDetailPage";
 import FeedbackPage from "../pages/Admin/Feedback/FeedbackPage";
 import CreateComboPage from "../pages/Admin/Combohotpot/CreateComboPage";
 import CreateIngredientsPage from "../pages/Admin/CreateIngredients/CreateIngredientsPage";
+import ManageUserPage from "../pages/Admin/ManageUser/ManageUserPage";
+import { AuthenticatePage } from "../pages/Global/Authenticate/SignIn";
 
 // import CheckRoute from "./CheckRoute";
 // import RequireAuth from "./RequireAuth";
@@ -17,6 +19,11 @@ import CreateIngredientsPage from "../pages/Admin/CreateIngredients/CreateIngred
 const AppRoute: React.FC = () => {
   return (
     <Routes>
+      <Route
+        key={"Login"}
+        path={config.authRoute.authenticate}
+        element={<AuthenticatePage />}
+      />
       <Route
         key="layoutAdmin"
         path={config.adminRoutes.dashboard}
@@ -46,6 +53,11 @@ const AppRoute: React.FC = () => {
           key="createIngredients"
           path={config.adminRoutes.createIngredients}
           element={<CreateIngredientsPage />}
+        />
+        <Route
+          key={"manageUser"}
+          path={config.adminRoutes.manageUsers}
+          element={<ManageUserPage />}
         />
       </Route>
       <Route key="layout" path={config.routes.home} element={<StaffLayout />}>

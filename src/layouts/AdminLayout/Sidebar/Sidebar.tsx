@@ -38,16 +38,16 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed }) => {
     {
       icon: <PeopleIcon />,
       label: config.Vntext.SideBar.Users,
-      path: "/",
+      path: "",
       children: [
-        { label: "User List", path: "/users/list" },
-        { label: "User Roles", path: "/users/roles" },
+        { label: "Danh sách", path: config.adminRoutes.manageUsers },
+        { label: "Vị trí", path: "/users/roles" },
       ],
     },
     {
       icon: <InventoryIcon />,
       label: config.Vntext.SideBar.Hotpot.hotpotSidebar,
-      path: "/",
+      path: "",
       children: [
         {
           label: config.Vntext.SideBar.Hotpot.hotpotCombo,
