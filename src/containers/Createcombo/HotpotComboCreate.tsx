@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useCallback, useState, lazy, Suspense } from "react";
 import {
   Box,
@@ -14,46 +15,31 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import {
   FormProvider,
-  RHFEditor,
   RHFTextField,
   RHFUploadMultiFile,
 } from "../../components/hook-form";
-// import { toast } from "react-toastify";
 import { LoadingButton } from "@mui/lab";
 import { HotpotMeat } from "../../types/meat";
 import { HotpotVegetable } from "../../types/vegetable";
 import { CreateHotPotFormSchema } from "../../types/hotpot";
-import uploadImageToFirebase from "../../firebase/uploadImageToFirebase";
 import config from "../../configs";
+import DropFileInput from "../../components/drop-input/DropInput";
+import {
+  uploadImageToFirebase,
+  uploadVideoToFirebase,
+} from "../../firebase/uploadImageToFirebase";
 
 const MeatSelectorModal = lazy(() => import("./ModalCombo/MeatSelectModal"));
 const VegetablesSelectorModal = lazy(
   () => import("./ModalCombo/VegetableSelectModal")
 );
-// const LabelStyle = styled(Typography)(({ theme }) => ({
-//   ...theme.typography.subtitle2,
-//   color: theme.palette.text.secondary,
-//   marginBottom: theme.spacing(1),
-// }));
-
-// Define interfaces for our data types
-// interface HotpotBase {
-//   id: number;
-//   name: string;
-//   price: number;
-// }
-
-// Sample data
-// const bases: HotpotBase[] = [
-//   { id: 1, name: "Spicy Sichuan Broth", price: 12 },
-//   { id: 2, name: "Clear Bone Broth", price: 10 },
-//   { id: 3, name: "Tom Yum Broth", price: 13 },
-//   { id: 4, name: "Mushroom Vegetarian Broth", price: 11 },
-// ];
 
 const HotpotComboCreate: React.FC = () => {
   const [openMeatsModal, setOpenMeatsModal] = useState<boolean>(false);
   const [selectedMeats, setSelectedMeats] = useState<HotpotMeat[]>([]);
+  const [file, setFile] = useState<File | null>(null);
+
+  const [videoLink, setVideoLink] = useState<string>("");
 
   const [openVegetablesModal, setOpenVegetablesModal] =
     useState<boolean>(false);
@@ -152,6 +138,25 @@ const HotpotComboCreate: React.FC = () => {
     setValue("imageURL", filteredItems);
   };
 
+  const onFileChange = async (files: File[]) => {
+    if (!files || files.length === 0) return;
+
+    const currentFile = files[0];
+    setFile(currentFile);
+    console.log(file);
+
+    try {
+      const uploadedVideoLink = await uploadVideoToFirebase(currentFile);
+      if (typeof uploadedVideoLink === "string") {
+        setVideoLink(uploadedVideoLink);
+      } else {
+        console.error("Unexpected upload response:", uploadedVideoLink);
+      }
+    } catch (error) {
+      console.error("Error uploading video:", error);
+    }
+  };
+
   return (
     <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
       <Card sx={{ maxWidth: "100%", margin: "auto", mt: 4, p: 3 }}>
@@ -173,10 +178,6 @@ const HotpotComboCreate: React.FC = () => {
                 label={config.Vntext.CreateCombo.description}
                 sx={{ mb: 2 }}
               />
-
-              <div>
-                <RHFEditor simple name="newsContent" label="Nội dung" />
-              </div>
               <div>
                 <RHFUploadMultiFile
                   label={config.Vntext.CreateCombo.image}
@@ -187,6 +188,19 @@ const HotpotComboCreate: React.FC = () => {
                   onRemove={handleRemove}
                   onRemoveAll={handleRemoveAll}
                 />
+              </div>
+              <div>
+                <DropFileInput onFileChange={(files) => onFileChange(files)} />
+                <br></br>
+                <br></br>
+                {videoLink ? (
+                  <video width="400" height="300" controls>
+                    <source src={videoLink} type="video/mp4" />
+                    Your browser does not support the video tag.
+                  </video>
+                ) : (
+                  <p>No video uploaded yet.</p>
+                )}
               </div>
             </Grid2>
 
