@@ -13,7 +13,7 @@ import {
 // import { toast } from "react-toastify";
 import { LoadingButton } from "@mui/lab";
 import { CreateHotPotFormSchema } from "../../types/hotpot";
-import uploadImageToFirebase from "../../firebase/uploadImageToFirebase";
+import { uploadImageToFirebase } from "../../firebase/uploadImageToFirebase";
 import config from "../../configs";
 
 // const LabelStyle = styled(Typography)(({ theme }) => ({
