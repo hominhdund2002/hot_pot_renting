@@ -21,10 +21,10 @@ const RightMenu: React.FC = () => {
           ) : (
             <>
               <Link
-                to={config.routes.home}
+                to={config.authRoute.authenticate}
                 style={{ textDecoration: "none", color: "inherit" }}
               >
-                <Button variant="outlined">Đăng nhập/Đăng kí</Button>
+                <Button variant="outlined">Đăng nhập</Button>
               </Link>
             </>
           )}
