@@ -8,11 +8,11 @@ import {
   TableCell,
   TableContainer,
   TableHead,
-  TablePagination,
   TableRow,
   Typography,
   useTheme,
 } from "@mui/material";
+import TablePagination from "@mui/material/TablePagination";
 import { alpha, styled } from "@mui/material/styles";
 import React, { ReactNode } from "react";
 
@@ -23,6 +23,16 @@ interface CTbaleProps {
   menuAction?: any;
   selectedData?: any;
   searchTool?: ReactNode;
+  handleChangePage: (
+    event: React.MouseEvent<HTMLButtonElement> | null,
+    newPage: number
+  ) => void;
+  handleChangeRowsPerPage: (
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => void;
+  total: number;
+  size: number;
+  page: number;
 }
 // Styled Components
 const StyledCard = styled(Card)(({ theme }) => ({
@@ -55,6 +65,11 @@ const CTable: React.FC<CTbaleProps> = ({
   menuAction,
   selectedData,
   searchTool,
+  handleChangePage,
+  handleChangeRowsPerPage,
+  page,
+  size,
+  total,
 }) => {
   //Declare
   const theme = useTheme();
@@ -77,6 +92,7 @@ const CTable: React.FC<CTbaleProps> = ({
             </Typography>
           }
         />
+        <Box>{searchTool}</Box>
         <CardContent>
           <StyledTableContainer>
             <Table>
@@ -108,7 +124,7 @@ const CTable: React.FC<CTbaleProps> = ({
                 ))}
               </TableBody>
             </Table>
-            {/* <TablePagination
+            <TablePagination
               rowsPerPageOptions={[10, 25, 50]}
               component="div"
               count={total}
@@ -122,7 +138,7 @@ const CTable: React.FC<CTbaleProps> = ({
                   count !== -1 ? count : `nhiều hơn ${to}`
                 }`;
               }}
-            /> */}
+            />
           </StyledTableContainer>
         </CardContent>
       </StyledCard>

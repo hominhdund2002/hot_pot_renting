@@ -5,10 +5,10 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
-import { useAuthContext } from "../../../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import config from "../../../../configs";
 import { Box } from "@mui/material";
+import useAuth from "../../../../hooks/useAuth";
 
 interface LogoutProps {
   open: boolean;
@@ -16,11 +16,11 @@ interface LogoutProps {
 }
 
 export default function LogoutModal({ open, handleClose }: LogoutProps) {
-  const { setAuthUser } = useAuthContext();
+  const { setAuth } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    setAuthUser(null);
+    setAuth(null);
     setTimeout(() => {
       navigate(config.routes.home);
     }, 700);
