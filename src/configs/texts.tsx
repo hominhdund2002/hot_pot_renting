@@ -7,6 +7,7 @@ export const Vntext = {
       hotpotCombo: "Lẩu",
       hotpot: "Nồi lẩu",
     },
+    Ordes: "Đơn hàng",
     Users: "Người dùng",
     Settings: "Cài đặt",
     Feedback: "Đánh giá",

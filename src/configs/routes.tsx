@@ -8,6 +8,7 @@ export const authRoute = {
 
 export const adminRoutes = {
   dashboard: "/dashboard",
+  orders: "/dashboard/orders",
   feedbackDetail: "/dashboard/feedback/:id",
   feedback: "/dashboard/feedback",
   tableHotPotCombo: "/dashboard/hotpotCombo",

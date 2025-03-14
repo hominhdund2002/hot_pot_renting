@@ -45,7 +45,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed }) => {
 
     const filterMenuItems = (items: MenuItem[]): MenuItem[] => {
       return items
-        .filter((item) => hasAccess(item.role))
+        .filter((item: any) => hasAccess(item?.role))
         .map((item) => ({
           ...item,
           children: item.children ? filterMenuItems(item.children) : undefined,

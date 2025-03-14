@@ -15,6 +15,7 @@ import TableHotpotPage from "../pages/Admin/Tablehotpot/TableHotpotPage";
 import TableHotpotComboPage from "../pages/Admin/TableCombo/TableHotpoComboPage";
 import CreateHotpotPage from "../pages/Admin/CreateHotpot/CreateHotpotPage";
 import DashboardPage from "../pages/Admin/Dashboard/DashboardPage";
+import OrderPage from "../pages/Admin/ManageOrder/OrderPage";
 
 // import CheckRoute from "./CheckRoute";
 // import RequireAuth from "./RequireAuth";
@@ -37,6 +38,11 @@ const AppRoute: React.FC = () => {
           key="dashboard"
           path={config.adminRoutes.dashboard}
           element={<DashboardPage />}
+        />
+        <Route
+          key="order"
+          path={config.adminRoutes.orders}
+          element={<OrderPage />}
         />
         <Route
           key="feedbackTable"

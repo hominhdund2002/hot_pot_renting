@@ -74,6 +74,14 @@ const CTable: React.FC<CTbaleProps> = ({
 }) => {
   //Declare
   const theme = useTheme();
+  console.log("truyeefbn: ", tableHeaderTitle);
+
+  //func
+  function getNestedValue(obj: any, path: any) {
+    return path
+      .split(".")
+      .reduce((acc: any, part: any) => acc && acc[part], obj);
+  }
 
   return (
     <Box sx={{ minWidth: "600px", mx: "auto", p: 2 }}>
@@ -107,28 +115,12 @@ const CTable: React.FC<CTbaleProps> = ({
                   <TableCell></TableCell>
                 </TableRow>
               </TableHead>
-
               <TableBody>
                 {data.map((row: any, index: number) => (
                   <TableRow key={index}>
                     {tableHeaderTitle.map((column: any) => (
                       <TableCell key={column.id} align={column.align || "left"}>
-                        {column.id === "createdAt" ? (
-                          formatDateFunc.formatDateTime(row[column.id])
-                        ) : column.id === "imageURL" ? (
-                          <img
-                            src={row[column.id]}
-                            alt="Thumbnail"
-                            style={{
-                              width: 50,
-                              height: 50,
-                              borderRadius: "8px",
-                              objectFit: "cover",
-                            }}
-                          />
-                        ) : (
-                          row[column.id]
-                        )}
+                        {getNestedValue(row, column.id)}
                       </TableCell>
                     ))}
                     <TableCell
