@@ -17,9 +17,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   );
 
   useEffect(() => {
-    if (accessToken) {
-      navigate("/dashboard");
-    } else {
+    if (!accessToken) {
       navigate("/auth");
     }
   }, [accessToken]);

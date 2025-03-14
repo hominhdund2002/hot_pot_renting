@@ -3,7 +3,6 @@ import { Route, Routes } from "react-router-dom";
 import config from "../configs";
 import Home from "../pages/Home/Home";
 import StaffLayout from "../layouts/StaffLayout/StaffLayout";
-import Dashboard from "../pages/Admin/Dashboard/Dashboard";
 import AdminLayout from "../layouts/AdminLayout/LayoutAdmin";
 import FeedbackDetailPage from "../pages/Admin/Feedback/FeedbackDetailPage";
 import FeedbackPage from "../pages/Admin/Feedback/FeedbackPage";
@@ -15,6 +14,7 @@ import TableIngredientsPage from "../pages/Admin/TableIngredients/TableIngredien
 import TableHotpotPage from "../pages/Admin/Tablehotpot/TableHotpotPage";
 import TableHotpotComboPage from "../pages/Admin/TableCombo/TableHotpoComboPage";
 import CreateHotpotPage from "../pages/Admin/CreateHotpot/CreateHotpotPage";
+import DashboardPage from "../pages/Admin/Dashboard/DashboardPage";
 
 // import CheckRoute from "./CheckRoute";
 // import RequireAuth from "./RequireAuth";
@@ -36,7 +36,7 @@ const AppRoute: React.FC = () => {
         <Route
           key="dashboard"
           path={config.adminRoutes.dashboard}
-          element={<Dashboard />}
+          element={<DashboardPage />}
         />
         <Route
           key="feedbackTable"

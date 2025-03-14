@@ -31,6 +31,7 @@ import {
 } from "../../firebase/uploadImageToFirebase";
 import styles from "./HotpotComboCreate.module.scss";
 import classNames from "classnames/bind";
+import adminIngredientsAPI from "../../api/Services/adminIngredientsAPI";
 
 const MeatSelectorModal = lazy(() => import("./ModalCombo/MeatSelectModal"));
 const VegetablesSelectorModal = lazy(
@@ -113,6 +114,10 @@ const HotpotComboCreate: React.FC = () => {
   const values = watch();
   const onSubmit = async (values: CreateHotPotFormSchema) => {
     try {
+      const res = await adminIngredientsAPI.createNewIngredients(values);
+
+      console.log(res);
+
       console.log(values);
     } catch (error) {
       console.error(error);

@@ -15,24 +15,25 @@ import {
 import TablePagination from "@mui/material/TablePagination";
 import { alpha, styled } from "@mui/material/styles";
 import React, { ReactNode } from "react";
+import { formatDateFunc } from "../../utils/fn";
 
 interface CTbaleProps {
-  tableHeaderTitle: any;
-  data: any;
-  title: string;
+  tableHeaderTitle?: any;
+  data?: any;
+  title?: string;
   menuAction?: any;
   selectedData?: any;
   searchTool?: ReactNode;
-  handleChangePage: (
+  handleChangePage?: (
     event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number
   ) => void;
-  handleChangeRowsPerPage: (
+  handleChangeRowsPerPage?: (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => void;
-  total: number;
-  size: number;
-  page: number;
+  total?: number;
+  size?: number;
+  page?: number;
 }
 // Styled Components
 const StyledCard = styled(Card)(({ theme }) => ({
@@ -112,7 +113,22 @@ const CTable: React.FC<CTbaleProps> = ({
                   <TableRow key={index}>
                     {tableHeaderTitle.map((column: any) => (
                       <TableCell key={column.id} align={column.align || "left"}>
-                        {row[column.id]}
+                        {column.id === "createdAt" ? (
+                          formatDateFunc.formatDateTime(row[column.id])
+                        ) : column.id === "imageURL" ? (
+                          <img
+                            src={row[column.id]}
+                            alt="Thumbnail"
+                            style={{
+                              width: 50,
+                              height: 50,
+                              borderRadius: "8px",
+                              objectFit: "cover",
+                            }}
+                          />
+                        ) : (
+                          row[column.id]
+                        )}
                       </TableCell>
                     ))}
                     <TableCell
