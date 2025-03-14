@@ -7,6 +7,7 @@ import {
   CardContent,
   Divider,
   Stack,
+  styled,
   Typography,
 } from "@mui/material";
 import Grid2 from "@mui/material/Grid2";
@@ -28,17 +29,25 @@ import {
   uploadImageToFirebase,
   uploadVideoToFirebase,
 } from "../../firebase/uploadImageToFirebase";
+import styles from "./HotpotComboCreate.module.scss";
+import classNames from "classnames/bind";
 
 const MeatSelectorModal = lazy(() => import("./ModalCombo/MeatSelectModal"));
 const VegetablesSelectorModal = lazy(
   () => import("./ModalCombo/VegetableSelectModal")
 );
+const cx = classNames.bind(styles);
+
+const LabelStyle = styled(Typography)(({ theme }) => ({
+  ...theme.typography.subtitle2,
+  color: theme.palette.text.secondary,
+  marginBottom: theme.spacing(1),
+}));
 
 const HotpotComboCreate: React.FC = () => {
   const [openMeatsModal, setOpenMeatsModal] = useState<boolean>(false);
   const [selectedMeats, setSelectedMeats] = useState<HotpotMeat[]>([]);
   const [file, setFile] = useState<File | null>(null);
-
   const [videoLink, setVideoLink] = useState<string>("");
 
   const [openVegetablesModal, setOpenVegetablesModal] =
@@ -189,15 +198,18 @@ const HotpotComboCreate: React.FC = () => {
                   onRemoveAll={handleRemoveAll}
                 />
               </div>
-              <div>
+              <div style={{ marginTop: "10px" }}>
+                <LabelStyle>Video Hướng Dẫn</LabelStyle>
                 <DropFileInput onFileChange={(files) => onFileChange(files)} />
                 <br></br>
                 <br></br>
                 {videoLink ? (
-                  <video width="400" height="300" controls>
-                    <source src={videoLink} type="video/mp4" />
-                    Your browser does not support the video tag.
-                  </video>
+                  <div className={cx("video-container")}>
+                    <video controls>
+                      <source src={videoLink} type="video/mp4" />
+                      Your browser does not support the video tag.
+                    </video>
+                  </div>
                 ) : (
                   <p>No video uploaded yet.</p>
                 )}

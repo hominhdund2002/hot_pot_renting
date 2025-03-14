@@ -11,6 +11,10 @@ import CreateComboPage from "../pages/Admin/Combohotpot/CreateComboPage";
 import CreateIngredientsPage from "../pages/Admin/CreateIngredients/CreateIngredientsPage";
 import ManageUserPage from "../pages/Admin/ManageUser/ManageUserPage";
 import { AuthenticatePage } from "../pages/Global/Authenticate/SignIn";
+import TableIngredientsPage from "../pages/Admin/TableIngredients/TableIngredientsPage";
+import TableHotpotPage from "../pages/Admin/Tablehotpot/TableHotpotPage";
+import TableHotpotComboPage from "../pages/Admin/TableCombo/TableHotpoComboPage";
+import CreateHotpotPage from "../pages/Admin/CreateHotpot/CreateHotpotPage";
 
 // import CheckRoute from "./CheckRoute";
 // import RequireAuth from "./RequireAuth";
@@ -53,6 +57,28 @@ const AppRoute: React.FC = () => {
           key="createIngredients"
           path={config.adminRoutes.createIngredients}
           element={<CreateIngredientsPage />}
+        />
+        <Route
+          key="listIngredients"
+          path={config.adminRoutes.manageIngredients}
+          element={<TableIngredientsPage />}
+        />
+        <Route
+          key="listHotpot"
+          path={config.adminRoutes.hotpotType}
+          element={<TableHotpotPage />}
+        />
+
+        <Route
+          key="ListHotpotCombo"
+          path={config.adminRoutes.tableHotPotCombo}
+          element={<TableHotpotComboPage />}
+        />
+
+        <Route
+          key="AddHotpot"
+          path={config.adminRoutes.addHotpot}
+          element={<CreateHotpotPage />}
         />
         <Route
           key={"manageUser"}

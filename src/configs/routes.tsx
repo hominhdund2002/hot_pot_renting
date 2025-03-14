@@ -13,7 +13,9 @@ export const adminRoutes = {
   tableHotPotCombo: "/dashboard/hotpotCombo",
   createHotPotCombo: "/dashboard/createCombo",
   profile: "/profile",
-  tableIngredients: "/dashboard/ingredients",
   createIngredients: "/dashboard/createIngredients",
   manageUsers: "/dashboard/listUsers",
+  manageIngredients: "/dashboard/listIngredients",
+  hotpotType: "/dashboard/hotpot",
+  addHotpot: "/dashboard/addHotpot",
 };

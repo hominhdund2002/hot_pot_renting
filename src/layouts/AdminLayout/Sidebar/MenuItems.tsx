@@ -44,7 +44,11 @@ export const menuItems: MenuItem[] = [
       },
       {
         label: config.Vntext.SideBar.Hotpot.hotpotIngredients,
-        path: config.adminRoutes.tableIngredients,
+        path: config.adminRoutes.manageIngredients,
+      },
+      {
+        label: config.Vntext.SideBar.Hotpot.hotpot,
+        path: config.adminRoutes.hotpotType,
       },
     ],
   },
