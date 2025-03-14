@@ -18,7 +18,7 @@ axiosClient.interceptors.request.use(
     const userData = userDataLocal ? JSON.parse(userDataLocal) : null;
     console.log("ber: ", userData);
     if (userData) {
-      config.headers.Authorization = `Bearer ${userData?.data?.accessToken}`;
+      config.headers.Authorization = `Bearer ${userData?.accessToken}`;
     }
 
     return config;
