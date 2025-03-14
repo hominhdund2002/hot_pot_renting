@@ -1,4 +1,5 @@
 import Iconify from "../../../components/Iconify";
+import MenuBookIcon from "@mui/icons-material/MenuBook";
 import {
   Dashboard as DashboardIcon,
   People as PeopleIcon,
@@ -23,6 +24,11 @@ export const menuItems: MenuItem[] = [
     label: config.Vntext.SideBar.Dashboard,
     path: config.adminRoutes.dashboard,
     role: AccessType.ADMIN_ACCESS,
+  },
+  {
+    icon: <MenuBookIcon />,
+    label: config.Vntext.SideBar.Ordes,
+    path: config.adminRoutes.orders,
   },
   {
     icon: <PeopleIcon />,

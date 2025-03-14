@@ -11,6 +11,7 @@ import CreateComboPage from "../pages/Admin/Combohotpot/CreateComboPage";
 import CreateIngredientsPage from "../pages/Admin/CreateIngredients/CreateIngredientsPage";
 import ManageUserPage from "../pages/Admin/ManageUser/ManageUserPage";
 import { AuthenticatePage } from "../pages/Global/Authenticate/SignIn";
+import OrderPage from "../pages/Admin/ManageOrder/OrderPage";
 
 // import CheckRoute from "./CheckRoute";
 // import RequireAuth from "./RequireAuth";
@@ -33,6 +34,11 @@ const AppRoute: React.FC = () => {
           key="dashboard"
           path={config.adminRoutes.dashboard}
           element={<Dashboard />}
+        />
+        <Route
+          key="order"
+          path={config.adminRoutes.orders}
+          element={<OrderPage />}
         />
         <Route
           key="feedbackTable"
