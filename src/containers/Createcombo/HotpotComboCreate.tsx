@@ -1,12 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useCallback, useState, lazy, Suspense } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Box,
   Button,
   Card,
   CardContent,
-  Divider,
-  Stack,
   styled,
   Typography,
 } from "@mui/material";
@@ -16,12 +14,11 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import {
   FormProvider,
+  RHFAutoCompleteBroth,
   RHFTextField,
   RHFUploadMultiFile,
 } from "../../components/hook-form";
 import { LoadingButton } from "@mui/lab";
-import { HotpotMeat } from "../../types/meat";
-import { HotpotVegetable } from "../../types/vegetable";
 import { CreateHotPotFormSchema } from "../../types/hotpot";
 import config from "../../configs";
 import DropFileInput from "../../components/drop-input/DropInput";
@@ -29,16 +26,14 @@ import {
   uploadImageToFirebase,
   uploadVideoToFirebase,
 } from "../../firebase/uploadImageToFirebase";
-import styles from "./HotpotComboCreate.module.scss";
-import classNames from "classnames/bind";
 import adminIngredientsAPI from "../../api/Services/adminIngredientsAPI";
 
-const MeatSelectorModal = lazy(() => import("./ModalCombo/MeatSelectModal"));
-const VegetablesSelectorModal = lazy(
-  () => import("./ModalCombo/VegetableSelectModal")
-);
-const cx = classNames.bind(styles);
+import styles from "./HotpotComboCreate.module.scss";
+import classNames from "classnames/bind";
+import IngredientsSelectorModal from "./ModalCombo/IngredientsSelectorModal";
+import adminComboAPI from "../../api/Services/adminComboAPI";
 
+const cx = classNames.bind(styles);
 const LabelStyle = styled(Typography)(({ theme }) => ({
   ...theme.typography.subtitle2,
   color: theme.palette.text.secondary,
@@ -46,57 +41,64 @@ const LabelStyle = styled(Typography)(({ theme }) => ({
 }));
 
 const HotpotComboCreate: React.FC = () => {
-  const [openMeatsModal, setOpenMeatsModal] = useState<boolean>(false);
-  const [selectedMeats, setSelectedMeats] = useState<HotpotMeat[]>([]);
   const [file, setFile] = useState<File | null>(null);
   const [videoLink, setVideoLink] = useState<string>("");
-
-  const [openVegetablesModal, setOpenVegetablesModal] =
-    useState<boolean>(false);
-  const [selectedVegetables, setSelectedVegetables] = useState<
-    HotpotVegetable[]
-  >([]);
+  const [openModal, setOpenModal] = useState<boolean>(false);
+  const [ingredients, setIngredients] = useState<any[]>([]);
+  const [broth, setBroth] = useState<any[]>([]);
 
   //meat modal
-  const handleOpenMeatsModal = () => {
-    setOpenMeatsModal(true);
+  const handleOpenModal = () => {
+    setOpenModal(true);
   };
 
-  const handleModalSubmit = (selectedMeats: HotpotMeat[]) => {
-    setSelectedMeats(selectedMeats);
-    setOpenMeatsModal(false);
+  const handleModalSubmit = (selectedMeats: any[]) => {
+    const updatedIngredients = selectedMeats.map((ingredient) => ({
+      ingredientId: ingredient.ingredientId || 0,
+      name: ingredient.name || "",
+      quantity: ingredient.quantity || 1,
+      measurementUnit: ingredient.measurementUnit || "g",
+    }));
+
+    setIngredients(updatedIngredients);
+    setValue("ingredients", updatedIngredients);
+    setOpenModal(false);
   };
 
-  // vegetable modal
-
-  const handleOpenVegetablesModal = () => {
-    setOpenVegetablesModal(true);
-  };
-
-  const handleModalSubmitVegetable = (
-    selectedVegetables: HotpotVegetable[]
-  ) => {
-    setSelectedVegetables(selectedVegetables);
-    setOpenVegetablesModal(false);
-  };
-
-  //yub
-  const defaultValues = {
+  const defaultValues: CreateHotPotFormSchema = {
     name: "",
     description: "",
-    imageURL: [],
+    size: 0,
+    hotpotBrothID: 0,
+    imageURLs: [],
+    tutorialVideo: {
+      name: "",
+      description: "",
+    },
+    ingredients: [],
   };
 
   const validationSchema = Yup.object().shape({
-    name: Yup.string()
-      .trim()
-      .required("Bắt buộc có tên sản phẩm")
-      .min(1, "Tối thiểu 1 kí tự"),
-    description: Yup.string()
-      .trim()
-      .required("Bắt buộc có mô tả")
-      .min(10, "Tối thiểu 10 kí tự"),
-    imageURL: Yup.array().of(Yup.string()).min(1, "Bắt buộc có hình"),
+    name: Yup.string().trim().required("Bắt buộc có tên sản phẩm"),
+    description: Yup.string().trim().required("Bắt buộc có mô tả"),
+    size: Yup.number().required("Bắt buộc có kích thước"),
+    hotpotBrothID: Yup.number().required("Bắt buộc có nước lẩu"),
+    imageURLs: Yup.array().of(Yup.string()).min(1, "Bắt buộc có hình"),
+    tutorialVideo: Yup.object().shape({
+      name: Yup.string().required("Bắt buộc có tên video"),
+      description: Yup.string().required("Bắt buộc có mô tả video"),
+    }),
+    ingredients: Yup.array()
+      .of(
+        Yup.object().shape({
+          ingredientId: Yup.number().required("Thiếu ID nguyên liệu"),
+          quantity: Yup.number()
+            .required("Bắt buộc có số lượng")
+            .min(1, "Số lượng phải lớn hơn 0"),
+          measurementUnit: Yup.string().required("Bắt buộc có đơn vị đo lường"),
+        })
+      )
+      .min(1, "Bắt buộc có ít nhất một nguyên liệu"),
   });
 
   const methods = useForm<CreateHotPotFormSchema>({
@@ -107,18 +109,35 @@ const HotpotComboCreate: React.FC = () => {
   const {
     handleSubmit,
     setValue,
+    register,
     watch,
     formState: { isSubmitting },
   } = methods;
 
+  const { errors } = methods.formState;
+  console.log("Validation errors:", errors);
+
   const values = watch();
+
   const onSubmit = async (values: CreateHotPotFormSchema) => {
+    console.log("Form submitted", values);
+
+    const prepareParams = {
+      ...values,
+      tutorialVideo: {
+        ...values.tutorialVideo,
+        videoURL: videoLink,
+      },
+      ingredients: values.ingredients?.map((ingredient) => ({
+        ingredientId: ingredient.ingredientId,
+        quantity: ingredient.quantity,
+        measurementUnit: ingredient.measurementUnit,
+      })),
+    };
     try {
-      const res = await adminIngredientsAPI.createNewIngredients(values);
-
+      console.log(" submitted", prepareParams);
+      const res = await adminComboAPI.CreateAdminCombo(prepareParams);
       console.log(res);
-
-      console.log(values);
     } catch (error) {
       console.error(error);
     }
@@ -127,7 +146,7 @@ const HotpotComboCreate: React.FC = () => {
   const handleDrop = useCallback(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async (acceptedFiles: any) => {
-      const images = values.imageURL || [];
+      const images = values.imageURLs || [];
 
       const uploadedImages = await Promise.all(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -138,18 +157,18 @@ const HotpotComboCreate: React.FC = () => {
       );
 
       // Update the form with the new image URLs
-      setValue("imageURL", [...images, ...uploadedImages]);
+      setValue("imageURLs", [...images, ...uploadedImages]);
     },
-    [setValue, values.imageURL]
+    [setValue, values.imageURLs]
   );
 
   const handleRemoveAll = () => {
-    setValue("imageURL", []);
+    setValue("imageURLs", []);
   };
 
   const handleRemove = (file: File | string) => {
-    const filteredItems = values.imageURL?.filter((_file) => _file !== file);
-    setValue("imageURL", filteredItems);
+    const filteredItems = values.imageURLs?.filter((_file) => _file !== file);
+    setValue("imageURLs", filteredItems);
   };
 
   const onFileChange = async (files: File[]) => {
@@ -171,6 +190,21 @@ const HotpotComboCreate: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    const fetchIngredients = async () => {
+      try {
+        const resData: any = await adminIngredientsAPI.getListIngredients({
+          typeId: 1,
+        });
+        setBroth(resData?.data?.items);
+      } catch (e) {
+        console.error("Error fetching ingredients:", e);
+      }
+    };
+
+    fetchIngredients();
+  }, []);
+
   return (
     <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
       <Card sx={{ maxWidth: "100%", margin: "auto", mt: 4, p: 3 }}>
@@ -181,28 +215,42 @@ const HotpotComboCreate: React.FC = () => {
 
           <Grid2 container spacing={3}>
             <Grid2 size={{ mobile: 12, desktop: 6 }}>
+              <RHFTextField name="name" label="Tên lẩu" sx={{ mb: 2 }} />
+              <RHFTextField name="description" label="Mô tả" sx={{ mb: 2 }} />
               <RHFTextField
-                name="hotpotName"
-                label={config.Vntext.CreateCombo.hotpotName}
+                name="size"
+                label="Kích thước"
+                type="number"
                 sx={{ mb: 2 }}
               />
 
+              <RHFAutoCompleteBroth
+                tagname="hotpotBrothID"
+                options={broth || []}
+                label="Chọn Loại Nước Lẩu"
+              />
+              <RHFUploadMultiFile
+                label={config.Vntext.CreateCombo.image}
+                showPreview
+                name="imageURLs"
+                maxSize={3145728}
+                onDrop={handleDrop}
+                onRemove={handleRemove}
+                onRemoveAll={handleRemoveAll}
+              />
+            </Grid2>
+            <Grid2 size={{ mobile: 12, desktop: 6 }}>
+              <LabelStyle>Video Hướng Dẫn</LabelStyle>
               <RHFTextField
-                name="description"
-                label={config.Vntext.CreateCombo.description}
+                name="tutorialVideo.name"
+                label="Tên Video"
                 sx={{ mb: 2 }}
               />
-              <div>
-                <RHFUploadMultiFile
-                  label={config.Vntext.CreateCombo.image}
-                  showPreview
-                  name="imageURL"
-                  maxSize={3145728}
-                  onDrop={handleDrop}
-                  onRemove={handleRemove}
-                  onRemoveAll={handleRemoveAll}
-                />
-              </div>
+              <RHFTextField
+                name="tutorialVideo.description"
+                label="Mô tả Video"
+                sx={{ mb: 2 }}
+              />
               <div style={{ marginTop: "10px" }}>
                 <LabelStyle>Video Hướng Dẫn</LabelStyle>
                 <DropFileInput onFileChange={(files) => onFileChange(files)} />
@@ -219,89 +267,109 @@ const HotpotComboCreate: React.FC = () => {
                   <p>No video uploaded yet.</p>
                 )}
               </div>
-            </Grid2>
+              <Typography variant="h6">Nguyên liệu</Typography>
+              <Button variant="contained" onClick={() => handleOpenModal()}>
+                {" "}
+                Chọn nguyên liệu
+              </Button>
+              {ingredients.length > 0 && (
+                <Box sx={{ mt: 2 }}>
+                  <Typography variant="h6">
+                    Danh sách nguyên liệu đã chọn
+                  </Typography>
+                  {ingredients.map((ingredient, index) => (
+                    <Box
+                      key={ingredient.ingredientId}
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 2,
+                        mt: 1,
+                      }}
+                    >
+                      {/* ✅ Show ingredient name */}
+                      <Typography sx={{ flex: 1 }}>
+                        {ingredient.name}{" "}
+                        {/* Now ingredient name is displayed */}
+                      </Typography>
 
-            <Grid2 size={{ mobile: 12, desktop: 6 }}>
-              <Stack spacing={3}>
-                <Box sx={{ display: "flex" }}>
-                  <Typography variant="h6" gutterBottom sx={{ mr: 3 }}>
-                    Chọn thịt cho lẩu:
-                  </Typography>
-                  <Button variant="contained" onClick={handleOpenMeatsModal}>
-                    Chọn thịt:
-                  </Button>
+                      {/* Quantity Input */}
+                      <input
+                        {...register(`ingredients.${index}.quantity`, {
+                          valueAsNumber: true,
+                        })}
+                        type="number"
+                        defaultValue={ingredient.quantity}
+                        onChange={(e) => {
+                          const newIngredients = [...ingredients];
+                          newIngredients[index].quantity = Number(
+                            e.target.value
+                          );
+                          setIngredients(newIngredients);
+                          setValue(
+                            `ingredients.${index}.quantity`,
+                            Number(e.target.value),
+                            {
+                              shouldValidate: true,
+                            }
+                          );
+                        }}
+                        style={{
+                          width: 100,
+                          padding: 5,
+                          border: "1px solid #ccc",
+                        }}
+                      />
+
+                      {/* Measurement Unit Input */}
+                      <input
+                        {...register(`ingredients.${index}.measurementUnit`)}
+                        type="text"
+                        defaultValue={ingredient.measurementUnit}
+                        onChange={(e) => {
+                          const newIngredients = [...ingredients];
+                          newIngredients[index].measurementUnit =
+                            e.target.value;
+                          setIngredients(newIngredients);
+                          setValue(
+                            `ingredients.${index}.measurementUnit`,
+                            e.target.value,
+                            {
+                              shouldValidate: true,
+                            }
+                          );
+                        }}
+                        style={{
+                          width: 100,
+                          padding: 5,
+                          border: "1px solid #ccc",
+                        }}
+                      />
+                    </Box>
+                  ))}
                 </Box>
-                {selectedMeats?.map((meat, idx) => (
-                  <React.Fragment key={idx}>
-                    <Stack display="flex" direction="column">
-                      {idx + 1} : {meat.name}
-                    </Stack>
-                    <Divider />
-                  </React.Fragment>
-                ))}
-                <Box sx={{ display: "flex" }}>
-                  <Typography variant="h6" gutterBottom sx={{ mr: 3 }}>
-                    Chọn rau cho lẩu:
-                  </Typography>
-                  <Button
-                    variant="contained"
-                    onClick={handleOpenVegetablesModal}
-                  >
-                    Chọn rau
-                  </Button>
-                </Box>
-                {selectedVegetables?.map((vegetable, idx) => (
-                  <React.Fragment key={idx}>
-                    <Stack display="flex" direction="column">
-                      {idx + 1} : {vegetable.name}
-                    </Stack>
-                    <Divider />
-                  </React.Fragment>
-                ))}
-              </Stack>
+              )}
             </Grid2>
           </Grid2>
-          <Box
-            sx={{
-              mt: 2,
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
+          <Box sx={{ mt: 2, display: "flex", justifyContent: "flex-end" }}>
             <LoadingButton
               type="submit"
               variant="contained"
               size="large"
               loading={isSubmitting}
-              sx={{ ml: "auto" }}
             >
               Thêm món lẩu mới
             </LoadingButton>
           </Box>
         </CardContent>
       </Card>
-
-      {openMeatsModal && (
-        <Suspense fallback={<div>Loading...</div>}>
-          <MeatSelectorModal
-            open={openMeatsModal}
-            handleCloseMeatModal={() => setOpenMeatsModal(false)}
-            onSendMeat={handleModalSubmit}
-            selectBefore={selectedMeats}
-          />
-        </Suspense>
-      )}
-
-      {openVegetablesModal && (
-        <Suspense fallback={<div>Loading...</div>}>
-          <VegetablesSelectorModal
-            open={openVegetablesModal}
-            handleCloseVegetableModal={() => setOpenVegetablesModal(false)}
-            onSendVegetable={handleModalSubmitVegetable}
-            selectBefore={selectedVegetables}
-          />
-        </Suspense>
+      {openModal && (
+        <IngredientsSelectorModal
+          open={openModal}
+          handleCloseVegetableModal={() => setOpenModal(false)}
+          onSendVegetable={handleModalSubmit}
+          selectBefore={ingredients}
+        />
       )}
     </FormProvider>
   );

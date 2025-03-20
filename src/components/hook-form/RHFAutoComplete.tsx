@@ -30,7 +30,7 @@ export default function RHFAutoComplete({
           }}
           value={
             options.find((option) => option.ingredientTypeId === value) || null
-          } // initial value
+          }
           renderInput={(params) => (
             <TextField
               {...params}

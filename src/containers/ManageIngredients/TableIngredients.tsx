@@ -9,20 +9,17 @@ import AddIcon from "@mui/icons-material/Add";
 import config from "../../configs";
 
 const TableIngredients = () => {
-  // declare
-  const [selectedData, setSelectedData] = useState<any>();
-  const [size, setSize] = useState<number>(10);
-  const [total, setTotal] = useState<number>(10);
+  // State variables
+  const [selectedData, setSelectedData] = useState<Ingredient | null>(null);
+  const [size, setSize] = useState<number>(10); // Set a default value
+  const [total, setTotal] = useState<number>(0);
   const [page, setPage] = useState<number>(0);
   const [dataIngredients, setDataIngredients] = useState<Ingredient[]>([]);
 
   const navigate = useNavigate();
 
-  //Handle pagination
-  const handleChangePage = (
-    _event: React.MouseEvent<HTMLButtonElement> | null,
-    newPage: number
-  ) => {
+  // Handle pagination
+  const handleChangePage = (_event: unknown, newPage: number) => {
     setPage(newPage);
   };
 
@@ -32,11 +29,13 @@ const TableIngredients = () => {
     setSize(parseInt(event.target.value, 10));
     setPage(0);
   };
-  //select data
-  const selecteData = (row: any) => {
+
+  // Select data row
+  const selectData = (row: Ingredient) => {
     setSelectedData(row);
   };
 
+  // Table headers
   const tableHeader = [
     { id: "ingredientId", label: "#", align: "left" },
     { id: "name", label: "Tên nguyên liệu", align: "center" },
@@ -46,24 +45,23 @@ const TableIngredients = () => {
     { id: "createdAt", label: "Ngày tạo", align: "center" },
   ];
 
-  //Call API
-
+  // Fetch ingredients data with pagination
   useEffect(() => {
     const getListIngredients = async () => {
       try {
-        const res: any = await adminIngredientsAPI.getListIngredients();
-
-        console.log(res.data);
-
-        setDataIngredients(res?.data?.items);
-        console.log("data users: ", res?.data?.items);
+        const res: any = await adminIngredientsAPI.getListIngredients({
+          pageNumber: page + 1, // API expects 1-based index
+          size: size,
+        });
+        setDataIngredients(res?.data?.items || []);
+        setTotal(res?.data?.totalCount || 0);
       } catch (error: any) {
-        console.log(error?.message);
+        console.error("Error fetching ingredients:", error?.message);
       }
     };
 
     getListIngredients();
-  }, []);
+  }, [page, size]);
 
   return (
     <>
@@ -81,10 +79,10 @@ const TableIngredients = () => {
         menuAction={
           <MenuActionTableUser
             userData={selectedData}
-            onOpenDetail={selecteData}
+            onOpenDetail={selectData}
           />
         }
-        selectedData={selecteData}
+        selectedData={selectData}
         size={size}
         page={page}
         total={total}

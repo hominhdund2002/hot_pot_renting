@@ -120,7 +120,29 @@ const CTable: React.FC<CTbaleProps> = ({
                   <TableRow key={index}>
                     {tableHeaderTitle.map((column: any) => (
                       <TableCell key={column.id} align={column.align || "left"}>
-                        {getNestedValue(row, column.id)}
+                        <TableCell
+                          key={column.id}
+                          align={column.align || "left"}
+                        >
+                          {column.id === "createdAt" ? (
+                            formatDateFunc.formatDateTime(
+                              getNestedValue(row, column.id)
+                            )
+                          ) : column.id === "imageURL" ? (
+                            <img
+                              src={getNestedValue(row, column.id)}
+                              alt="Thumbnail"
+                              style={{
+                                width: 50,
+                                height: 50,
+                                borderRadius: "8px",
+                                objectFit: "cover",
+                              }}
+                            />
+                          ) : (
+                            getNestedValue(row, column.id)
+                          )}
+                        </TableCell>
                       </TableCell>
                     ))}
                     <TableCell
