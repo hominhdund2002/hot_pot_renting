@@ -11,7 +11,7 @@ import config from "../../configs";
 const TableIngredients = () => {
   // State variables
   const [selectedData, setSelectedData] = useState<Ingredient | null>(null);
-  const [size, setSize] = useState<number>(10); // Set a default value
+  const [size, setSize] = useState<number>(10);
   const [total, setTotal] = useState<number>(0);
   const [page, setPage] = useState<number>(0);
   const [dataIngredients, setDataIngredients] = useState<Ingredient[]>([]);
@@ -50,7 +50,7 @@ const TableIngredients = () => {
     const getListIngredients = async () => {
       try {
         const res: any = await adminIngredientsAPI.getListIngredients({
-          pageNumber: page + 1, // API expects 1-based index
+          pageNumber: page + 1,
           size: size,
         });
         setDataIngredients(res?.data?.items || []);

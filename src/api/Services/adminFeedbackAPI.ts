@@ -1,9 +1,10 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import axiosClient from "../axiosInstance";
 
-const adminComboAPI = {
-  getListCombo: (params?: any) => {
-    const url = "/admin/combo";
+
+const url = "/admin/"
+const adminFeedbackAPI = {
+  getListFeedback: (params?: any) => {
+
     return axiosClient.get(url, {
       params,
       paramsSerializer: {
@@ -11,18 +12,17 @@ const adminComboAPI = {
       },
     });
   },
-  CreateAdminCombo: (params?: any) => {
-    const url = "/admin/combo";
+  CreateFeedback: (params?: any) => {
+
     return axiosClient.post(url, params, {
       paramsSerializer: {
         indexes: null, // by default: false
       },
     });
   },
+  getFeedbackDetails: (params?: any) => {
 
-  GetAdminComboDetail: (id?: any) => {
-    const url = "/admin/combo/:comboId";
-    return axiosClient.get(url.replace(":comboId", id), {
+    return axiosClient.post(url, params, {
       paramsSerializer: {
         indexes: null, // by default: false
       },
@@ -30,4 +30,4 @@ const adminComboAPI = {
   },
 };
 
-export default adminComboAPI;
+export default adminFeedbackAPI;

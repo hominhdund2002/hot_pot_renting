@@ -1,11 +1,12 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import CTable from "../../components/table/CTable";
-import MenuActionTableUser from "../../components/menuAction/menuActionTableUser/MenuActionTableUser";
 import adminComboAPI from "../../api/Services/adminComboAPI";
 import config from "../../configs";
 import { useNavigate } from "react-router";
 import { Button } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
+import MenuActionTableCombo from "../../components/menuAction/menuActionTableCombo/menuActionTableCombo";
 
 const TableCombo = () => {
   // declare
@@ -29,11 +30,8 @@ const TableCombo = () => {
           pageNumber: page + 1, // API expects 1-based index
           size: size,
         });
-
-        console.log(res.items);
-
         setDataCombo(res?.items || []);
-        setTotal(res?.data?.totalCount || 0);
+        setTotal(res?.totalCount || 0);
       } catch (error: any) {
         console.error("Error fetching ingredients:", error?.message);
       }
@@ -77,8 +75,8 @@ const TableCombo = () => {
         tableHeaderTitle={tableHeader}
         title="Bảng Combo Lẩu"
         menuAction={
-          <MenuActionTableUser
-            userData={selectedData}
+          <MenuActionTableCombo
+            hotpotData={selectedData}
             onOpenDetail={selecteData}
           />
         }

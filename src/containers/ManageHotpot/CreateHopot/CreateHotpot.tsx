@@ -20,6 +20,8 @@ import {
 import { LoadingButton } from "@mui/lab";
 import { uploadImageToFirebase } from "../../../firebase/uploadImageToFirebase";
 import { CreateHotPotSchema, SizeData } from "../../../types/hotpot";
+import adminHotpot from "../../../api/Services/adminHotpot";
+import { toast } from "react-toastify";
 
 // Define form schema
 const validationSchema = Yup.object().shape({
@@ -42,7 +44,7 @@ const CreateHotpot: React.FC = () => {
   const defaultValues = {
     name: "",
     material: "",
-    size: "",
+    size: SizeData?.[0].id || "",
     description: "",
     imageURLs: [],
     price: 0,
@@ -65,9 +67,15 @@ const CreateHotpot: React.FC = () => {
   } = methods;
   const values = watch();
 
+  const { errors } = methods.formState;
+
+  console.log(errors);
+
   const onSubmit = async (values: CreateHotPotSchema) => {
     try {
-      console.log(values);
+      const res = await adminHotpot.createHotpot(values);
+      toast.success("Thêm lẩu mới thành công");
+      console.log(res);
     } catch (error) {
       console.error(error);
     }
@@ -111,7 +119,7 @@ const CreateHotpot: React.FC = () => {
             <Grid2 size={{ mobile: 12, desktop: 6 }}>
               <RHFTextField name="name" label="Tên sản phẩm" sx={{ mb: 2 }} />
               <RHFTextField name="material" label="Chất liệu" sx={{ mb: 2 }} />
-              <RHFSelect name="size" label="Chức vụ" sx={{ mb: 2 }}>
+              <RHFSelect name="size" label="Kích thước" sx={{ mb: 2 }}>
                 {SizeData?.map((size) => (
                   <option key={size.id} value={size.id}>
                     {size.name}

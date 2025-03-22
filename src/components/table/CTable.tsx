@@ -139,6 +139,17 @@ const CTable: React.FC<CTbaleProps> = ({
                                 objectFit: "cover",
                               }}
                             />
+                          ) : column.id === "imageURLs" ? (
+                            <img
+                              src={getNestedValue(row, column.id)?.[0]}
+                              alt="Thumbnail"
+                              style={{
+                                width: 50,
+                                height: 50,
+                                borderRadius: "8px",
+                                objectFit: "cover",
+                              }}
+                            />
                           ) : (
                             getNestedValue(row, column.id)
                           )}

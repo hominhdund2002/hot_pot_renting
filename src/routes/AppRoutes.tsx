@@ -16,6 +16,7 @@ import TableHotpotComboPage from "../pages/Admin/TableCombo/TableHotpoComboPage"
 import CreateHotpotPage from "../pages/Admin/CreateHotpot/CreateHotpotPage";
 import DashboardPage from "../pages/Admin/Dashboard/DashboardPage";
 import OrderPage from "../pages/Admin/ManageOrder/OrderPage";
+import HotpotComboDetailPage from "../pages/Admin/ComboDetail/HotpotComboDetailPage";
 
 // import CheckRoute from "./CheckRoute";
 // import RequireAuth from "./RequireAuth";
@@ -85,6 +86,12 @@ const AppRoute: React.FC = () => {
           key="AddHotpot"
           path={config.adminRoutes.addHotpot}
           element={<CreateHotpotPage />}
+        />
+
+        <Route
+          key="hotpotDetail"
+          path={config.adminRoutes.HotpotDetail}
+          element={<HotpotComboDetailPage />}
         />
         <Route
           key={"manageUser"}
