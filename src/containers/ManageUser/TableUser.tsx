@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import CTable from "../../components/table/CTable";
 import MenuActionTableUser from "../../components/menuAction/menuActionTableUser/MenuActionTableUser";
-import { Box, TextField } from "@mui/material";
+import { Box, Button, TextField } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import { UserInterface } from "../../types/user";
 import adminUserManagementAPI from "../../api/adminUserManagementAPI";
 import useDebounce from "../../hooks/useDebounce";
+import AddIcon from "@mui/icons-material/Add";
+import AddNewUser from "./Popup/AddNewUser";
 
 interface searchToolInterface {
   filter: any;
@@ -52,6 +54,7 @@ const TableUsers = () => {
   // declare
   const [usersData, setUsersData] = useState<UserInterface[]>([]);
   const [selectUserdata, setSelectedUserData] = useState<any>();
+  const [openAddUser, setOpenAddUser] = useState<boolean>(false);
   // const [searchTerm, setSearchTerm] = useState<string>("");
   const [filter, setFilter] = useState({ searchTerm: "" });
 
@@ -97,47 +100,45 @@ const TableUsers = () => {
     getUserList();
   }, [deBouceValue]);
 
-  // const fieldData = [
-  //   {
-  //     id: 1,
-  //     name: "andre",
-  //     age: 8,
-  //     address: "abc",
-  //     phone: "0398297211",
-  //     gender: "F",
-  //   },
-  //   {
-  //     id: 2,
-  //     name: "Dunx",
-  //     age: 8,
-  //     address: "abc",
-  //     phone: "0398297211",
-  //     gender: "F",
-  //   },
-  //   {
-  //     id: 3,
-  //     name: "Thann",
-  //     age: 8,
-  //     address: "abc",
-  //     phone: "0398297211",
-  //     gender: "F",
-  //   },
-  // ];
+  //Handle open add model
+  const handleOpenAddModel = () => {
+    setOpenAddUser(true);
+  };
+  const handleCloseAddModel = () => {
+    setOpenAddUser(false);
+  };
 
   const tableHeader = [
     { id: "name", label: "Tên", align: "center" },
     { id: "email", label: "Email", align: "center" },
     { id: "address", label: "Địa chỉ", align: "center" },
     { id: "phoneNumber", label: "Điện thoại", align: "center" },
-    { id: "roleName", label: "Chức vụ", align: "center" },
+    { id: "roleName", label: "Chức vụ", align: "center", format: "role" },
   ];
+
+  const EventAction = () => {
+    return (
+      <Box>
+        <Button
+          color="primary"
+          variant="contained"
+          startIcon={<AddIcon />}
+          onClick={() => handleOpenAddModel()}
+        >
+          Tạo
+        </Button>
+      </Box>
+    );
+  };
 
   return (
     <>
+      <AddNewUser onOpen={openAddUser} onClose={handleCloseAddModel} />
       <CTable
         data={usersData}
         tableHeaderTitle={tableHeader}
         title="Quản lý người dùng"
+        eventAction={<EventAction />}
         searchTool={<SearchTool setFilter={setFilter} filter={filter} />}
         menuAction={
           <MenuActionTableUser

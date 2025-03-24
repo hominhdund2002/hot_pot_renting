@@ -11,6 +11,10 @@ const adminUserManagementAPI = {
             },
           } );
         },
+    createNewUser: (body: any) => {
+      const url = "/admin/users"
+      return axiosClient.post(url, body)
+    }
 }
 
 export default adminUserManagementAPI;

@@ -23,7 +23,7 @@ export const menuItems: MenuItem[] = [
     icon: <DashboardIcon />,
     label: config.Vntext.SideBar.Dashboard,
     path: config.adminRoutes.dashboard,
-    role: AccessType.ADMIN_ACCESS,
+    // role: AccessType.ADMIN_ACCESS,
   },
   {
     icon: <MenuBookIcon />,
@@ -36,7 +36,7 @@ export const menuItems: MenuItem[] = [
     path: "#",
     children: [
       { label: "Danh sách", path: config.adminRoutes.manageUsers },
-      { label: "Vị trí", path: "/users/roles" },
+      // { label: "Vị trí", path: "/users/roles" },
     ],
   },
   {
