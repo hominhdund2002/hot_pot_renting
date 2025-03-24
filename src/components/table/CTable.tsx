@@ -18,9 +18,9 @@ import React, { ReactNode } from "react";
 import moment from "moment"; // Import moment.js for date formatting
 
 interface CTbaleProps {
-  tableHeaderTitle: any;
-  data: any;
-  title: string;
+  tableHeaderTitle?: any;
+  data?: any;
+  title?: string;
   menuAction?: any;
   selectedData?: any;
   searchTool?: ReactNode;
@@ -29,12 +29,12 @@ interface CTbaleProps {
     event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number
   ) => void;
-  handleChangeRowsPerPage: (
+  handleChangeRowsPerPage?: (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => void;
-  total: number;
-  size: number;
-  page: number;
+  total?: number;
+  size?: number;
+  page?: number;
 }
 // Styled Components
 const StyledCard = styled(Card)(({ theme }) => ({
@@ -170,6 +170,40 @@ const CTable: React.FC<CTbaleProps> = ({
                     {tableHeaderTitle.map((column: any) => (
                       <TableCell key={column.id} align={column.align || "left"}>
                         {formatValue(getNestedValue(row, column.id), column)}
+                        {/* <TableCell
+                          key={column.id}
+                          align={column.align || "left"}
+                        >
+                          {column.id === "createdAt" ? (
+                            formatDateFunc.formatDateTime(
+                              getNestedValue(row, column.id)
+                            )
+                          ) : column.id === "imageURL" ? (
+                            <img
+                              src={getNestedValue(row, column.id)}
+                              alt="Thumbnail"
+                              style={{
+                                width: 50,
+                                height: 50,
+                                borderRadius: "8px",
+                                objectFit: "cover",
+                              }}
+                            />
+                          ) : column.id === "imageURLs" ? (
+                            <img
+                              src={getNestedValue(row, column.id)?.[0]}
+                              alt="Thumbnail"
+                              style={{
+                                width: 50,
+                                height: 50,
+                                borderRadius: "8px",
+                                objectFit: "cover",
+                              }}
+                            />
+                          ) : (
+                            getNestedValue(row, column.id)
+                          )}
+                        </TableCell> */}
                       </TableCell>
                     ))}
                     <TableCell
@@ -184,9 +218,9 @@ const CTable: React.FC<CTbaleProps> = ({
             <TablePagination
               rowsPerPageOptions={[10, 25, 50]}
               component="div"
-              count={total}
-              rowsPerPage={size}
-              page={page}
+              count={total ?? 0}
+              rowsPerPage={size ?? 10}
+              page={page ?? 0}
               onPageChange={handleChangePage}
               onRowsPerPageChange={handleChangeRowsPerPage}
               labelRowsPerPage="Số hàng trên trang"

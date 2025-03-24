@@ -66,7 +66,7 @@ axiosClient.interceptors.response.use(
           }
         } catch (err) {
           console.log("Error");
-          handleTokenExpiration();
+          // handleTokenExpiration();
           return null;
         }
       }
@@ -82,19 +82,19 @@ axiosClient.interceptors.response.use(
   }
 );
 
-function handleTokenExpiration() {
-  toast.error(
-    "Tài khoản của bạn đã hết hạn đăng nhập.\n Hệ thống sẽ tự động thoát sau 3 giây.",
-    {
-      onClose() {
-        localStorage.removeItem("userInfor");
-        window.location.href = "/";
-      },
-      autoClose: 3000,
-      pauseOnHover: false,
-    }
-  );
-}
+// function handleTokenExpiration() {
+//   toast.error(
+//     "Tài khoản của bạn đã hết hạn đăng nhập.\n Hệ thống sẽ tự động thoát sau 3 giây.",
+//     {
+//       onClose() {
+//         localStorage.removeItem("userInfor");
+//         window.location.href = "/";
+//       },
+//       autoClose: 3000,
+//       pauseOnHover: false,
+//     }
+//   );
+// }
 
 function redirectTo403Page() {
   window.location.href = "/403";
