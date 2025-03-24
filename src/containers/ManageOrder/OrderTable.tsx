@@ -53,10 +53,10 @@ const OrderTable = () => {
     { id: "user.phoneNumber", label: "Điện thoại", align: "center" },
     { id: "address", label: "Địa chỉ giao", align: "center" },
     { id: "notes", label: "Ghi chú", align: "center" },
-    { id: "createdAt", label: "Đặt lúc", align: "center" },
+    { id: "createdAt", label: "Đặt lúc", align: "center", format: "date" },
     { id: "totalPrice", label: "Tổng tiền", align: "center" },
     { id: "totalDeposit", label: "Đã cọc", align: "center" },
-    { id: "status", label: "Trạng thái", align: "center" },
+    { id: "status", label: "Trạng thái", align: "center", format: "status" },
   ];
 
   return (
@@ -64,7 +64,7 @@ const OrderTable = () => {
       <CTable
         data={orderData}
         tableHeaderTitle={tableOrderHeader}
-        title="Quản lý người dùng"
+        title="Quản lý đơn hàng"
         // searchTool={<SearchTool setFilter={setFilter} filter={filter} />}
         menuAction={
           <MenuActionTableOrder

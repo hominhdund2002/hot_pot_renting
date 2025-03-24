@@ -4,7 +4,7 @@ const orderManagementAPI =  {
 
     getOrder: ( params?:any ) =>
         {
-          const url = "/admin/orders";
+          const url = "/admin/dashboard/orders";
           return axiosClient.get( url, {
             params,
             paramsSerializer: {

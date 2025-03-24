@@ -15,6 +15,7 @@ import {
 import TablePagination from "@mui/material/TablePagination";
 import { alpha, styled } from "@mui/material/styles";
 import React, { ReactNode } from "react";
+import moment from "moment"; // Import moment.js for date formatting
 
 interface CTbaleProps {
   tableHeaderTitle: any;
@@ -23,6 +24,7 @@ interface CTbaleProps {
   menuAction?: any;
   selectedData?: any;
   searchTool?: ReactNode;
+  eventAction?: ReactNode;
   handleChangePage: (
     event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number
@@ -67,6 +69,7 @@ const CTable: React.FC<CTbaleProps> = ({
   searchTool,
   handleChangePage,
   handleChangeRowsPerPage,
+  eventAction,
   page,
   size,
   total,
@@ -82,31 +85,77 @@ const CTable: React.FC<CTbaleProps> = ({
       .reduce((acc: any, part: any) => acc && acc[part], obj);
   }
 
+  //func định dạng dữ liệu
+  function formatValue(value: any, column: any) {
+    //date time
+    if (column.format && column.format == "date") {
+      if (value) {
+        return moment(value).format("DD/MM/YYYY");
+      }
+      return "-";
+    }
+    //role
+    if (column.format && column.format == "role") {
+      switch (value) {
+        case "Customer":
+          return "Khách hàng";
+        case "Admin":
+          return "Quản trị viên";
+        case "Manager":
+          return "Quản lý";
+        default:
+          return "-";
+      }
+    }
+    //status
+    if (column.format && column.format == "status") {
+      switch (value) {
+        case "Pending":
+          return "Đang chờ";
+        case "Complete":
+          return "Hoàn thành";
+        default:
+          return "-";
+      }
+    }
+    return value;
+  }
+
   return (
     <Box sx={{ minWidth: "600px", mx: "auto", p: 2 }}>
       <StyledCard>
-        <CardHeader
-          title={
-            <Typography
-              variant="h5"
-              sx={{
-                fontWeight: 700,
-                background: `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.primary.light})`,
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-              }}
-            >
-              {title}
-            </Typography>
-          }
-        />
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <CardHeader
+            title={
+              <Typography
+                variant="h5"
+                sx={{
+                  fontWeight: 700,
+                  background: `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.primary.light})`,
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                }}
+              >
+                {title}
+              </Typography>
+            }
+          />
+          <Box sx={{ pr: 2 }}>{eventAction}</Box>
+        </Box>
         <Box>{searchTool}</Box>
         <CardContent>
           <StyledTableContainer>
             <Table>
               <TableHead>
                 <TableRow>
-                  {tableHeaderTitle.map((column: any) => (
+                  <TableCell>#</TableCell>
+                  {tableHeaderTitle?.map((column: any) => (
                     <TableCell key={column.id} align={column.align || "left"}>
                       {column.label}
                     </TableCell>
@@ -115,11 +164,12 @@ const CTable: React.FC<CTbaleProps> = ({
                 </TableRow>
               </TableHead>
               <TableBody>
-                {data.map((row: any, index: number) => (
+                {data?.map((row: any, index: number) => (
                   <TableRow key={index}>
+                    <TableCell>{index + 1}</TableCell>
                     {tableHeaderTitle.map((column: any) => (
                       <TableCell key={column.id} align={column.align || "left"}>
-                        {getNestedValue(row, column.id)}
+                        {formatValue(getNestedValue(row, column.id), column)}
                       </TableCell>
                     ))}
                     <TableCell
