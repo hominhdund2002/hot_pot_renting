@@ -1,10 +1,8 @@
 import axiosClient from "../axiosInstance";
 
-
-const url = "/admin/"
 const adminFeedbackAPI = {
   getListFeedback: (params?: any) => {
-
+    const url = "/admin/feedback";
     return axiosClient.get(url, {
       params,
       paramsSerializer: {
@@ -13,7 +11,7 @@ const adminFeedbackAPI = {
     });
   },
   CreateFeedback: (params?: any) => {
-
+    const url = "/admin/feedback";
     return axiosClient.post(url, params, {
       paramsSerializer: {
         indexes: null, // by default: false
@@ -21,7 +19,7 @@ const adminFeedbackAPI = {
     });
   },
   getFeedbackDetails: (params?: any) => {
-
+    const url = "/admin/feedback/:id";
     return axiosClient.post(url, params, {
       paramsSerializer: {
         indexes: null, // by default: false
