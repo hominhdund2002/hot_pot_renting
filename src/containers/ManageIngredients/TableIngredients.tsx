@@ -37,12 +37,11 @@ const TableIngredients = () => {
 
   // Table headers
   const tableHeader = [
-    { id: "ingredientId", label: "#", align: "left" },
     { id: "name", label: "Tên nguyên liệu", align: "center" },
     { id: "imageURL", label: "Hình ảnh", align: "center" },
     { id: "ingredientTypeName", label: "Loại nguyên liệu", align: "center" },
     { id: "price", label: "Giá tiền", align: "center" },
-    { id: "createdAt", label: "Ngày tạo", align: "center" },
+    { id: "createdAt", label: "Ngày tạo", align: "center", format: "date" },
   ];
 
   // Fetch ingredients data with pagination

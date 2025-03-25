@@ -32,9 +32,9 @@ interface CTbaleProps {
   handleChangeRowsPerPage?: (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => void;
-  total?: number;
-  size?: number;
-  page?: number;
+  total: number;
+  size: number;
+  page: number;
 }
 // Styled Components
 const StyledCard = styled(Card)(({ theme }) => ({
@@ -103,6 +103,8 @@ const CTable: React.FC<CTbaleProps> = ({
           return "Quản trị viên";
         case "Manager":
           return "Quản lý";
+        case "Staff":
+          return "Nhân viên";
         default:
           return "-";
       }
@@ -156,7 +158,11 @@ const CTable: React.FC<CTbaleProps> = ({
                 <TableRow>
                   <TableCell>#</TableCell>
                   {tableHeaderTitle?.map((column: any) => (
-                    <TableCell key={column.id} align={column.align || "left"}>
+                    <TableCell
+                      sx={{ fontWeight: "bold" }}
+                      key={column.id}
+                      align={column.align || "left"}
+                    >
                       {column.label}
                     </TableCell>
                   ))}
@@ -166,44 +172,35 @@ const CTable: React.FC<CTbaleProps> = ({
               <TableBody>
                 {data?.map((row: any, index: number) => (
                   <TableRow key={index}>
-                    <TableCell>{index + 1}</TableCell>
+                    <TableCell>{page * size + index + 1}</TableCell>
                     {tableHeaderTitle.map((column: any) => (
                       <TableCell key={column.id} align={column.align || "left"}>
-                        {formatValue(getNestedValue(row, column.id), column)}
-                        {/* <TableCell
-                          key={column.id}
-                          align={column.align || "left"}
-                        >
-                          {column.id === "createdAt" ? (
-                            formatDateFunc.formatDateTime(
-                              getNestedValue(row, column.id)
-                            )
-                          ) : column.id === "imageURL" ? (
-                            <img
-                              src={getNestedValue(row, column.id)}
-                              alt="Thumbnail"
-                              style={{
-                                width: 50,
-                                height: 50,
-                                borderRadius: "8px",
-                                objectFit: "cover",
-                              }}
-                            />
-                          ) : column.id === "imageURLs" ? (
-                            <img
-                              src={getNestedValue(row, column.id)?.[0]}
-                              alt="Thumbnail"
-                              style={{
-                                width: 50,
-                                height: 50,
-                                borderRadius: "8px",
-                                objectFit: "cover",
-                              }}
-                            />
-                          ) : (
-                            getNestedValue(row, column.id)
-                          )}
-                        </TableCell> */}
+                        {/* {formatValue(getNestedValue(row, column.id), column)} */}
+                        {column.id == "imageURL" ? (
+                          <img
+                            src={getNestedValue(row, column.id)}
+                            alt="Thumbnail"
+                            style={{
+                              width: 50,
+                              height: 50,
+                              borderRadius: "8px",
+                              objectFit: "cover",
+                            }}
+                          />
+                        ) : column.id == "imageURLs" ? (
+                          <img
+                            src={getNestedValue(row, column.id)?.[0]}
+                            alt="Thumbnail"
+                            style={{
+                              width: 50,
+                              height: 50,
+                              borderRadius: "8px",
+                              objectFit: "cover",
+                            }}
+                          />
+                        ) : (
+                          formatValue(getNestedValue(row, column.id), column)
+                        )}
                       </TableCell>
                     ))}
                     <TableCell
