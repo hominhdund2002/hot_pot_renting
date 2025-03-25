@@ -56,6 +56,10 @@ export const menuItems: MenuItem[] = [
         label: config.Vntext.SideBar.Hotpot.hotpot,
         path: config.adminRoutes.hotpotType,
       },
+      {
+        label: "Loại nguyên liệu",
+        path: config.adminRoutes.ingredientType,
+      },
     ],
   },
   {

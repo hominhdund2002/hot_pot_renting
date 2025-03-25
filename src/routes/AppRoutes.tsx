@@ -17,6 +17,7 @@ import CreateHotpotPage from "../pages/Admin/CreateHotpot/CreateHotpotPage";
 import DashboardPage from "../pages/Admin/Dashboard/DashboardPage";
 import OrderPage from "../pages/Admin/ManageOrder/OrderPage";
 import HotpotComboDetailPage from "../pages/Admin/ComboDetail/HotpotComboDetailPage";
+import TableIngredientTypePage from "../pages/Admin/TableIngredientType/TableIngredientTypePage";
 
 // import CheckRoute from "./CheckRoute";
 // import RequireAuth from "./RequireAuth";
@@ -97,6 +98,12 @@ const AppRoute: React.FC = () => {
           key={"manageUser"}
           path={config.adminRoutes.manageUsers}
           element={<ManageUserPage />}
+        />
+
+        <Route
+          key="ingredientType"
+          path={config.adminRoutes.ingredientType}
+          element={<TableIngredientTypePage />}
         />
       </Route>
       <Route key="layout" path={config.routes.home} element={<StaffLayout />}>
