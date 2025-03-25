@@ -27,8 +27,8 @@ const TableCombo = () => {
     const getListCombo = async () => {
       try {
         const res: any = await adminComboAPI.getListCombo({
-          pageNumber: page + 1, // API expects 1-based index
-          size: size,
+          pageNumber: page + 1,
+          pageSize: size,
         });
         setDataCombo(res?.items || []);
         setTotal(res?.totalCount || 0);
