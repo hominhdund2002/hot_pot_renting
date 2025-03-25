@@ -1,4 +1,5 @@
 import Iconify from "../../../components/Iconify";
+import MenuBookIcon from "@mui/icons-material/MenuBook";
 import {
   Dashboard as DashboardIcon,
   People as PeopleIcon,
@@ -22,21 +23,26 @@ export const menuItems: MenuItem[] = [
     icon: <DashboardIcon />,
     label: config.Vntext.SideBar.Dashboard,
     path: config.adminRoutes.dashboard,
-    role: AccessType.ADMIN_ACCESS,
+    // role: AccessType.ADMIN_ACCESS,
+  },
+  {
+    icon: <MenuBookIcon />,
+    label: config.Vntext.SideBar.Ordes,
+    path: config.adminRoutes.orders,
   },
   {
     icon: <PeopleIcon />,
     label: config.Vntext.SideBar.Users,
-    path: "",
+    path: "#",
     children: [
       { label: "Danh sách", path: config.adminRoutes.manageUsers },
-      { label: "Vị trí", path: "/users/roles" },
+      // { label: "Vị trí", path: "/users/roles" },
     ],
   },
   {
     icon: <InventoryIcon />,
     label: config.Vntext.SideBar.Hotpot.hotpotSidebar,
-    path: "",
+    path: "#",
     children: [
       {
         label: config.Vntext.SideBar.Hotpot.hotpotCombo,
@@ -44,7 +50,11 @@ export const menuItems: MenuItem[] = [
       },
       {
         label: config.Vntext.SideBar.Hotpot.hotpotIngredients,
-        path: config.adminRoutes.tableIngredients,
+        path: config.adminRoutes.manageIngredients,
+      },
+      {
+        label: config.Vntext.SideBar.Hotpot.hotpot,
+        path: config.adminRoutes.hotpotType,
       },
     ],
   },
