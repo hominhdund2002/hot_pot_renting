@@ -54,14 +54,13 @@ const TableHotpot = () => {
   }, [page, size]);
 
   const tableHeader = [
-    { id: "id", label: "#", align: "left" },
     { id: "name", label: "Tên nồi", align: "center" },
     { id: "material", label: "Vật liệu", align: "center" },
     { id: "size", label: "Kích thước", align: "center" },
     { id: "imageURLs", label: "Hình ảnh", align: "center" },
     { id: "price", label: "Giá", align: "center" },
     { id: "quantity", label: "Số lượng", align: "center" },
-    { id: "createdAt", label: "Ngày tạo", align: "center" },
+    { id: "createdAt", label: "Ngày tạo", align: "center", format: "date" },
   ];
 
   // Handle pagination

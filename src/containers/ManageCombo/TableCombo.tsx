@@ -41,12 +41,11 @@ const TableCombo = () => {
   }, [page, size]);
 
   const tableHeader = [
-    { id: "id", label: "#", align: "left" },
     { id: "name", label: "Tên món lẩu", align: "center" },
     { id: "imageURLs", label: "Hình ảnh", align: "center" },
     { id: "isCustomizable", label: "Tự tạo mới", align: "center" },
     { id: "appliedDiscountPercentage", label: "Giảm giá", align: "center" },
-    { id: "createdAt", label: "Ngày tạo", align: "center" },
+    { id: "createdAt", label: "Ngày tạo", align: "center", format: "date" },
   ];
 
   // Handle pagination
