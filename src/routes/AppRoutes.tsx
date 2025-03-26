@@ -1,8 +1,6 @@
 import React from "react";
 import { Route, Routes } from "react-router-dom";
 import config from "../configs";
-import Home from "../pages/Home/Home";
-import StaffLayout from "../layouts/StaffLayout/StaffLayout";
 // import Home from "../pages/Home/HomePage";
 
 import { ManageRentalsPage } from "../pages/Manager/ManageRental/ManageRentalsPage";
@@ -51,6 +49,8 @@ import { RentalDetailPage } from "../pages/Staff/PickupRental/RentalDetailPage";
 import { RecordReturnPage } from "../pages/Staff/PickupRental/RecordReturnPage";
 import { PickupRentalPage } from "../pages/Staff/PickupRental/PickupRentalPage";
 import ManagerLayout from "../layouts/ManagerLayout/ManagerLayout";
+import TableHotpotDetailPage from "../pages/Admin/TableHotpotDetail/TableHotpotDetailPage";
+import TableMaintenanceHotpotDetailPage from "../pages/Admin/TableMaintenanceHotpot/TableMaintenanceHopotPage";
 
 const AppRoute: React.FC = () => {
   return (
@@ -60,7 +60,6 @@ const AppRoute: React.FC = () => {
         path={config.authRoutes.authenticate}
         element={<AuthenticatePage />}
       />
-
 
       <Route
         key="layoutManager"
@@ -151,10 +150,8 @@ const AppRoute: React.FC = () => {
           key="order"
           path={config.adminRoutes.orders}
           element={<OrderPage />}
-
         />
-           <Route
-
+        <Route
           key={"manageUser"}
           path={config.adminRoutes.manageUsers}
           element={<ManageUserPage />}
@@ -217,6 +214,16 @@ const AppRoute: React.FC = () => {
           key="ingredientType"
           path={config.adminRoutes.ingredientType}
           element={<TableIngredientTypePage />}
+        />
+        <Route
+          key="maintenanceHotpot"
+          path={config.adminRoutes.MaintenanceHotpot}
+          element={<TableMaintenanceHotpotDetailPage />}
+        />
+        <Route
+          key="hotpotTypeDetail"
+          path={config.adminRoutes.DetailHotpotType}
+          element={<TableHotpotDetailPage />}
         />
       </Route>
       {/* <Route key="layout" path={config.routes.home} element={<StaffLayout />}>

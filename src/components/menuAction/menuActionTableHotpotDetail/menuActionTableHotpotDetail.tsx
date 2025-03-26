@@ -7,23 +7,18 @@ import Button from "@mui/material/Button";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import * as React from "react";
-import DetailPopup from "../../../containers/ManageUser/Popup/DetailPopup";
 
-interface MenuActionTableUserProps {
-  userData: any;
+interface MenuActionTableHotpotDetailProps {
+  hotpotData: any;
   onOpenUpdate?: any;
   onOpenDetail?: any;
   onOpenDelete?: any;
 }
 
-const MenuActionTableUser: React.FC<MenuActionTableUserProps> = ({
-  userData,
-  onOpenUpdate,
-  onOpenDetail,
-  onOpenDelete,
-}) => {
+const MenuActionTableHotpotDetail: React.FC<
+  MenuActionTableHotpotDetailProps
+> = ({ hotpotData, onOpenUpdate, onOpenDetail, onOpenDelete }) => {
   const [anchorEl, setAnchorEl] = React.useState<any>(null);
-  const [openDetail, setOpenDetail] = React.useState<boolean>(false);
   const open = Boolean(anchorEl);
   const handleClick = (event: any) => {
     setAnchorEl(event.currentTarget);
@@ -32,19 +27,15 @@ const MenuActionTableUser: React.FC<MenuActionTableUserProps> = ({
     setAnchorEl(null);
   };
   const handleUpdate = () => {
-    onOpenUpdate(userData);
+    onOpenUpdate(hotpotData);
     setAnchorEl(null);
   };
   const handleDetail = () => {
-    onOpenDetail(userData);
-    setOpenDetail(true);
-    setAnchorEl(null);
+    onOpenDetail(hotpotData);
   };
-  const handleCloseDetail = () => {
-    setOpenDetail(false);
-  };
+
   const handleDelete = () => {
-    onOpenDelete(userData);
+    onOpenDelete(hotpotData);
     setAnchorEl(null);
   };
 
@@ -81,7 +72,7 @@ const MenuActionTableUser: React.FC<MenuActionTableUserProps> = ({
       >
         <MenuItem onClick={() => handleDetail()}>
           <InfoIcon sx={{ mr: "4px" }} color="info" />
-          <span>Chi Tiết</span>
+          <span>Chi Tiết Bảo Trì</span>
         </MenuItem>
         <MenuItem onClick={() => handleUpdate()}>
           <EditIcon sx={{ mr: "4px", color: "#9ADE7B" }} />
@@ -92,21 +83,9 @@ const MenuActionTableUser: React.FC<MenuActionTableUserProps> = ({
           <BlockIcon sx={{ mr: "4px" }} color="error" />
           <span>Xóa</span>
         </MenuItem>
-
-        {/* <MenuItem onClick={() => handleStartFeedBack(id)}>
-          <FeedbackOutlinedIcon sx={{ mr: "4px" }} color="success" />
-          <span>Mở phản hồi</span>
-        </MenuItem> */}
       </Menu>
-      {userData && (
-        <DetailPopup
-          handleOpen={openDetail}
-          handleClose={handleCloseDetail}
-          detailData={userData}
-        />
-      )}
     </div>
   );
 };
 
-export default MenuActionTableUser;
+export default MenuActionTableHotpotDetail;

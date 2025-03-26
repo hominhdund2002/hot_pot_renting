@@ -22,9 +22,14 @@ import { IngredientTypeSchema } from "../../../types/ingredients";
 interface addModelProps {
   onOpen: boolean;
   onClose: () => void;
+  onSuccess: () => void;
 }
 
-const AddNewIngredients: React.FC<addModelProps> = ({ onOpen, onClose }) => {
+const AddNewIngredients: React.FC<addModelProps> = ({
+  onOpen,
+  onClose,
+  onSuccess,
+}) => {
   //Declare
   const defaultValues = {
     name: "",
@@ -50,6 +55,9 @@ const AddNewIngredients: React.FC<addModelProps> = ({ onOpen, onClose }) => {
         values
       );
       toast.success(res.message);
+      if (res.success) {
+        onSuccess();
+      }
       onClose();
     } catch (error) {
       console.error(error);

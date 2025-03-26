@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import CTable from "../../components/table/CTable";
-import MenuActionTableUser from "../../components/menuAction/menuActionTableUser/MenuActionTableUser";
 import adminIngredientsAPI from "../../api/Services/adminIngredientsAPI";
 import { Box, Button } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
@@ -9,7 +8,6 @@ import AddNewIngredients from "./Modal/AddNewIngredients";
 
 const TableIngredientType = () => {
   // State variables
-  const [selectedData, setSelectedData] = useState<any | null>(null);
   const [size, setSize] = useState<number>(10);
   const [total, setTotal] = useState<number>(0);
   const [page, setPage] = useState<number>(0);
@@ -29,28 +27,23 @@ const TableIngredientType = () => {
     setPage(0);
   };
 
-  // Select data row
-  const selectData = (row: any) => {
-    setSelectedData(row);
-  };
-
   // Table headers
   const tableHeader = [
     { id: "name", label: "Tên nguyên liệu", align: "center" },
   ];
 
+  const getListIngredientType = async () => {
+    try {
+      const res: any = await adminIngredientsAPI.getListIngredientsType();
+      setDataIngredients(res?.data || []);
+      setTotal(res?.data.length || 0);
+    } catch (error: any) {
+      console.error("Error fetching ingredients:", error?.message);
+    }
+  };
+
   // Fetch ingredients data with pagination
   useEffect(() => {
-    const getListIngredientType = async () => {
-      try {
-        const res: any = await adminIngredientsAPI.getListIngredientsType();
-        setDataIngredients(res?.data || []);
-        setTotal(res?.data.length || 0);
-      } catch (error: any) {
-        console.error("Error fetching ingredients:", error?.message);
-      }
-    };
-
     getListIngredientType();
   }, []);
 
@@ -64,6 +57,10 @@ const TableIngredientType = () => {
   };
   const handleCloseAddModel = () => {
     setOpen(false);
+  };
+
+  const AddSuccessIngredient = () => {
+    getListIngredientType();
   };
 
   const EventAction = () => {
@@ -82,19 +79,16 @@ const TableIngredientType = () => {
   };
   return (
     <>
-      <AddNewIngredients onOpen={open} onClose={handleCloseAddModel} />
+      <AddNewIngredients
+        onOpen={open}
+        onClose={handleCloseAddModel}
+        onSuccess={AddSuccessIngredient}
+      />
       <CTable
         data={currentData}
         tableHeaderTitle={tableHeader}
         title="Bảng loại nguyên liệu"
         eventAction={<EventAction />}
-        menuAction={
-          <MenuActionTableUser
-            userData={selectedData}
-            onOpenDetail={selectData}
-          />
-        }
-        selectedData={selectData}
         size={size}
         page={page}
         total={total}

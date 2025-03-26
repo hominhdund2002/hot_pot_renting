@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axiosClient from "../axiosInstance";
 
-const adminHotpot = {
-  getListHotpot: (params: any) => {
-    const url = "/admin/hotpots";
+const adminMaintenanceAPI = {
+  getListMaintenance: (params?: any) => {
+    const url = "/admin/maintenance";
     return axiosClient.get(url, {
       params,
       paramsSerializer: {
@@ -11,18 +11,8 @@ const adminHotpot = {
       },
     });
   },
-
-  createHotpot: (params: any) => {
-    const url = "/admin/hotpots";
-    return axiosClient.post(url, params, {
-      paramsSerializer: {
-        indexes: null, // by default: false
-      },
-    });
-  },
-
-  getListHotpotDetail: (params: any) => {
-    const url = "/admin/hotpots/id";
+  getMaintenanceDetails: (params?: any) => {
+    const url = "/admin/maintenance/id";
     const newUrl = url.replace("id", params);
     return axiosClient.get(newUrl, {
       paramsSerializer: {
@@ -32,4 +22,4 @@ const adminHotpot = {
   },
 };
 
-export default adminHotpot;
+export default adminMaintenanceAPI;
