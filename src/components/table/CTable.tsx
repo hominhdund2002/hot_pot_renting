@@ -76,7 +76,6 @@ const CTable: React.FC<CTbaleProps> = ({
 }) => {
   //Declare
   const theme = useTheme();
-  console.log("truyeefbn: ", tableHeaderTitle);
 
   //func
   function getNestedValue(obj: any, path: any) {

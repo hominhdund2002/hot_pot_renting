@@ -1,45 +1,49 @@
+import { yupResolver } from "@hookform/resolvers/yup";
+import CloseIcon from "@mui/icons-material/Close";
+import { LoadingButton } from "@mui/lab";
 import {
   Box,
-  Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   IconButton,
-  Typography,
 } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
 import React from "react";
-import { colors } from "../../../styles/Color/color";
+import { useForm } from "react-hook-form";
+import { toast } from "react-toastify";
+import * as Yup from "yup";
+import adminUserManagementAPI from "../../../api/adminUserManagementAPI";
 import {
   FormProvider,
   RHFSelect,
   RHFTextField,
 } from "../../../components/hook-form";
-import config from "../../../configs";
-import { useForm } from "react-hook-form";
-import * as Yup from "yup";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { CreateUserType } from "../../../types/createUser";
-import { LoadingButton } from "@mui/lab";
-import adminUserManagementAPI from "../../../api/adminUserManagementAPI";
-import { toast } from "react-toastify";
+import { colors } from "../../../styles/Color/color";
+import { UpdateUserType } from "../../../types/udpateUser";
+import { UserInterface } from "../../../types/user";
 import { Role } from "../../../routes/Roles";
 
-interface addModelProps {
+interface updateModelProps {
   onOpen: boolean;
   onClose: () => void;
+  userData: UserInterface;
+  fetchData: () => void;
 }
 
-const AddNewUser: React.FC<addModelProps> = ({ onOpen, onClose }) => {
+const UpdatePopup: React.FC<updateModelProps> = ({
+  onOpen,
+  onClose,
+  userData,
+  fetchData,
+}) => {
   //Declare
   const defaultValues = {
-    name: "",
-    email: "",
-    password: "",
-    phoneNumber: "",
-    address: "",
-    roleName: "",
+    name: userData?.name,
+    email: userData?.email,
+    phoneNumber: userData?.phoneNumber,
+    address: userData?.address,
+    roleName: userData?.roleName,
   };
   const validationSchema = Yup.object().shape({
     name: Yup.string()
@@ -51,10 +55,6 @@ const AddNewUser: React.FC<addModelProps> = ({ onOpen, onClose }) => {
       .required("Bắt buộc có email")
       .email("Email không hợp lệ")
       .min(5, "Tối thiểu 5 kí tự"),
-    password: Yup.string()
-      .trim()
-      .required("Bắt buộc có mật khẩu")
-      .min(6, "Tối thiểu 6 kí tự"),
     phoneNumber: Yup.string()
       .trim()
       .required("Bắt buộc có số điện thoại")
@@ -69,7 +69,7 @@ const AddNewUser: React.FC<addModelProps> = ({ onOpen, onClose }) => {
       .min(1, "Tối thiểu 1 kí tự"),
   });
 
-  const methods = useForm<CreateUserType>({
+  const methods = useForm<UpdateUserType>({
     resolver: yupResolver(validationSchema),
     defaultValues,
   });
@@ -82,15 +82,20 @@ const AddNewUser: React.FC<addModelProps> = ({ onOpen, onClose }) => {
   } = methods;
 
   //call Api
-  const createUser = async (values: CreateUserType) => {
+  const udpateUser = async (values: UpdateUserType) => {
     try {
-      const res: any = await adminUserManagementAPI.createNewUser(values);
+      const res: any = await adminUserManagementAPI.updateUserInf(
+        userData?.userId,
+        values
+      );
+      fetchData();
       toast.success(res.message);
       onClose();
     } catch (error) {
       console.error(error);
     }
   };
+
   //role list
   const roleList = [
     { id: 1, role: Role.Admin, subName: "Quản trị viên" },
@@ -102,7 +107,7 @@ const AddNewUser: React.FC<addModelProps> = ({ onOpen, onClose }) => {
   return (
     <>
       <Dialog open={onOpen}>
-        <FormProvider methods={methods} onSubmit={handleSubmit(createUser)}>
+        <FormProvider methods={methods} onSubmit={handleSubmit(udpateUser)}>
           <Box
             sx={{
               display: "flex",
@@ -119,19 +124,9 @@ const AddNewUser: React.FC<addModelProps> = ({ onOpen, onClose }) => {
             </IconButton>
           </Box>
           <DialogContent>
-            <RHFTextField
-              name="name"
-              label="Tên"
-              sx={{ mb: 2 }}
-              onChange={(e) => setValue("name", e.target.value)}
-            />
+            <RHFTextField name="name" label="Tên" sx={{ mb: 2 }} />
             <RHFTextField name="email" label="Email" sx={{ mb: 2 }} />
-            <RHFTextField
-              name="password"
-              label="Mật khẩu"
-              type="password"
-              sx={{ mb: 2 }}
-            />
+
             <RHFTextField
               name="phoneNumber"
               label="Số điện thoại"
@@ -139,9 +134,9 @@ const AddNewUser: React.FC<addModelProps> = ({ onOpen, onClose }) => {
             />
             <RHFTextField name="address" label="Địa chỉ" sx={{ mb: 2 }} />
             <RHFSelect name="roleName" label="Vai trò" sx={{ mb: 2 }}>
-              {roleList?.map((i) => (
-                <option key={i.id} value={i.role}>
-                  {i.subName}
+              {roleList?.map((r) => (
+                <option key={r.id} value={r.role}>
+                  {r.subName}
                 </option>
               ))}
             </RHFSelect>
@@ -163,4 +158,4 @@ const AddNewUser: React.FC<addModelProps> = ({ onOpen, onClose }) => {
   );
 };
 
-export default AddNewUser;
+export default UpdatePopup;

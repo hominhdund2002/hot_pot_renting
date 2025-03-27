@@ -8,12 +8,14 @@ import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import * as React from "react";
 import DetailPopup from "../../../containers/ManageUser/Popup/DetailPopup";
+import UpdatePopup from "../../../containers/ManageUser/Popup/UpdatePopup";
 
 interface MenuActionTableUserProps {
   userData: any;
   onOpenUpdate?: any;
   onOpenDetail?: any;
   onOpenDelete?: any;
+  fetchData: () => void;
 }
 
 const MenuActionTableUser: React.FC<MenuActionTableUserProps> = ({
@@ -21,10 +23,15 @@ const MenuActionTableUser: React.FC<MenuActionTableUserProps> = ({
   onOpenUpdate,
   onOpenDetail,
   onOpenDelete,
+  fetchData,
 }) => {
+  console.log("data dc chọn: ", userData);
   const [anchorEl, setAnchorEl] = React.useState<any>(null);
   const [openDetail, setOpenDetail] = React.useState<boolean>(false);
+  const [openUpdate, setOpenUpdate] = React.useState<boolean>(false);
   const open = Boolean(anchorEl);
+
+  //func
   const handleClick = (event: any) => {
     setAnchorEl(event.currentTarget);
   };
@@ -33,7 +40,11 @@ const MenuActionTableUser: React.FC<MenuActionTableUserProps> = ({
   };
   const handleUpdate = () => {
     onOpenUpdate(userData);
+    setOpenUpdate(true);
     setAnchorEl(null);
+  };
+  const handleCloseUpdate = () => {
+    setOpenUpdate(false);
   };
   const handleDetail = () => {
     onOpenDetail(userData);
@@ -98,11 +109,20 @@ const MenuActionTableUser: React.FC<MenuActionTableUserProps> = ({
           <span>Mở phản hồi</span>
         </MenuItem> */}
       </Menu>
-      {userData && (
+      {openDetail == true && (
         <DetailPopup
           handleOpen={openDetail}
           handleClose={handleCloseDetail}
-          detailData={userData}
+          UserData={userData}
+        />
+      )}
+
+      {openUpdate == true && (
+        <UpdatePopup
+          onOpen={openUpdate}
+          onClose={handleCloseUpdate}
+          userData={userData}
+          fetchData={fetchData}
         />
       )}
     </div>
