@@ -11,7 +11,11 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import React from "react";
 import { colors } from "../../../styles/Color/color";
-import { FormProvider, RHFTextField } from "../../../components/hook-form";
+import {
+  FormProvider,
+  RHFSelect,
+  RHFTextField,
+} from "../../../components/hook-form";
 import config from "../../../configs";
 import { useForm } from "react-hook-form";
 import * as Yup from "yup";
@@ -20,6 +24,7 @@ import { CreateUserType } from "../../../types/createUser";
 import { LoadingButton } from "@mui/lab";
 import adminUserManagementAPI from "../../../api/adminUserManagementAPI";
 import { toast } from "react-toastify";
+import { Role } from "../../../routes/Roles";
 
 interface addModelProps {
   onOpen: boolean;
@@ -86,6 +91,13 @@ const AddNewUser: React.FC<addModelProps> = ({ onOpen, onClose }) => {
       console.error(error);
     }
   };
+  //role list
+  const roleList = [
+    { id: 1, role: Role.Admin, subName: "Quản trị viên" },
+    { id: 2, role: Role.Customer, subName: "khách hàng" },
+    { id: 3, role: Role.Staff, subName: "Nhân viên" },
+    { id: 4, role: Role.Manager, subName: "Quản lý" },
+  ];
 
   return (
     <>
@@ -126,7 +138,13 @@ const AddNewUser: React.FC<addModelProps> = ({ onOpen, onClose }) => {
               sx={{ mb: 2 }}
             />
             <RHFTextField name="address" label="Địa chỉ" sx={{ mb: 2 }} />
-            <RHFTextField name="roleName" label="Vai trò" sx={{ mb: 2 }} />
+            <RHFSelect name="roleName" label="Vai trò" sx={{ mb: 2 }}>
+              {roleList?.map((i) => (
+                <option key={i.id} value={i.role}>
+                  {i.subName}
+                </option>
+              ))}
+            </RHFSelect>
           </DialogContent>
           <DialogActions>
             <LoadingButton
