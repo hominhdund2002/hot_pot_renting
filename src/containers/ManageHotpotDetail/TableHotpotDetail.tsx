@@ -1,15 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import CTable from "../../components/table/CTable";
-import config from "../../configs";
-import { useNavigate, useParams } from "react-router";
+import { useParams } from "react-router";
 import {
   Button,
   Card,
   CardContent,
   CardMedia,
   Typography,
-  Chip,
   Grid2,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
@@ -26,13 +24,10 @@ const TableHotpotDetail = () => {
   const [dataHotpotDetailType, SetDataHotpotDetailType] = useState<any[]>([]);
   const [dataHotpot, SetDataHotpot] = useState<any>();
 
-  const navigate = useNavigate();
   //select data
   const selecteData = (row: any) => {
     setSelectedData(row);
   };
-
-  console.log("hotpot", hotpotId);
 
   // Fetch ingredients data with pagination
   useEffect(() => {
@@ -40,14 +35,17 @@ const TableHotpotDetail = () => {
       try {
         const res: any = await adminHotpot.getListHotpotDetail(hotpotId);
 
-        SetDataHotpotDetailType(res?.inventoryItems || []);
-        SetDataHotpot(res);
-        console.log(res?.inventoryItems);
+        SetDataHotpotDetailType(res?.data?.inventoryItems || []);
+        SetDataHotpot(res.data);
 
-        setTotal(res?.inventoryItems.length || 0);
+        console.log(res.data);
+
+        console.log(res?.data?.inventoryItems);
+
+        setTotal(res?.data?.inventoryItems?.length || 0);
         // setTotal(res?.totalCount || 0);
       } catch (error: any) {
-        console.error("Error fetching ingredients:", error?.message);
+        console.error("Error fetching ingredients:", error);
       }
     };
 
@@ -56,8 +54,12 @@ const TableHotpotDetail = () => {
 
   const tableHeader = [
     { id: "seriesNumber", label: "Vật liệu", align: "center" },
-    { id: "createdAt", label: "Kích thước", align: "center" },
-    { id: "status", label: "Tình trạng", align: "center" },
+    {
+      id: "status",
+      label: "Tình trạng",
+      align: "center",
+      format: "statusDetailHopot",
+    },
   ];
 
   // Handle pagination
@@ -99,7 +101,11 @@ const TableHotpotDetail = () => {
               <CardMedia
                 component="img"
                 height="100%"
-                image={dataHotpot?.imageURLs[0]}
+                image={
+                  dataHotpot?.imageURLs?.length > 0
+                    ? dataHotpot?.imageURLs[0]
+                    : ""
+                }
                 alt={dataHotpot?.name}
                 sx={{ objectFit: "cover", borderRadius: 2 }}
               />
@@ -130,20 +136,15 @@ const TableHotpotDetail = () => {
                   color="primary"
                   sx={{ fontWeight: "bold" }}
                 >
-                  Giá: {dataHotpot?.price.toLocaleString()} VND
+                  Giá: {dataHotpot?.price?.toLocaleString()} VND
                 </Typography>
                 <Typography
                   variant="h5"
                   color="primary"
                   sx={{ fontWeight: "bold" }}
                 >
-                  Giá nhập: {dataHotpot?.basePrice.toLocaleString()} VND
+                  Giá nhập: {dataHotpot?.basePrice?.toLocaleString()} VND
                 </Typography>
-                <Chip
-                  label={dataHotpot?.status ? "Còn hàng" : "Hết hàng"}
-                  color={dataHotpot?.status ? "success" : "error"}
-                  sx={{ mt: 2, fontSize: 16, px: 2, py: 1 }}
-                />
               </CardContent>
             </Grid2>
           </Grid2>

@@ -19,8 +19,11 @@ const adminFeedbackAPI = {
     });
   },
   getFeedbackDetails: (params?: any) => {
-    const url = "/admin/feedback/:id";
-    return axiosClient.post(url, params, {
+    const url = "/admin/feedback/id";
+    const newUrl = url.replace("id", params);
+    console.log(newUrl);
+
+    return axiosClient.get(newUrl, {
       paramsSerializer: {
         indexes: null, // by default: false
       },

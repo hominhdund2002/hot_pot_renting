@@ -1,11 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import CTable from "../../components/table/CTable";
-import config from "../../configs";
-import { useNavigate } from "react-router";
-import { Button } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
-
 import adminFeedbackAPI from "../../api/Services/adminFeedbackAPI";
 import MenuActionTableFeedback from "../../components/menuAction/menuActionTableFeedback/menuActionTableFeedback";
 
@@ -15,9 +10,8 @@ const TableFeedback = () => {
   const [size, setSize] = useState<number>(10); // Set a default value
   const [total, setTotal] = useState<number>(0);
   const [page, setPage] = useState<number>(0);
-  const [dataCombo, setDataCombo] = useState<any[]>([]);
+  const [dataFeedback, setDataFeedback] = useState<any[]>([]);
 
-  const navigate = useNavigate();
   //select data
   const selecteData = (row: any) => {
     setSelectedData(row);
@@ -25,7 +19,7 @@ const TableFeedback = () => {
 
   // Fetch ingredients data with pagination
   useEffect(() => {
-    const getListCombo = async () => {
+    const getListFeedback = async () => {
       try {
         const res: any = await adminFeedbackAPI.getListFeedback({
           pageNumber: page + 1,
@@ -34,14 +28,14 @@ const TableFeedback = () => {
 
         console.log(res);
 
-        setDataCombo(res?.data?.items || []);
-        setTotal(res?.totalCount || 0);
+        setDataFeedback(res?.data?.items || []);
+        setTotal(res?.data?.totalCount || 0);
       } catch (error: any) {
         console.error("Error fetching ingredients:", error?.message);
       }
     };
 
-    getListCombo();
+    getListFeedback();
   }, [page, size]);
 
   const tableHeader = [
@@ -64,15 +58,8 @@ const TableFeedback = () => {
 
   return (
     <>
-      <Button
-        startIcon={<AddIcon />}
-        variant="contained"
-        onClick={() => navigate(config.adminRoutes.createHotPotCombo)}
-      >
-        Tạo bombo mới
-      </Button>
       <CTable
-        data={dataCombo}
+        data={dataFeedback}
         tableHeaderTitle={tableHeader}
         title="Bảng tổng hợp đánh giá"
         menuAction={

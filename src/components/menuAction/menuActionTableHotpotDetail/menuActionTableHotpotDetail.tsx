@@ -7,6 +7,7 @@ import Button from "@mui/material/Button";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import * as React from "react";
+import MaintenanceHotpotTableModal from "../../../containers/ManageHotpotDetail/Modal/MaintenanceHotpotTableModal";
 
 interface MenuActionTableHotpotDetailProps {
   hotpotData: any;
@@ -19,6 +20,7 @@ const MenuActionTableHotpotDetail: React.FC<
   MenuActionTableHotpotDetailProps
 > = ({ hotpotData, onOpenUpdate, onOpenDetail, onOpenDelete }) => {
   const [anchorEl, setAnchorEl] = React.useState<any>(null);
+  const [openDetail, setOpenDetail] = React.useState<boolean>(false);
   const open = Boolean(anchorEl);
   const handleClick = (event: any) => {
     setAnchorEl(event.currentTarget);
@@ -32,6 +34,8 @@ const MenuActionTableHotpotDetail: React.FC<
   };
   const handleDetail = () => {
     onOpenDetail(hotpotData);
+    setOpenDetail(true);
+    setAnchorEl(null);
   };
 
   const handleDelete = () => {
@@ -39,6 +43,10 @@ const MenuActionTableHotpotDetail: React.FC<
     setAnchorEl(null);
   };
 
+  const handleCloseDetail = () => {
+    setOpenDetail(false);
+    onOpenDetail(null);
+  };
   return (
     <div>
       <Button
@@ -84,6 +92,14 @@ const MenuActionTableHotpotDetail: React.FC<
           <span>Xóa</span>
         </MenuItem>
       </Menu>
+
+      {onOpenDetail && (
+        <MaintenanceHotpotTableModal
+          hotpotData={hotpotData}
+          open={openDetail}
+          handleCloseModal={handleCloseDetail}
+        />
+      )}
     </div>
   );
 };

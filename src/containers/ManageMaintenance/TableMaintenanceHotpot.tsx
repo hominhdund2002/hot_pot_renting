@@ -37,7 +37,6 @@ const TableMaintenanceHotpot = () => {
   }, [page, size]);
 
   const tableHeader = [
-    { id: "id", label: "#", align: "left" },
     {
       id: "hotPotInventorySeriesNumber",
       label: "Số hiệu nồi",
@@ -45,7 +44,12 @@ const TableMaintenanceHotpot = () => {
     },
     { id: "loggedDate", label: "Ngày tạo", align: "center" },
     { id: "name", label: "Tiêu đề", align: "center" },
-    { id: "statusName", label: "Trạng Thái", align: "center" },
+    {
+      id: "statusName",
+      label: "Trạng Thái",
+      align: "center",
+      format: "statusHotpot",
+    },
   ];
 
   // Handle pagination
