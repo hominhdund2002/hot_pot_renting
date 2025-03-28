@@ -6,10 +6,11 @@ import Button from "@mui/material/Button";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import * as React from "react";
-import OrderDetailPopup from "../../../containers/ManageOrder/Popup/OrderDetailPopup";
+import { useNavigate } from "react-router";
+import { IOrder } from "../../../types/order";
 
 interface MenuActionTableOrderProps {
-  orderData: any;
+  orderData: IOrder;
   onOpenUpdate?: any;
   onOpenDetail?: any;
   onOpenDelete?: any;
@@ -22,7 +23,7 @@ const MenuActionTableOrder: React.FC<MenuActionTableOrderProps> = ({
   onOpenDelete,
 }) => {
   const [anchorEl, setAnchorEl] = React.useState<any>(null);
-  const [openDetail, setOpenDetail] = React.useState<boolean>(false);
+  const nav = useNavigate();
   const open = Boolean(anchorEl);
   const handleClick = (event: any) => {
     setAnchorEl(event.currentTarget);
@@ -35,13 +36,11 @@ const MenuActionTableOrder: React.FC<MenuActionTableOrderProps> = ({
     setAnchorEl(null);
   };
   const handleDetail = () => {
-    onOpenDetail(orderData);
-    setOpenDetail(true);
+    // onOpenDetail(orderData);
+    nav(`/dashboard/order/${orderData?.orderId}`);
     setAnchorEl(null);
   };
-  const handleCloseDetail = () => {
-    setOpenDetail(false);
-  };
+
   const handleDelete = () => {
     onOpenDelete(orderData);
     setAnchorEl(null);
@@ -97,13 +96,13 @@ const MenuActionTableOrder: React.FC<MenuActionTableOrderProps> = ({
           <span>Mở phản hồi</span>
         </MenuItem> */}
       </Menu>
-      {orderData && (
+      {/* {openDetail == true && (
         <OrderDetailPopup
           handleOpen={openDetail}
           handleClose={handleCloseDetail}
           detailData={orderData}
         />
-      )}
+      )} */}
     </div>
   );
 };

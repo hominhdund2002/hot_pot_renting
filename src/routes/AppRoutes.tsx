@@ -50,6 +50,7 @@ import { RentalDetailPage } from "../pages/Staff/PickupRental/RentalDetailPage";
 import { RecordReturnPage } from "../pages/Staff/PickupRental/RecordReturnPage";
 import { PickupRentalPage } from "../pages/Staff/PickupRental/PickupRentalPage";
 import ManagerLayout from "../layouts/ManagerLayout/ManagerLayout";
+import OrderDetail from "../containers/ManageOrder/SubPage/OrderDetail";
 
 const AppRoute: React.FC = () => {
   return (
@@ -59,7 +60,6 @@ const AppRoute: React.FC = () => {
         path={config.authRoutes.authenticate}
         element={<AuthenticatePage />}
       />
-
 
       <Route
         key="layoutManager"
@@ -150,13 +150,16 @@ const AppRoute: React.FC = () => {
           key="order"
           path={config.adminRoutes.orders}
           element={<OrderPage />}
-
         />
-           <Route
-
+        <Route
           key={"manageUser"}
           path={config.adminRoutes.manageUsers}
           element={<ManageUserPage />}
+        />
+        <Route
+          key={"orderDetail"}
+          path={config.adminRoutes.orderDetail}
+          element={<OrderDetail />}
         />
         <Route
           key="feedbackTable"

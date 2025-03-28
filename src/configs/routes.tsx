@@ -38,6 +38,7 @@ export const adminRoutes = {
   hotpotType: "/dashboard/hotpot",
   addHotpot: "/dashboard/addHotpot",
   HotpotDetail: "/dashboard/hotpotCombo/detail/:comboId",
+  orderDetail: "/dashboard/order/:orderId",
 };
 
 export const staffRoutes = {
