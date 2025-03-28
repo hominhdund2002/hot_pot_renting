@@ -7,8 +7,8 @@ import Button from "@mui/material/Button";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import * as React from "react";
-import { useNavigate } from "react-router";
-import config from "../../../configs";
+
+import MaintenanceHotpotDetailModal from "../../../containers/ManageHotpotDetail/Modal/MaintenanceHotpotDetailModal";
 
 interface MenuActionTableMaintenanceProps {
   hotpotData: any;
@@ -24,7 +24,8 @@ const MenuActionTableMaintenance: React.FC<MenuActionTableMaintenanceProps> = ({
   onOpenDelete,
 }) => {
   const [anchorEl, setAnchorEl] = React.useState<any>(null);
-  const navigate = useNavigate();
+  const [openDetail, setOpenDetail] = React.useState<boolean>(false);
+
   const open = Boolean(anchorEl);
   const handleClick = (event: any) => {
     setAnchorEl(event.currentTarget);
@@ -38,14 +39,12 @@ const MenuActionTableMaintenance: React.FC<MenuActionTableMaintenanceProps> = ({
   };
   const handleDetail = () => {
     onOpenDetail(hotpotData);
-    console.log(hotpotData, "detail");
+    setOpenDetail(true);
+    setAnchorEl(null);
+  };
 
-    navigate(
-      config.adminRoutes.MaintenanceHotpot.replace(
-        ":id",
-        hotpotData.hotPotInventoryId
-      )
-    );
+  const handleCloseDetail = () => {
+    setOpenDetail(false);
   };
 
   const handleDelete = () => {
@@ -98,6 +97,14 @@ const MenuActionTableMaintenance: React.FC<MenuActionTableMaintenanceProps> = ({
           <span>Xóa</span>
         </MenuItem>
       </Menu>
+
+      {openDetail && (
+        <MaintenanceHotpotDetailModal
+          handleCloseModal={handleCloseDetail}
+          hotpotData={hotpotData}
+          open={openDetail}
+        />
+      )}
     </div>
   );
 };

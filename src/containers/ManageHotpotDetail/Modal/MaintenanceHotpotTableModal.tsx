@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import adminMaintenanceAPI from "../../../api/Services/adminMaintenance";
 import CTable from "../../../components/table/CTable";
-import MenuActionTableMaintenance from "../../../components/menuAction/menuActionTableMaintenance/menuActionTableMaintenance";
+import MenuActionTableMaintenanceDetail from "../../../components/menuAction/menuActionTableMaintenance/menuActionTableMaintenanceDetail";
 
 interface MaintenanceProps {
   open: boolean;
@@ -98,7 +98,7 @@ const MaintenanceHotpotTableModal: React.FC<MaintenanceProps> = ({
           handleCloseModal();
         }}
         aria-hidden={false}
-        maxWidth="md"
+        maxWidth="lg"
         fullWidth
       >
         <DialogTitle>
@@ -111,7 +111,7 @@ const MaintenanceHotpotTableModal: React.FC<MaintenanceProps> = ({
             title="Bảng Thông Tin Bảo Trì"
             selectedData={selecteData}
             menuAction={
-              <MenuActionTableMaintenance
+              <MenuActionTableMaintenanceDetail
                 hotpotData={selectedData}
                 onOpenDetail={selecteData}
               />

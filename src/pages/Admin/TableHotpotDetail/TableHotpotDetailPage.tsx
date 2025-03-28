@@ -11,8 +11,11 @@ const TableHotpotDetailPage: React.FC = () => {
         <HeaderBreadcrumbs
           heading="Nồi Lẩu"
           links={[
-            { name: config.Vntext.Dashboard.dashboard },
-            { name: "Quản lí nồi lẩu" },
+            {
+              name: config.Vntext.Dashboard.dashboard,
+              href: config.adminRoutes.dashboard,
+            },
+            { name: "Quản lí nồi lẩu", href: config.adminRoutes.hotpotType },
             { name: "Chi tiết nồi lẩu" },
           ]}
         />

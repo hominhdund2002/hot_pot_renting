@@ -15,7 +15,6 @@ import { EquipmentConditionLogPage } from "../pages/Manager/EquipmentConditionLo
 import { EquipmentStatusReportPage } from "../pages/Manager/EquipmentStatusReport/EquipmentStatusReportPage";
 import { OrderHistoryPage } from "../pages/Staff/OrderHistory/OrderHistoryPage";
 import { FeedbackManagementPage } from "../pages/Manager/FeedbackManagement/FeedbackManagementPage";
-import AdminLayout from "../layouts/AdminLayout/LayoutAdmin";
 import FeedbackDetailPage from "../pages/Admin/Feedback/FeedbackDetailPage";
 import FeedbackPage from "../pages/Admin/Feedback/FeedbackPage";
 import CreateComboPage from "../pages/Admin/Combohotpot/CreateComboPage";
@@ -139,7 +138,7 @@ const AppRoute: React.FC = () => {
       <Route
         key="layoutAdmin"
         path={config.adminRoutes.dashboard}
-        element={<AdminLayout />}
+        element={<ManagerLayout />}
       >
         <Route
           key="dashboard"

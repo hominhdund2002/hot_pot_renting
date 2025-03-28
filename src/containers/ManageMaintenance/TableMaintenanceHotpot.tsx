@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import CTable from "../../components/table/CTable";
 import adminMaintenanceAPI from "../../api/Services/adminMaintenance";
-import MenuActionTableMaintenance from "../../components/menuAction/menuActionTableMaintenance/menuActionTableMaintenance";
+import MenuActionTableHotpotDetail from "../../components/menuAction/menuActionTableHotpotDetail/menuActionTableHotpotDetail";
 
 const TableMaintenanceHotpot = () => {
   // declare
@@ -72,7 +72,7 @@ const TableMaintenanceHotpot = () => {
         title="Bảng Nổi  Lẩu"
         selectedData={selecteData}
         menuAction={
-          <MenuActionTableMaintenance
+          <MenuActionTableHotpotDetail
             hotpotData={selectedData}
             onOpenDetail={selecteData}
           />

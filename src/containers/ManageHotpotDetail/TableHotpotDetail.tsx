@@ -37,11 +37,6 @@ const TableHotpotDetail = () => {
 
         SetDataHotpotDetailType(res?.data?.inventoryItems || []);
         SetDataHotpot(res.data);
-
-        console.log(res.data);
-
-        console.log(res?.data?.inventoryItems);
-
         setTotal(res?.data?.inventoryItems?.length || 0);
         // setTotal(res?.totalCount || 0);
       } catch (error: any) {

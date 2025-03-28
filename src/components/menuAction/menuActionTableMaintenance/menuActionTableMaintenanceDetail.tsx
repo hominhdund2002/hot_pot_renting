@@ -7,17 +7,17 @@ import Button from "@mui/material/Button";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import * as React from "react";
-import MaintenanceHotpotTableModal from "../../../containers/ManageHotpotDetail/Modal/MaintenanceHotpotTableModal";
+import MaintenanceHotpotDetailModal from "../../../containers/ManageHotpotDetail/Modal/MaintenanceHotpotDetailModal";
 
-interface MenuActionTableHotpotDetailProps {
+interface MenuActionTableMaintenanceProps {
   hotpotData: any;
   onOpenUpdate?: any;
   onOpenDetail?: any;
   onOpenDelete?: any;
 }
 
-const MenuActionTableHotpotDetail: React.FC<
-  MenuActionTableHotpotDetailProps
+const MenuActionTableMaintenanceDetail: React.FC<
+  MenuActionTableMaintenanceProps
 > = ({ hotpotData, onOpenUpdate, onOpenDetail, onOpenDelete }) => {
   const [anchorEl, setAnchorEl] = React.useState<any>(null);
   const [openDetail, setOpenDetail] = React.useState<boolean>(false);
@@ -38,15 +38,15 @@ const MenuActionTableHotpotDetail: React.FC<
     setAnchorEl(null);
   };
 
+  const handleCloseDetail = () => {
+    setOpenDetail(false);
+  };
+
   const handleDelete = () => {
     onOpenDelete(hotpotData);
     setAnchorEl(null);
   };
 
-  const handleCloseDetail = () => {
-    setOpenDetail(false);
-    onOpenDetail(null);
-  };
   return (
     <div>
       <Button
@@ -94,14 +94,14 @@ const MenuActionTableHotpotDetail: React.FC<
       </Menu>
 
       {openDetail && (
-        <MaintenanceHotpotTableModal
+        <MaintenanceHotpotDetailModal
+          handleCloseModal={handleCloseDetail}
           hotpotData={hotpotData}
           open={openDetail}
-          handleCloseModal={handleCloseDetail}
         />
       )}
     </div>
   );
 };
 
-export default MenuActionTableHotpotDetail;
+export default MenuActionTableMaintenanceDetail;
