@@ -30,6 +30,15 @@ const adminIngredientsAPI = {
       },
     });
   },
+
+  createNewIngredientType: (params?: any) => {
+    const url = "/admin/ingredient-types";
+    return axiosClient.post(url, params, {
+      paramsSerializer: {
+        indexes: null, // by default: false
+      },
+    });
+  },
 };
 
 export default adminIngredientsAPI;

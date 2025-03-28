@@ -76,7 +76,6 @@ const CTable: React.FC<CTbaleProps> = ({
 }) => {
   //Declare
   const theme = useTheme();
-  console.log("truyeefbn: ", tableHeaderTitle);
 
   //func
   function getNestedValue(obj: any, path: any) {
@@ -116,6 +115,32 @@ const CTable: React.FC<CTbaleProps> = ({
           return "Đang chờ";
         case "Complete":
           return "Hoàn thành";
+        default:
+          return "-";
+      }
+    }
+
+    //status hotpot
+    if (column.format && column.format == "statusHotpot") {
+      switch (value) {
+        case "Pending":
+          return "Đang chờ";
+        case "Completed":
+          return "Hoàn thành";
+        case "In Progress":
+          return "Đang tiến hành";
+        default:
+          return "-";
+      }
+    }
+    if (column.format && column.format == "statusDetailHopot") {
+      switch (value) {
+        case "Available":
+          return "Khả dụng";
+        case "Damaged":
+          return "Bị hư";
+        case "Rented":
+          return "Đang Cho thuê";
         default:
           return "-";
       }

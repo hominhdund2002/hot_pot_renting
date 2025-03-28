@@ -7,31 +7,21 @@ import Button from "@mui/material/Button";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import * as React from "react";
-import DetailPopup from "../../../containers/ManageUser/Popup/DetailPopup";
-import UpdatePopup from "../../../containers/ManageUser/Popup/UpdatePopup";
+import MaintenanceHotpotTableModal from "../../../containers/ManageHotpotDetail/Modal/MaintenanceHotpotTableModal";
 
-interface MenuActionTableUserProps {
-  userData: any;
+interface MenuActionTableHotpotDetailProps {
+  hotpotData: any;
   onOpenUpdate?: any;
   onOpenDetail?: any;
   onOpenDelete?: any;
-  fetchData: () => void;
 }
 
-const MenuActionTableUser: React.FC<MenuActionTableUserProps> = ({
-  userData,
-  onOpenUpdate,
-  onOpenDetail,
-  onOpenDelete,
-  fetchData,
-}) => {
-  console.log("data dc chọn: ", userData);
+const MenuActionTableHotpotDetail: React.FC<
+  MenuActionTableHotpotDetailProps
+> = ({ hotpotData, onOpenUpdate, onOpenDetail, onOpenDelete }) => {
   const [anchorEl, setAnchorEl] = React.useState<any>(null);
   const [openDetail, setOpenDetail] = React.useState<boolean>(false);
-  const [openUpdate, setOpenUpdate] = React.useState<boolean>(false);
   const open = Boolean(anchorEl);
-
-  //func
   const handleClick = (event: any) => {
     setAnchorEl(event.currentTarget);
   };
@@ -39,26 +29,24 @@ const MenuActionTableUser: React.FC<MenuActionTableUserProps> = ({
     setAnchorEl(null);
   };
   const handleUpdate = () => {
-    onOpenUpdate(userData);
-    setOpenUpdate(true);
+    onOpenUpdate(hotpotData);
     setAnchorEl(null);
   };
-  const handleCloseUpdate = () => {
-    setOpenUpdate(false);
-  };
   const handleDetail = () => {
-    onOpenDetail(userData);
+    onOpenDetail(hotpotData);
     setOpenDetail(true);
     setAnchorEl(null);
   };
-  const handleCloseDetail = () => {
-    setOpenDetail(false);
-  };
+
   const handleDelete = () => {
-    onOpenDelete(userData);
+    onOpenDelete(hotpotData);
     setAnchorEl(null);
   };
 
+  const handleCloseDetail = () => {
+    setOpenDetail(false);
+    onOpenDetail(null);
+  };
   return (
     <div>
       <Button
@@ -92,7 +80,7 @@ const MenuActionTableUser: React.FC<MenuActionTableUserProps> = ({
       >
         <MenuItem onClick={() => handleDetail()}>
           <InfoIcon sx={{ mr: "4px" }} color="info" />
-          <span>Chi Tiết</span>
+          <span>Chi Tiết Bảo Trì</span>
         </MenuItem>
         <MenuItem onClick={() => handleUpdate()}>
           <EditIcon sx={{ mr: "4px", color: "#9ADE7B" }} />
@@ -103,30 +91,17 @@ const MenuActionTableUser: React.FC<MenuActionTableUserProps> = ({
           <BlockIcon sx={{ mr: "4px" }} color="error" />
           <span>Xóa</span>
         </MenuItem>
-
-        {/* <MenuItem onClick={() => handleStartFeedBack(id)}>
-          <FeedbackOutlinedIcon sx={{ mr: "4px" }} color="success" />
-          <span>Mở phản hồi</span>
-        </MenuItem> */}
       </Menu>
-      {openDetail == true && (
-        <DetailPopup
-          handleOpen={openDetail}
-          handleClose={handleCloseDetail}
-          UserData={userData}
-        />
-      )}
 
-      {openUpdate == true && (
-        <UpdatePopup
-          onOpen={openUpdate}
-          onClose={handleCloseUpdate}
-          userData={userData}
-          fetchData={fetchData}
+      {openDetail && (
+        <MaintenanceHotpotTableModal
+          hotpotData={hotpotData}
+          open={openDetail}
+          handleCloseModal={handleCloseDetail}
         />
       )}
     </div>
   );
 };
 
-export default MenuActionTableUser;
+export default MenuActionTableHotpotDetail;

@@ -7,21 +7,45 @@ import {
   IconButton,
   Typography,
 } from "@mui/material";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import { colors } from "../../../styles/Color/color";
+import { UserDetailInterface } from "../../../types/userDetail";
+import adminUserManagementAPI from "../../../api/adminUserManagementAPI";
+import { UserInterface } from "../../../types/user";
 
 interface DetailPopupProps {
   handleOpen?: any;
   handleClose?: any;
-  detailData?: any;
+  UserData?: UserInterface;
 }
 
 const DetailPopup: React.FC<DetailPopupProps> = ({
   handleOpen,
   handleClose,
-  detailData,
+  UserData,
 }) => {
+  console.log("data chọn được truyền : ", UserData);
+  //Declare
+  const [detailData, setDetailData] = useState<UserDetailInterface>();
+
+  //Call API
+  const getUserDetail = async () => {
+    console.log("đã dc call");
+    try {
+      const res: any = await adminUserManagementAPI.getListUserById(
+        UserData?.userId
+      );
+      setDetailData(res?.data);
+    } catch (error) {
+      console.log("lỗi: ", error);
+    }
+  };
+
+  useEffect(() => {
+    getUserDetail();
+  }, [UserData]);
+
   return (
     <>
       <Dialog open={handleOpen}>
@@ -30,7 +54,8 @@ const DetailPopup: React.FC<DetailPopupProps> = ({
             bgcolor: colors.primary,
             display: "flex",
             alignItems: "center",
-            justifyContent: "center",
+            justifyContent: "space-between",
+            width: "400px",
           }}
         >
           <DialogTitle color={colors.white}>Chi tiết</DialogTitle>
@@ -40,7 +65,36 @@ const DetailPopup: React.FC<DetailPopupProps> = ({
         </Box>
 
         <DialogContent>
-          <Typography>Đây là chi tiết</Typography>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <Typography>Tên:</Typography>
+            <Typography>{detailData?.name}</Typography>
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <Typography>Điện thoại:</Typography>
+            <Typography>{detailData?.phoneNumber}</Typography>
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <Typography>Email:</Typography>
+            <Typography>{detailData?.email}</Typography>
+          </Box>
         </DialogContent>
       </Dialog>
     </>
