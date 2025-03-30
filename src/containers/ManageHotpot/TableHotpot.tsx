@@ -58,7 +58,7 @@ const TableHotpot = () => {
     { id: "material", label: "Vật liệu", align: "center" },
     { id: "size", label: "Kích thước", align: "center" },
     { id: "imageURLs", label: "Hình ảnh", align: "center" },
-    { id: "price", label: "Giá", align: "center" },
+    { id: "price", label: "Giá", align: "center", format: "price" },
     { id: "quantity", label: "Số lượng", align: "center" },
     { id: "createdAt", label: "Ngày tạo", align: "center", format: "date" },
   ];

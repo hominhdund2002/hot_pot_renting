@@ -145,6 +145,14 @@ const CTable: React.FC<CTbaleProps> = ({
           return "-";
       }
     }
+
+    //price
+
+    if (column.format && column.format == "price") {
+      if (value === undefined || value === null) return "N/A";
+      return value.toLocaleString("vi-VN") + " VND";
+    }
+
     return value;
   }
 
