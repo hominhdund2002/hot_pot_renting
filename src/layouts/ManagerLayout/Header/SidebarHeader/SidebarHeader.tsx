@@ -49,7 +49,7 @@ const SidebarDrawer: React.FC<SidebarDrawerProps> = ({ open, setOpen }) => {
   const navigate = useNavigate();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
-  const role = "Manager";
+  const role = "Admin";
   // State for expanding/collapsing menu categories
   const [openCategories, setOpenCategories] = useState<{
     [key: string]: boolean;

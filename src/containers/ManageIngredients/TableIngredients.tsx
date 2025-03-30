@@ -8,6 +8,8 @@ import { useNavigate } from "react-router";
 import { Button } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import config from "../../configs";
+import MenuActionTableIngredient from "../../components/menuAction/menuActionTableIngredient/menuActionTableIngredient";
+import { format } from "date-fns";
 
 const TableIngredients = () => {
   // State variables
@@ -41,7 +43,7 @@ const TableIngredients = () => {
     { id: "name", label: "Tên nguyên liệu", align: "center" },
     { id: "imageURL", label: "Hình ảnh", align: "center" },
     { id: "ingredientTypeName", label: "Loại nguyên liệu", align: "center" },
-    { id: "price", label: "Giá tiền", align: "center" },
+    { id: "price", label: "Giá tiền", align: "center", format: "price" },
     { id: "createdAt", label: "Ngày tạo", align: "center", format: "date" },
   ];
 
@@ -84,8 +86,8 @@ const TableIngredients = () => {
         tableHeaderTitle={tableHeader}
         title="Bảng nguyên liệu"
         menuAction={
-          <MenuActionTableUser
-            userData={selectedData}
+          <MenuActionTableIngredient
+            hotpotData={selectedData}
             onOpenDetail={selectData}
           />
         }
