@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import CTable from "../../components/table/CTable";
 import MenuActionTableUser from "../../components/menuAction/menuActionTableUser/MenuActionTableUser";
@@ -62,15 +63,22 @@ const TableIngredients = () => {
     getListIngredients();
   }, [page, size]);
 
+  const EventAction = () => {
+    return (
+      <>
+        <Button
+          startIcon={<AddIcon />}
+          variant="contained"
+          onClick={() => navigate(config.adminRoutes.createIngredients)}
+        >
+          Thêm Nguyên Liệu
+        </Button>
+      </>
+    );
+  };
+
   return (
     <>
-      <Button
-        startIcon={<AddIcon />}
-        variant="contained"
-        onClick={() => navigate(config.adminRoutes.createIngredients)}
-      >
-        Thêm Nguyên Liệu
-      </Button>
       <CTable
         data={dataIngredients}
         tableHeaderTitle={tableHeader}
@@ -81,6 +89,7 @@ const TableIngredients = () => {
             onOpenDetail={selectData}
           />
         }
+        eventAction={<EventAction />}
         selectedData={selectData}
         size={size}
         page={page}

@@ -60,15 +60,22 @@ const TableCombo = () => {
     setPage(0);
   };
 
+  const EventAction = () => {
+    return (
+      <>
+        <Button
+          startIcon={<AddIcon />}
+          variant="contained"
+          onClick={() => navigate(config.adminRoutes.createHotPotCombo)}
+        >
+          Tạo bombo mới
+        </Button>
+      </>
+    );
+  };
+
   return (
     <>
-      <Button
-        startIcon={<AddIcon />}
-        variant="contained"
-        onClick={() => navigate(config.adminRoutes.createHotPotCombo)}
-      >
-        Tạo bombo mới
-      </Button>
       <CTable
         data={dataCombo}
         tableHeaderTitle={tableHeader}
@@ -79,6 +86,7 @@ const TableCombo = () => {
             onOpenDetail={selecteData}
           />
         }
+        eventAction={<EventAction />}
         selectedData={selecteData}
         size={size}
         page={page}

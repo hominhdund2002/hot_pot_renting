@@ -1,4 +1,5 @@
-import React from "react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -8,31 +9,32 @@ import {
   Chip,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
+import adminFeedbackAPI from "../../api/Services/adminFeedbackAPI";
+import { useParams } from "react-router";
 
-interface FeedbackDetailProps {
-  id: string;
-  customerName: string;
-  phone: string;
-  email: string;
-  orderId: string;
-  content: string;
-  feedbackType: string;
-  status: string;
-  createdAt: string;
-  priority: string;
-}
+const FeedbackDetail: React.FC = () => {
+  const { feedbackId } = useParams<{ feedbackId: string }>();
+  const [dataFeedback, setDataFeedback] = useState<any>();
 
-const FeedbackDetail: React.FC<FeedbackDetailProps> = ({
-  customerName,
-  phone,
-  email,
-  orderId,
-  content,
-  feedbackType,
-  status,
-  createdAt,
-  priority,
-}) => {
+  useEffect(() => {
+    const getListFeedback = async () => {
+      try {
+        console.log(feedbackId);
+
+        if (!feedbackId) return;
+        const res: any = await adminFeedbackAPI.getFeedbackDetails(feedbackId);
+
+        console.log(res);
+
+        setDataFeedback(res?.data);
+      } catch (error: any) {
+        console.error("Error fetching ingredients:", error?.message);
+      }
+    };
+
+    getListFeedback();
+  }, []);
+
   return (
     <Box>
       <Card variant="outlined">
@@ -50,22 +52,22 @@ const FeedbackDetail: React.FC<FeedbackDetailProps> = ({
           <Grid container spacing={2} sx={{ mb: 2 }}>
             <Grid size={{ mobile: 12, desktop: 6 }}>
               <Typography variant="body1">
-                <strong>Tên khách hàng:</strong> {customerName}
+                <strong>Tên khách hàng:</strong> {dataFeedback?.userName}
               </Typography>
             </Grid>
             <Grid size={{ mobile: 12, desktop: 6 }}>
               <Typography variant="body1">
-                <strong>Số điện thoại:</strong> {phone}
+                <strong>Số điện thoại:</strong>
               </Typography>
             </Grid>
             <Grid size={{ mobile: 12, desktop: 6 }}>
               <Typography variant="body1">
-                <strong>Email:</strong> {email}
+                <strong>Email:</strong>
               </Typography>
             </Grid>
             <Grid size={{ mobile: 12, desktop: 6 }}>
               <Typography variant="body1">
-                <strong>ID Đơn hàng:</strong> {orderId}
+                <strong>ID Đơn hàng:</strong> {dataFeedback?.orderId}
               </Typography>
             </Grid>
           </Grid>
@@ -79,24 +81,24 @@ const FeedbackDetail: React.FC<FeedbackDetailProps> = ({
           <Grid container spacing={2} sx={{ mb: 2 }}>
             <Grid size={{ mobile: 12 }}>
               <Typography variant="body1">
-                <strong>Loại phản hồi:</strong> {feedbackType}
+                <strong>Loại phản hồi:</strong> {dataFeedback?.title}
               </Typography>
             </Grid>
             <Grid size={{ mobile: 12 }}>
               <Typography variant="body1">
-                <strong>Nội dung:</strong> {content}
+                <strong>Nội dung:</strong> {dataFeedback?.comment}
               </Typography>
             </Grid>
             <Grid size={{ mobile: 12 }}>
               <Typography variant="body1">
-                <strong>Thời gian gửi:</strong> {createdAt}
+                <strong>Thời gian gửi:</strong> {dataFeedback?.createdAt}
               </Typography>
             </Grid>
             <Grid size={{ mobile: 12 }}>
               <Typography variant="body1">
                 <strong>Mức độ ưu tiên:</strong>{" "}
-                <Chip
-                  label={priority}
+                {/* <Chip
+                  label=
                   color={
                     priority === "Cao"
                       ? "error"
@@ -104,7 +106,7 @@ const FeedbackDetail: React.FC<FeedbackDetailProps> = ({
                       ? "warning"
                       : "success"
                   }
-                />
+                /> */}
               </Typography>
             </Grid>
           </Grid>

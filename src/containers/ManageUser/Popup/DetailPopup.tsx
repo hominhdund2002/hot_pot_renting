@@ -1,10 +1,12 @@
 import {
+  Avatar,
   Box,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   IconButton,
+  Stack,
   Typography,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
@@ -65,36 +67,69 @@ const DetailPopup: React.FC<DetailPopupProps> = ({
         </Box>
 
         <DialogContent>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <Typography>Tên:</Typography>
-            <Typography>{detailData?.name}</Typography>
-          </Box>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <Typography>Điện thoại:</Typography>
-            <Typography>{detailData?.phoneNumber}</Typography>
-          </Box>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <Typography>Email:</Typography>
-            <Typography>{detailData?.email}</Typography>
-          </Box>
+          <Stack spacing={2}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Avatar
+                src={detailData?.imageURL ?? detailData?.name}
+                alt="img"
+                sx={{ height: 150, width: 150 }}
+              />
+            </Box>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <Typography>Tên:</Typography>
+              <Typography sx={{ color: colors.gray_600 }}>
+                {detailData?.name ?? "-"}
+              </Typography>
+            </Box>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <Typography>Điện thoại:</Typography>
+              <Typography sx={{ color: colors.gray_600 }}>
+                {detailData?.phoneNumber ?? "-"}
+              </Typography>
+            </Box>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <Typography>Email:</Typography>
+              <Typography sx={{ color: colors.gray_600 }}>
+                {detailData?.email ?? "-"}
+              </Typography>
+            </Box>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <Typography>Điểm thân thiết:</Typography>
+              <Typography sx={{ color: colors.gray_600 }}>
+                {detailData?.loyatyPoint ?? "-"}
+              </Typography>
+            </Box>
+          </Stack>
         </DialogContent>
       </Dialog>
     </>

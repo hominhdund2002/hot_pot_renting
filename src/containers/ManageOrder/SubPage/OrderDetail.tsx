@@ -4,6 +4,7 @@ import { useParams } from "react-router";
 import { IOrder } from "../../../types/order";
 import CustomerInf from "./CustomerInf";
 import orderManagementAPI from "../../../api/orderManagementAPI";
+import ListOderItems from "./ListOderItems";
 
 const OrderDetail = () => {
   //Declare
@@ -27,6 +28,8 @@ const OrderDetail = () => {
   return (
     <Box>
       <CustomerInf data={orderData} />
+      <br />
+      <ListOderItems data={orderData} />
     </Box>
   );
 };

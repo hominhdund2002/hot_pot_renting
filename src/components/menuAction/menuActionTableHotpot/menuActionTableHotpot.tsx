@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import BlockIcon from "@mui/icons-material/Block";
 import EditIcon from "@mui/icons-material/Edit";
 import InfoIcon from "@mui/icons-material/Info";
@@ -7,23 +8,23 @@ import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import * as React from "react";
 import { useNavigate } from "react-router";
-import { IOrder } from "../../../types/order";
+import config from "../../../configs";
 
-interface MenuActionTableOrderProps {
-  orderData: IOrder;
+interface MenuActionTableHotpotDetailProps {
+  hotpotData: any;
   onOpenUpdate?: any;
-
+  onOpenDetail?: any;
   onOpenDelete?: any;
 }
 
-const MenuActionTableOrder: React.FC<MenuActionTableOrderProps> = ({
-  orderData,
+const MenuActionTableHotpot: React.FC<MenuActionTableHotpotDetailProps> = ({
+  hotpotData,
   onOpenUpdate,
-
+  onOpenDetail,
   onOpenDelete,
 }) => {
   const [anchorEl, setAnchorEl] = React.useState<any>(null);
-  const nav = useNavigate();
+  const navigate = useNavigate();
   const open = Boolean(anchorEl);
   const handleClick = (event: any) => {
     setAnchorEl(event.currentTarget);
@@ -32,17 +33,23 @@ const MenuActionTableOrder: React.FC<MenuActionTableOrderProps> = ({
     setAnchorEl(null);
   };
   const handleUpdate = () => {
-    onOpenUpdate(orderData);
+    onOpenUpdate(hotpotData);
     setAnchorEl(null);
   };
   const handleDetail = () => {
-    // onOpenDetail(orderData);
-    nav(`/dashboard/order/${orderData?.orderId}`);
-    setAnchorEl(null);
+    onOpenDetail(hotpotData);
+    console.log(hotpotData, "detail");
+
+    navigate(
+      config.adminRoutes.DetailHotpotType.replace(
+        ":hotpotId",
+        hotpotData.hotpotId
+      )
+    );
   };
 
   const handleDelete = () => {
-    onOpenDelete(orderData);
+    onOpenDelete(hotpotData);
     setAnchorEl(null);
   };
 
@@ -81,7 +88,7 @@ const MenuActionTableOrder: React.FC<MenuActionTableOrderProps> = ({
           <InfoIcon sx={{ mr: "4px" }} color="info" />
           <span>Chi Tiết</span>
         </MenuItem>
-        {/* <MenuItem onClick={() => handleUpdate()}>
+        <MenuItem onClick={() => handleUpdate()}>
           <EditIcon sx={{ mr: "4px", color: "#9ADE7B" }} />
           <span>Cập nhật</span>
         </MenuItem>
@@ -89,22 +96,10 @@ const MenuActionTableOrder: React.FC<MenuActionTableOrderProps> = ({
         <MenuItem onClick={() => handleDelete()}>
           <BlockIcon sx={{ mr: "4px" }} color="error" />
           <span>Xóa</span>
-        </MenuItem> */}
-
-        {/* <MenuItem onClick={() => handleStartFeedBack(id)}>
-          <FeedbackOutlinedIcon sx={{ mr: "4px" }} color="success" />
-          <span>Mở phản hồi</span>
-        </MenuItem> */}
+        </MenuItem>
       </Menu>
-      {/* {openDetail == true && (
-        <OrderDetailPopup
-          handleOpen={openDetail}
-          handleClose={handleCloseDetail}
-          detailData={orderData}
-        />
-      )} */}
     </div>
   );
 };
 
-export default MenuActionTableOrder;
+export default MenuActionTableHotpot;

@@ -7,7 +7,7 @@ const App: React.FC = () => {
   return (
     <Router>
       <AuthProvider>
-        <AppRoute />
+      <AppRoute />
       </AuthProvider>
     </Router>
   );
