@@ -416,7 +416,7 @@ const SidebarDrawer: React.FC<SidebarDrawerProps> = ({ open, setOpen }) => {
               bgcolor: theme.palette.primary.main,
             }}
           >
-            <Typography variant="h4">{userData?.name.charAt(0)}</Typography>
+            <Typography variant="h4">{userData?.name?.charAt(0)}</Typography>
           </Avatar>
           <Typography variant="h6" sx={{ mt: 2, fontWeight: "bold" }}>
             Xin chào, {userData?.name}

@@ -13,6 +13,7 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import adminHotpot from "../../api/Services/adminHotpot";
 import MenuActionTableHotpotDetail from "../../components/menuAction/menuActionTableHotpotDetail/menuActionTableHotpotDetail";
+import ProductEditPopup from "./Modal/ModalAddNewHotpot";
 
 const TableHotpotDetail = () => {
   // declare
@@ -23,27 +24,31 @@ const TableHotpotDetail = () => {
   const [page, setPage] = useState<number>(0);
   const [dataHotpotDetailType, SetDataHotpotDetailType] = useState<any[]>([]);
   const [dataHotpot, SetDataHotpot] = useState<any>();
+  const [openUpdate, setOpenUpdate] = useState<boolean>(false);
 
   //select data
   const selecteData = (row: any) => {
     setSelectedData(row);
   };
 
+  const getListHotpotDetailType = async () => {
+    try {
+      const res: any = await adminHotpot.getListHotpotDetail(hotpotId);
+
+      SetDataHotpotDetailType(res?.data?.inventoryItems || []);
+      SetDataHotpot(res.data);
+      setTotal(res?.data?.inventoryItems?.length || 0);
+      // setTotal(res?.totalCount || 0);
+    } catch (error: any) {
+      console.error("Error fetching ingredients:", error);
+    }
+  };
+
+  const handleFetch = () => {
+    getListHotpotDetailType();
+  };
   // Fetch ingredients data with pagination
   useEffect(() => {
-    const getListHotpotDetailType = async () => {
-      try {
-        const res: any = await adminHotpot.getListHotpotDetail(hotpotId);
-
-        SetDataHotpotDetailType(res?.data?.inventoryItems || []);
-        SetDataHotpot(res.data);
-        setTotal(res?.data?.inventoryItems?.length || 0);
-        // setTotal(res?.totalCount || 0);
-      } catch (error: any) {
-        console.error("Error fetching ingredients:", error);
-      }
-    };
-
     getListHotpotDetailType();
   }, []);
 
@@ -78,7 +83,13 @@ const TableHotpotDetail = () => {
 
   return (
     <>
-      <Button startIcon={<AddIcon />} variant="contained" onClick={() => {}}>
+      <Button
+        startIcon={<AddIcon />}
+        variant="contained"
+        onClick={() => {
+          setOpenUpdate(true);
+        }}
+      >
         Tạo loại nồi mới
       </Button>
       <Grid2 container justifyContent="center" sx={{ mt: 4 }}>
@@ -162,6 +173,15 @@ const TableHotpotDetail = () => {
         handleChangePage={handleChangePage}
         handleChangeRowsPerPage={handleChangeRowsPerPage}
       />
+
+      {openUpdate && (
+        <ProductEditPopup
+          handleClose={() => setOpenUpdate(false)}
+          handleOpen={openUpdate}
+          productData={dataHotpot}
+          onSave={handleFetch}
+        />
+      )}
     </>
   );
 };

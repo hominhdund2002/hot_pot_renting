@@ -30,6 +30,16 @@ const adminHotpot = {
       },
     });
   },
+
+  updateAddHotpot: (id: string, params: any) => {
+    const url = "/admin/hotpots/id";
+    const newUrl = url.replace("id", id);
+    return axiosClient.put(newUrl, params, {
+      paramsSerializer: {
+        indexes: null, // by default: false
+      },
+    });
+  },
 };
 
 export default adminHotpot;
