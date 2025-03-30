@@ -31,6 +31,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import MenuIcon from "@mui/icons-material/Menu";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import PersonIcon from "@mui/icons-material/Person";
+import useAuth from "../../../../hooks/useAuth";
 
 export const drawerWidth = 280;
 interface SidebarDrawerProps {
@@ -48,19 +49,18 @@ const SidebarDrawer: React.FC<SidebarDrawerProps> = ({ open, setOpen }) => {
   const theme = useTheme();
   const navigate = useNavigate();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const { auth } = useAuth();
 
-  const role = "Admin";
+  const role = auth?.user?.role;
+  console.log("role: ", role);
   // State for expanding/collapsing menu categories
   const [openCategories, setOpenCategories] = useState<{
     [key: string]: boolean;
   }>({});
 
   // User data (replace with actual user data)
-  const userData = {
-    name: "Manager",
-    role: "Store Manager",
-    avatar: null,
-  };
+
+  const userData = auth?.user;
 
   // Toggle category open/close
   const handleCategoryToggle = (label: string) => {
@@ -97,7 +97,7 @@ const SidebarDrawer: React.FC<SidebarDrawerProps> = ({ open, setOpen }) => {
     // Add logout logic here
     handleUserMenuClose();
     // navigate to login page
-    navigate("/auth");
+    navigate("/");
   };
   const [notifications] = useState([
     {
@@ -130,7 +130,7 @@ const SidebarDrawer: React.FC<SidebarDrawerProps> = ({ open, setOpen }) => {
   };
   // Find menu items for the current user role
   const currentRoleMenuItems =
-    menuItems.find((item) => item.role === role)?.menu || [];
+    menuItems.find((item) => item.role == role)?.menu || [];
 
   return (
     <>
@@ -349,15 +349,15 @@ const SidebarDrawer: React.FC<SidebarDrawerProps> = ({ open, setOpen }) => {
           <Box sx={{ display: "flex", alignItems: "center" }}>
             <Chip
               avatar={
-                userData.avatar ? (
-                  <Avatar alt={userData.name} src={userData.avatar} />
+                userData?.avatar ? (
+                  <Avatar alt={userData?.name} src={userData?.avatar} />
                 ) : (
                   <Avatar>
                     <AccountCircleIcon />
                   </Avatar>
                 )
               }
-              label={userData.name}
+              label={userData?.name}
               onClick={handleUserMenuOpen}
               sx={{
                 height: 40,
@@ -416,13 +416,13 @@ const SidebarDrawer: React.FC<SidebarDrawerProps> = ({ open, setOpen }) => {
               bgcolor: theme.palette.primary.main,
             }}
           >
-            <Typography variant="h4">{userData.name.charAt(0)}</Typography>
+            <Typography variant="h4">{userData?.name?.charAt(0)}</Typography>
           </Avatar>
           <Typography variant="h6" sx={{ mt: 2, fontWeight: "bold" }}>
-            Welcome, {userData.name}
+            Xin chào, {userData?.name}
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            {userData.role}
+            {userData?.role}
           </Typography>
         </Box>
 

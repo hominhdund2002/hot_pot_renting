@@ -9,6 +9,7 @@ import MenuItem from "@mui/material/MenuItem";
 import * as React from "react";
 import DetailPopup from "../../../containers/ManageUser/Popup/DetailPopup";
 import UpdatePopup from "../../../containers/ManageUser/Popup/UpdatePopup";
+import DeleteUser from "../../../containers/ManageUser/Popup/DeleteUser";
 
 interface MenuActionTableUserProps {
   userData: any;
@@ -29,6 +30,7 @@ const MenuActionTableUser: React.FC<MenuActionTableUserProps> = ({
   const [anchorEl, setAnchorEl] = React.useState<any>(null);
   const [openDetail, setOpenDetail] = React.useState<boolean>(false);
   const [openUpdate, setOpenUpdate] = React.useState<boolean>(false);
+  const [openDelete, setOpenDelete] = React.useState<boolean>(false);
   const open = Boolean(anchorEl);
 
   //func
@@ -56,7 +58,11 @@ const MenuActionTableUser: React.FC<MenuActionTableUserProps> = ({
   };
   const handleDelete = () => {
     onOpenDelete(userData);
+    setOpenDelete(true);
     setAnchorEl(null);
+  };
+  const handleCloseDelete = () => {
+    setOpenDelete(false);
   };
 
   return (
@@ -122,6 +128,14 @@ const MenuActionTableUser: React.FC<MenuActionTableUserProps> = ({
           onOpen={openUpdate}
           onClose={handleCloseUpdate}
           userData={userData}
+          fetchData={fetchData}
+        />
+      )}
+      {openDelete == true && (
+        <DeleteUser
+          onOpen={openDelete}
+          onClose={handleCloseDelete}
+          data={userData}
           fetchData={fetchData}
         />
       )}

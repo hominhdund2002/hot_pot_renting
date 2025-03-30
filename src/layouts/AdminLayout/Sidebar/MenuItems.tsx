@@ -1,23 +1,22 @@
-import Iconify from "../../../components/Iconify";
-import MenuBookIcon from "@mui/icons-material/MenuBook";
 import {
   Dashboard as DashboardIcon,
-  People as PeopleIcon,
   Inventory as InventoryIcon,
+  People as PeopleIcon,
   Settings as SettingsIcon,
 } from "@mui/icons-material";
-import { MenuItemLayout } from "../../../types/menu";
-import { RoleTypes } from "../../../types/roles";
-import config from "../../../configs";
-import { managerRoutes, staffRoutes } from "../../../configs/routes";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import EngineeringIcon from "@mui/icons-material/Engineering";
 import FeedbackIcon from "@mui/icons-material/Feedback";
+import MenuBookIcon from "@mui/icons-material/MenuBook";
 import PaymentIcon from "@mui/icons-material/Payment";
 import ReceiptIcon from "@mui/icons-material/Receipt";
 import ScheduleIcon from "@mui/icons-material/Schedule";
 import SupportAgentIcon from "@mui/icons-material/SupportAgent";
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
+import Iconify from "../../../components/Iconify";
+import config from "../../../configs";
+import { managerRoutes, staffRoutes } from "../../../configs/routes";
+import { MenuItemLayout } from "../../../types/menu";
 
 // const AccessType = {
 //   MANAGER_SALE: [RoleTypes.MANAGER, RoleTypes.SALE],

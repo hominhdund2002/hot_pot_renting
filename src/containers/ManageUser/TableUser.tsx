@@ -146,6 +146,7 @@ const TableUsers = () => {
             fetchData={getUserList}
             onOpenDetail={selecteData}
             onOpenUpdate={selecteData}
+            onOpenDelete={selecteData}
           />
         }
         selectedData={selecteData}

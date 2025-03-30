@@ -1,30 +1,27 @@
+import { yupResolver } from "@hookform/resolvers/yup";
+import CloseIcon from "@mui/icons-material/Close";
+import { LoadingButton } from "@mui/lab";
 import {
   Box,
-  Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   IconButton,
-  Typography,
 } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
 import React from "react";
-import { colors } from "../../../styles/Color/color";
+import { useForm } from "react-hook-form";
+import { toast } from "react-toastify";
+import * as Yup from "yup";
+import adminUserManagementAPI from "../../../api/adminUserManagementAPI";
 import {
   FormProvider,
   RHFSelect,
   RHFTextField,
 } from "../../../components/hook-form";
-import config from "../../../configs";
-import { useForm } from "react-hook-form";
-import * as Yup from "yup";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { CreateUserType } from "../../../types/createUser";
-import { LoadingButton } from "@mui/lab";
-import adminUserManagementAPI from "../../../api/adminUserManagementAPI";
-import { toast } from "react-toastify";
 import { Role } from "../../../routes/Roles";
+import { colors } from "../../../styles/Color/color";
+import { CreateUserType } from "../../../types/createUser";
 
 interface addModelProps {
   onOpen: boolean;
