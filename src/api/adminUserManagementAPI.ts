@@ -26,6 +26,11 @@ const adminUserManagementAPI = {
     updateUserInf: (id: number, body: any) => {
       const url = `/admin/users/${id}`
       return axiosClient.put(url, body)
+    },
+
+    deleteUser: (id: any) => {
+      const url = `/admin/users/${id}`
+      return axiosClient.delete(url)
     }
 }
 

@@ -48,6 +48,7 @@ import { RentalDetailPage } from "../pages/Staff/PickupRental/RentalDetailPage";
 import { RecordReturnPage } from "../pages/Staff/PickupRental/RecordReturnPage";
 import { PickupRentalPage } from "../pages/Staff/PickupRental/PickupRentalPage";
 import ManagerLayout from "../layouts/ManagerLayout/ManagerLayout";
+import OrderDetail from "../containers/ManageOrder/SubPage/OrderDetail";
 import TableHotpotDetailPage from "../pages/Admin/TableHotpotDetail/TableHotpotDetailPage";
 import TableMaintenanceHotpotDetailPage from "../pages/Admin/TableMaintenanceHotpot/TableMaintenanceHopotPage";
 
@@ -56,15 +57,11 @@ const AppRoute: React.FC = () => {
     <Routes>
       <Route
         key={"Login"}
-        path={config.authRoutes.authenticate}
+        path={config.managerRoutes.home}
         element={<AuthenticatePage />}
       />
 
-      <Route
-        key="layoutManager"
-        path={config.managerRoutes.home}
-        element={<ManagerLayout />}
-      >
+      <Route key="layoutManager" element={<ManagerLayout />}>
         <Route
           path={config.managerRoutes.manageRentals}
           element={<ManageRentalsPage />}
@@ -154,6 +151,11 @@ const AppRoute: React.FC = () => {
           key={"manageUser"}
           path={config.adminRoutes.manageUsers}
           element={<ManageUserPage />}
+        />
+        <Route
+          key={"orderDetail"}
+          path={config.adminRoutes.orderDetail}
+          element={<OrderDetail />}
         />
         <Route
           key="feedbackTable"
