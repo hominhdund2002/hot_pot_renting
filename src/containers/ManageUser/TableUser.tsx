@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import CTable from "../../components/table/CTable";
 import MenuActionTableUser from "../../components/menuAction/menuActionTableUser/MenuActionTableUser";
@@ -70,7 +71,7 @@ const TableUsers = () => {
 
   //Handle pagination
   const handleChangePage = (
-    event: React.MouseEvent<HTMLButtonElement> | null,
+    _event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number
   ) => {
     setPage(newPage);
