@@ -38,6 +38,11 @@ import {
 } from "@mui/icons-material";
 import EmptyData from "../../components/EmptyData";
 import adminDashboard from "../../api/Services/adminDashboard";
+import {
+  getColorForStatus,
+  translateMonthToVietnamese,
+  translateStatusToVietnamese,
+} from "../../utils/formatOrder";
 
 const RADIAN = Math.PI / 180;
 const renderCustomizedLabel = ({
@@ -65,49 +70,6 @@ const renderCustomizedLabel = ({
   );
 };
 
-const getColorForStatus = (status: any) => {
-  switch (status) {
-    case "Đã giao":
-      return "#4caf50";
-    case "Chờ xử lý":
-      return "#ff9800";
-    case "Đã hủy":
-      return "#f44336";
-    case "Đang xử lý":
-      return "#2196f3";
-    case "Đang giao":
-      return "#9c27b0";
-    case "Đang hoàn trả":
-      return "#795548";
-    case "Hoàn thành":
-      return "#009688";
-    default:
-      return "#ccc";
-  }
-};
-
-const translateStatusToVietnamese = (status: any) => {
-  switch (status) {
-    case "Pending":
-      return "Chờ xử lý";
-    case "Delivered":
-      return "Đã giao";
-    case "Processing":
-      return "Đang xử lý";
-    case "Shipping":
-      return "Đang giao";
-    case "Cancelled":
-    case "Canceled":
-      return "Đã hủy";
-    case "Returning":
-      return "Đang hoàn trả";
-    case "Completed":
-      return "Hoàn thành";
-    default:
-      return status;
-  }
-};
-
 const formatCurrency = (value: any) => {
   return new Intl.NumberFormat("vi-VN").format(value) + " VND";
 };
@@ -131,7 +93,6 @@ const Analytics: React.FC = () => {
     try {
       setLoading(true);
       const response: any = await adminDashboard.getDashboard();
-      console.log(response);
       setDashboardData(response);
 
       // Prepare pie chart data
@@ -155,8 +116,6 @@ const Analytics: React.FC = () => {
       setLoading(false);
     }
   };
-
-  console.log(orderStatusData);
 
   useEffect(() => {
     fetchDashboard();
@@ -187,6 +146,13 @@ const Analytics: React.FC = () => {
   const monthlyData =
     dashboardData.monthlyData?.filter((month: any) => month.year === year) ||
     [];
+
+  const monthlyDatas = monthlyData.map((month: any) => {
+    return {
+      ...month,
+      monthName: translateMonthToVietnamese(month?.monthName),
+    };
+  });
 
   return (
     <Box sx={{ width: "100%", height: "100%" }}>
@@ -276,8 +242,8 @@ const Analytics: React.FC = () => {
 
         <ResponsiveContainer width="100%" height={400}>
           <LineChart
-            data={monthlyData}
-            margin={{ top: 10, right: 15, left: 40, bottom: 30 }}
+            data={monthlyDatas}
+            margin={{ top: 15, right: 30, left: 30, bottom: 5 }}
           >
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis
@@ -294,7 +260,7 @@ const Analytics: React.FC = () => {
                 value: "Doanh thu (VND)",
                 angle: -90,
                 position: "insideLeft",
-                dx: -20,
+                dx: -30,
               }}
               tickFormatter={(value) =>
                 new Intl.NumberFormat("vi-VN").format(value)
