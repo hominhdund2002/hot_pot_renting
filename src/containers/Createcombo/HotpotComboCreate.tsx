@@ -56,7 +56,7 @@ const HotpotComboCreate: React.FC = () => {
     const updatedIngredients = selectedMeats.map((ingredient) => ({
       ingredientId: ingredient.ingredientId || 0,
       name: ingredient.name || "",
-      quantity: ingredient.quantity || 1,
+      quantity: 0,
       measurementUnit: ingredient.measurementUnit || "g",
     }));
 
