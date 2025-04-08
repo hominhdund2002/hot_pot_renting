@@ -158,21 +158,14 @@ const MaintenanceHotpotDetailModal: React.FC<MaintenanceProps> = ({
     setConfirmModalOpen(true);
   };
 
-  console.log(data);
-
   const confirmUpdateStatus = async () => {
     try {
       setUpdateLoading(true);
 
       // Sample API call - replace with actual implementation
-      const response = await adminMaintenanceAPI.updateMaintenanceStatus(
-        data.damageDeviceId,
-        {
-          status: nextStatus,
-        }
-      );
-
-      console.log(response);
+      await adminMaintenanceAPI.updateMaintenanceStatus(data.damageDeviceId, {
+        status: nextStatus,
+      });
 
       if (onStatusUpdate) {
         onStatusUpdate();

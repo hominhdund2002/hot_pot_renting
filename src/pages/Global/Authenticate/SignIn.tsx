@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // import React from "react";
 import { useFormik } from "formik";
 import { useNavigate } from "react-router-dom";
@@ -42,7 +43,6 @@ export const AuthenticatePage = () => {
         });
         localStorage.setItem("userInfor", JSON.stringify(response?.data));
         console.log("first", response?.data);
-
         setAuth({
           user: response?.data,
           accessToken: response?.data?.accessToken,
