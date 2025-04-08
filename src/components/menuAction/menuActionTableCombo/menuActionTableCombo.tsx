@@ -38,8 +38,6 @@ const MenuActionTableCombo: React.FC<MenuActionTableComboProps> = ({
   };
   const handleDetail = () => {
     onOpenDetail(hotpotData);
-    console.log(hotpotData, "detail");
-
     navigate(
       config.adminRoutes.HotpotDetail.replace(":comboId", hotpotData.comboId)
     );

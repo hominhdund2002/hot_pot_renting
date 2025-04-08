@@ -38,8 +38,6 @@ const MenuActionTableFeedback: React.FC<MenuActionTableFeedbackProps> = ({
   };
   const handleDetail = () => {
     onOpenDetail(feedbackData);
-    console.log(feedbackData, "detail");
-
     navigate(
       config.adminRoutes.feedbackDetail.replace(
         ":feedbackId",
