@@ -17,6 +17,9 @@ import Iconify from "../../../../components/Iconify";
 import config from "../../../../configs";
 import { managerRoutes, staffRoutes } from "../../../../configs/routes";
 import { MenuItemLayout } from "../../../../types/menu";
+import ListAltIcon from "@mui/icons-material/ListAlt";
+import LocalShippingIcon from "@mui/icons-material/LocalShipping";
+import { Role } from "../../../../routes/Roles";
 
 // const AccessType = {
 //   MANAGER_SALE: [RoleTypes.MANAGER, RoleTypes.SALE],
@@ -222,8 +225,20 @@ export const menuItems: MenuItemLayout[] = [
     ],
   },
   {
-    role: "Staff",
+    role: Role.Staff,
     menu: [
+      //Assign Order
+      {
+        icon: <ListAltIcon />,
+        label: config.Vntext.SideBar.Ordes,
+        path: staffRoutes.assignOrder,
+      },
+      //Shipping List
+      {
+        label: config.Vntext.SideBar.shippingList,
+        icon: <LocalShippingIcon />,
+        path: "#",
+      },
       //dashboard
       {
         icon: <DashboardIcon />,

@@ -12,14 +12,12 @@ import styles from "./authenticate.module.scss";
 import authApi from "../../../api/authAPI";
 import { toast } from "react-toastify";
 import useAuth from "../../../hooks/useAuth";
-import { jwtDecode } from "jwt-decode";
-import config from "../../../configs";
-// import useAuth from "../../hooks/useAuth";
 
 export const AuthenticatePage = () => {
   const navigate = useNavigate();
   const cx = classNames.bind(styles);
   const { setAuth } = useAuth();
+  const { auth } = useAuth();
 
   const validationSchema = Yup.object({
     phoneNumber: Yup.string()
@@ -45,24 +43,17 @@ export const AuthenticatePage = () => {
         });
         localStorage.setItem("userInfor", JSON.stringify(response?.data));
         console.log("first", response?.data);
-        const authData: any = jwtDecode(response?.data?.accessToken);
-
-        console.log(authData);
         setAuth({
           user: response?.data,
           accessToken: response?.data?.accessToken,
         });
-        if (authData && authData?.role == "Staff") {
-          navigate(config.staffRoutes.staffMyAssignment);
-        } else {
+        if (auth?.user?.role === "Admin") {
           navigate("/dashboard");
+        } else if (auth?.user?.role === "Manager") {
+          navigate("/dashboard");
+        } else {
+          navigate("/assign-order");
         }
-
-        // if (response?.role == "Admin") {
-        //   navigate("/warranty");
-        // } else {
-        //   navigate("/forbidden");
-        // }
         toast.success("Đăng nhập thành công!");
       } catch (error: any) {
         console.error("Login failed:", error);

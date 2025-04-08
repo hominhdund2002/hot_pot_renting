@@ -38,6 +38,7 @@ interface CTbaleProps {
   size: number;
   page: number;
 }
+
 // Styled Components
 const StyledCard = styled(Card)(({ theme }) => ({
   background: `linear-gradient(135deg, ${alpha(
@@ -284,7 +285,6 @@ const CTable: React.FC<CTbaleProps> = ({
                     <TableCell>{page * size + index + 1}</TableCell>
                     {tableHeaderTitle.map((column: any) => (
                       <TableCell key={column.id} align={column.align || "left"}>
-                        {/* {formatValue(getNestedValue(row, column.id), column)} */}
                         {column.id == "imageURL" ? (
                           <img
                             src={getNestedValue(row, column.id)}
@@ -307,8 +307,10 @@ const CTable: React.FC<CTbaleProps> = ({
                               objectFit: "cover",
                             }}
                           />
-                        ) : (
+                        ) : getNestedValue(row, column.id) ? (
                           formatValue(getNestedValue(row, column.id), column)
+                        ) : (
+                          "-"
                         )}
                       </TableCell>
                     ))}
