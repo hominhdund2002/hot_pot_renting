@@ -51,11 +51,13 @@ const RejectFeedbackPopup: React.FC<RejectFeedbackPopupProps> = ({
     return true;
   };
 
+  console.log(decodeData);
+
   const handleRejectFeedback = async () => {
     if (!validateForm() || !dataFeedback) return;
     try {
       const prepareData = {
-        adminUserId: decodeData?.uid,
+        adminUserId: decodeData?.id,
         rejectionReason: text,
       };
       await adminFeedbackAPI.RejectFeedback(
