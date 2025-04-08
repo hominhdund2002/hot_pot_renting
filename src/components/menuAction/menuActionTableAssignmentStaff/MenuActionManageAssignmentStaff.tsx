@@ -10,19 +10,16 @@ import * as React from "react";
 import { useNavigate } from "react-router";
 import config from "../../../configs";
 
-interface MenuActionTableHotpotDetailProps {
+interface MenuActionManageAssignmentStaffProps {
   hotpotData: any;
   onOpenUpdate?: any;
   onOpenDetail?: any;
   onOpenDelete?: any;
 }
 
-const MenuActionTableHotpot: React.FC<MenuActionTableHotpotDetailProps> = ({
-  hotpotData,
-  onOpenUpdate,
-  onOpenDetail,
-  onOpenDelete,
-}) => {
+const MenuActionManageAssignmentStaff: React.FC<
+  MenuActionManageAssignmentStaffProps
+> = ({ hotpotData, onOpenUpdate, onOpenDetail, onOpenDelete }) => {
   const [anchorEl, setAnchorEl] = React.useState<any>(null);
   const navigate = useNavigate();
   const open = Boolean(anchorEl);
@@ -38,11 +35,17 @@ const MenuActionTableHotpot: React.FC<MenuActionTableHotpotDetailProps> = ({
   };
   const handleDetail = () => {
     onOpenDetail(hotpotData);
-    navigate(
-      config.adminRoutes.DetailHotpotType.replace(
-        ":hotpotId",
-        hotpotData.hotpotId
+    console.log(
+      config.staffRoutes.staffMyAssignmentDetail.replace(
+        ":orderId",
+        hotpotData.orderId
       )
+    );
+
+    navigate(
+      config.staffRoutes.staffMyAssignmentDetail
+        .replace(":orderId", hotpotData.orderId)
+        .replace(":assignmentId", hotpotData.assignmentId)
     );
   };
 
@@ -100,4 +103,4 @@ const MenuActionTableHotpot: React.FC<MenuActionTableHotpotDetailProps> = ({
   );
 };
 
-export default MenuActionTableHotpot;
+export default MenuActionManageAssignmentStaff;

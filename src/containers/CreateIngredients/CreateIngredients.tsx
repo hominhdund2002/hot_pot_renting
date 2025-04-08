@@ -70,18 +70,13 @@ const CreateIngredients: React.FC = () => {
   const {
     handleSubmit,
     setValue,
-    watch,
     reset,
     formState: { isSubmitting },
   } = methods;
 
-  console.log(watch("ingredientTypeID"));
-
   const fetchType = async () => {
     try {
       const data = await adminIngredientsAPI.getListIngredientsType();
-      console.log(data?.data);
-
       setType(data?.data);
     } catch (error) {
       console.error("Error fetching ingredient types:", error);

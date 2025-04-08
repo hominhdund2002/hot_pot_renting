@@ -13,10 +13,10 @@ import ReceiptIcon from "@mui/icons-material/Receipt";
 import ScheduleIcon from "@mui/icons-material/Schedule";
 import SupportAgentIcon from "@mui/icons-material/SupportAgent";
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
-import Iconify from "../../../components/Iconify";
-import config from "../../../configs";
-import { managerRoutes, staffRoutes } from "../../../configs/routes";
-import { MenuItemLayout } from "../../../types/menu";
+import Iconify from "../../../../components/Iconify";
+import config from "../../../../configs";
+import { managerRoutes, staffRoutes } from "../../../../configs/routes";
+import { MenuItemLayout } from "../../../../types/menu";
 
 // const AccessType = {
 //   MANAGER_SALE: [RoleTypes.MANAGER, RoleTypes.SALE],
@@ -218,6 +218,18 @@ export const menuItems: MenuItemLayout[] = [
             path: managerRoutes.customerChat,
           },
         ],
+      },
+    ],
+  },
+  {
+    role: "Staff",
+    menu: [
+      //dashboard
+      {
+        icon: <DashboardIcon />,
+        label: "Công việc",
+        path: config.staffRoutes.staffMyAssignment,
+        // role: AccessType.ADMIN_ACCESS,
       },
     ],
   },

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from "axios";
 
 const axiosClient = axios.create({
@@ -54,7 +55,6 @@ axiosClient.interceptors.response.use(
               ...userData,
               tokenModel: {
                 refreshToken: userData.tokenModel.refreshToken,
-                // refreshToken: res.data.refreshToken
                 accessToken: newToken,
               },
             };
@@ -63,8 +63,8 @@ axiosClient.interceptors.response.use(
             prevRequest.headers.Authorization = `Bearer ${newToken}`;
             return axios(prevRequest).then((data) => data.data);
           }
-        } catch (err) {
-          console.log("Error");
+        } catch (err: any) {
+          console.log(err);
           // handleTokenExpiration();
           return null;
         }

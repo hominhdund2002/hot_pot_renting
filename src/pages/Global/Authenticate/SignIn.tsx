@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // import React from "react";
 import { useFormik } from "formik";
 import { useNavigate } from "react-router-dom";
@@ -11,6 +12,8 @@ import styles from "./authenticate.module.scss";
 import authApi from "../../../api/authAPI";
 import { toast } from "react-toastify";
 import useAuth from "../../../hooks/useAuth";
+import { jwtDecode } from "jwt-decode";
+import config from "../../../configs";
 // import useAuth from "../../hooks/useAuth";
 
 export const AuthenticatePage = () => {
@@ -42,11 +45,19 @@ export const AuthenticatePage = () => {
         });
         localStorage.setItem("userInfor", JSON.stringify(response?.data));
         console.log("first", response?.data);
-        navigate("/dashboard");
+        const authData: any = jwtDecode(response?.data?.accessToken);
+
+        console.log(authData);
         setAuth({
           user: response?.data,
           accessToken: response?.data?.accessToken,
         });
+        if (authData && authData?.role == "Staff") {
+          navigate(config.staffRoutes.staffMyAssignment);
+        } else {
+          navigate("/dashboard");
+        }
+
         // if (response?.role == "Admin") {
         //   navigate("/warranty");
         // } else {
