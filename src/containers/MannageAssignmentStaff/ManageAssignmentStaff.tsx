@@ -73,7 +73,7 @@ const ManageAssignmentStaff = () => {
       <CTable
         data={assignment}
         tableHeaderTitle={tableHeader}
-        title="Bảng Combo Lẩu"
+        title="Bảng Công Việc"
         menuAction={
           <MenuActionManageAssignmentStaff
             hotpotData={selectedData}
