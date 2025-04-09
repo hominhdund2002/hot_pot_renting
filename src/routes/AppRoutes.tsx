@@ -51,6 +51,7 @@ import ManagerLayout from "../layouts/ManagerLayout/ManagerLayout";
 import OrderDetail from "../containers/ManageOrder/SubPage/OrderDetail";
 import TableHotpotDetailPage from "../pages/Admin/TableHotpotDetail/TableHotpotDetailPage";
 import TableMaintenanceHotpotDetailPage from "../pages/Admin/TableMaintenanceHotpot/TableMaintenanceHopotPage";
+import ShippingListPage from "../pages/Staff/Shipping/ShippingListPage";
 import { ManageAssignmentStaffPage } from "../pages/Staff/ManageAssignemt/ManageAssigmentStaffPage";
 import { AssignmentDetailPage } from "../pages/Staff/ManageAssignemt/AssignmetDetailPage";
 
@@ -271,6 +272,14 @@ const AppRoute: React.FC = () => {
           path={config.staffRoutes.pickupRental}
           element={<PickupRentalPage />}
         />
+        <Route
+          path={config.staffRoutes.shippingOrder}
+          element={<ShippingListPage />}
+        />
+        {/* <Route
+          path={config.staffRoutes.retrieveRentalEquipment}
+          element={<RetrieveRentalEquipmentPage />}
+        /> */}
 
         <Route
           path={config.staffRoutes.staffMyAssignment}
