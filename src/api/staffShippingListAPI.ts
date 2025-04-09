@@ -4,7 +4,7 @@ const staffShippingListApi = {
 
     getShippingOrderByStaffId: ( staffId?:any ) =>
         {
-          const url = `/staff/shipping/pending/${staffId}`;
+          const url = `/staff/shipping/list/${staffId}`;
           return axiosClient.get(url);
         },
 };
