@@ -26,6 +26,7 @@ import { AssignOrderType } from "../../types/assignOrder";
 import staffGetOrderApi from "../../api/staffGetOrderAPI";
 import useAuth from "../../hooks/useAuth";
 import { jwtDecode } from "jwt-decode";
+import { OrderStatus } from "../../api/Services/orderManagementService";
 
 const StatusChip = ({ status }: { status: string }) => {
   const theme = useTheme();
@@ -77,6 +78,22 @@ const AssignOrder: React.FC = () => {
     "Thao tác",
   ];
 
+  const body = {
+    status: OrderStatus.Shipping,
+    notes: "",
+  };
+
+  //handle
+  const handleChangeStatus = async (orderId: any) => {
+    console.log("log id: ", orderId);
+    try {
+      const res = await staffGetOrderApi.updateStatus(orderId, body);
+      console.log(res);
+    } catch (error: any) {
+      console.log(error?.message);
+    }
+  };
+
   return (
     <Box
       sx={{
@@ -119,7 +136,11 @@ const AssignOrder: React.FC = () => {
                   <StatusChip status={order.status} />
                 </TableCell>
                 <TableCell>
-                  <Button variant="contained" color="primary">
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => handleChangeStatus(order.orderId)}
+                  >
                     Đơn hàng sẵn sàng
                   </Button>
                 </TableCell>

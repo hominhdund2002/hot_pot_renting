@@ -87,8 +87,8 @@ const ShippingList = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {shippingList.map((row) => (
-                <TableRow key={row?.orderID}>
+              {shippingList.map((row, index) => (
+                <TableRow key={index}>
                   <TableCell align="left">{row?.orderID}</TableCell>
                   <TableCell align="left">{row?.customerName}</TableCell>
                   <TableCell align="left">{row?.deliveryAddress}</TableCell>

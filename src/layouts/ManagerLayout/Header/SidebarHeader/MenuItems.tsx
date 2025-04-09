@@ -77,11 +77,6 @@ export const menuItems: MenuItemLayout[] = [
         ],
       },
       {
-        icon: <SettingsIcon />,
-        label: config.Vntext.SideBar.Settings,
-        path: "/settings",
-      },
-      {
         icon: <Iconify icon={"ri:feedback-line"} />,
         label: config.Vntext.SideBar.Feedback,
         path: config.adminRoutes.feedback,
