@@ -27,7 +27,7 @@ const ManageAssignmentStaff = () => {
         });
 
         setAssignment(res?.data?.items || []);
-        setTotal(res?.totalCount || 0);
+        setTotal(res?.data?.totalCount || 0);
       } catch (error: any) {
         console.error("Error fetching ingredients:", error?.message);
       }
