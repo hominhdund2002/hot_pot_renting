@@ -23,7 +23,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
-import { menuItems } from "../../../AdminLayout/Sidebar/MenuItems";
+import { menuItems } from "./MenuItems";
 import LogoContainer from "../../../../components/Logo/Logo";
 // // Icons
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
@@ -162,7 +162,7 @@ const SidebarDrawer: React.FC<SidebarDrawerProps> = ({ open, setOpen }) => {
             sx={{
               display: "flex",
               alignItems: "center",
-              "& > *": { transform: "scale(1.2)" }, // Make logo bigger
+              "& > *": { transform: "scale(1.2)" },
             }}
           >
             <LogoContainer />

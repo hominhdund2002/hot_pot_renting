@@ -41,7 +41,6 @@ const ApproveFeedbackPopup: React.FC<ApproveFeedbackPopupProps> = ({
 
   const decodeData = Object(data);
 
-  console.log(decodeData);
   // Call API
   const handleAcceptFeedback = async () => {
     try {

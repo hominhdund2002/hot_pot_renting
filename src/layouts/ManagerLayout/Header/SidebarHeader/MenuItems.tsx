@@ -13,13 +13,13 @@ import ReceiptIcon from "@mui/icons-material/Receipt";
 import ScheduleIcon from "@mui/icons-material/Schedule";
 import SupportAgentIcon from "@mui/icons-material/SupportAgent";
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
+import Iconify from "../../../../components/Iconify";
+import config from "../../../../configs";
+import { managerRoutes, staffRoutes } from "../../../../configs/routes";
+import { MenuItemLayout } from "../../../../types/menu";
 import ListAltIcon from "@mui/icons-material/ListAlt";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
-import Iconify from "../../../components/Iconify";
-import config from "../../../configs";
-import { managerRoutes, staffRoutes } from "../../../configs/routes";
-import { MenuItemLayout } from "../../../types/menu";
-import { Role } from "../../../routes/Roles";
+import { Role } from "../../../../routes/Roles";
 
 // const AccessType = {
 //   MANAGER_SALE: [RoleTypes.MANAGER, RoleTypes.SALE],
@@ -238,6 +238,13 @@ export const menuItems: MenuItemLayout[] = [
         label: config.Vntext.SideBar.shippingList,
         icon: <LocalShippingIcon />,
         path: staffRoutes.shippingOrder,
+      },
+      //dashboard
+      {
+        icon: <DashboardIcon />,
+        label: "Công việc",
+        path: config.staffRoutes.staffMyAssignment,
+        // role: AccessType.ADMIN_ACCESS,
       },
     ],
   },

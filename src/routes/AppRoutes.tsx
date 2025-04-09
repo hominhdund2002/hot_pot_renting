@@ -52,6 +52,8 @@ import OrderDetail from "../containers/ManageOrder/SubPage/OrderDetail";
 import TableHotpotDetailPage from "../pages/Admin/TableHotpotDetail/TableHotpotDetailPage";
 import TableMaintenanceHotpotDetailPage from "../pages/Admin/TableMaintenanceHotpot/TableMaintenanceHopotPage";
 import ShippingListPage from "../pages/Staff/Shipping/ShippingListPage";
+import { ManageAssignmentStaffPage } from "../pages/Staff/ManageAssignemt/ManageAssigmentStaffPage";
+import { AssignmentDetailPage } from "../pages/Staff/ManageAssignemt/AssignmetDetailPage";
 
 const AppRoute: React.FC = () => {
   return (
@@ -228,9 +230,6 @@ const AppRoute: React.FC = () => {
           element={<TableHotpotDetailPage />}
         />
       </Route>
-      {/* <Route key="layout" path={config.routes.home} element={<StaffLayout />}>
-        <Route key="home" path={config.routes.home} element={<Home />} />
-      </Route> */}
 
       <Route
         key="layoutStaff"
@@ -281,6 +280,16 @@ const AppRoute: React.FC = () => {
           path={config.staffRoutes.retrieveRentalEquipment}
           element={<RetrieveRentalEquipmentPage />}
         /> */}
+
+        <Route
+          path={config.staffRoutes.staffMyAssignment}
+          element={<ManageAssignmentStaffPage />}
+        />
+        <Route
+          key={"detailAssignment"}
+          path={config.staffRoutes.staffMyAssignmentDetail}
+          element={<AssignmentDetailPage />}
+        />
       </Route>
     </Routes>
   );

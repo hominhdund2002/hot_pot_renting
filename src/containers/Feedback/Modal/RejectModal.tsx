@@ -51,8 +51,6 @@ const RejectFeedbackPopup: React.FC<RejectFeedbackPopupProps> = ({
     return true;
   };
 
-  console.log(decodeData);
-
   const handleRejectFeedback = async () => {
     if (!validateForm() || !dataFeedback) return;
     try {
