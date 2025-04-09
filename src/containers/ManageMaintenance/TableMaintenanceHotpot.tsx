@@ -22,7 +22,8 @@ const TableMaintenanceHotpot = () => {
       const res: any = await adminMaintenanceAPI.getListMaintenance({
         pageNumber: page + 1,
         pageSize: size,
-        ascending: true,
+        ascending: "true",
+        sortBy: "status",
       });
 
       setDataCombo(res?.data?.items || []);
