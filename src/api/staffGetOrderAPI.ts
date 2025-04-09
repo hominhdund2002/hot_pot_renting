@@ -10,7 +10,7 @@ const staffGetOrderApi = {
     updateStatus: ( id?:any, body?:any ) =>
         {
           const url = `/staff/orders/${id}/status`;
-          return axiosClient.put(url, { body });
+          return axiosClient.put(url, body );
         } 
 };
 
