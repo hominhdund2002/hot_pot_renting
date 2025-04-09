@@ -27,7 +27,7 @@ const ManageAssignmentStaff = () => {
         });
 
         setAssignment(res?.data?.items || []);
-        setTotal(res?.totalCount || 0);
+        setTotal(res?.data?.totalCount || 0);
       } catch (error: any) {
         console.error("Error fetching ingredients:", error?.message);
       }
@@ -73,7 +73,7 @@ const ManageAssignmentStaff = () => {
       <CTable
         data={assignment}
         tableHeaderTitle={tableHeader}
-        title="Bảng Combo Lẩu"
+        title="Bảng Công Việc"
         menuAction={
           <MenuActionManageAssignmentStaff
             hotpotData={selectedData}
