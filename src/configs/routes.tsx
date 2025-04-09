@@ -51,6 +51,7 @@ export const staffRoutes = {
   checkDeviceAfterReturn: "/check-device-after-return",
   orderHistory: "/order-history",
   assignOrder: "/assign-order",
+  shippingOrder: "/shipping",
   proofOfDelivery: "/proof-of-delivery",
   rentalDetail: "/staff/rentals/:id",
   recordReturn: "/staff/rentals/record-return",

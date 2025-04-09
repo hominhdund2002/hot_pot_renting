@@ -237,7 +237,7 @@ export const menuItems: MenuItemLayout[] = [
       {
         label: config.Vntext.SideBar.shippingList,
         icon: <LocalShippingIcon />,
-        path: "#",
+        path: staffRoutes.shippingOrder,
       },
     ],
   },

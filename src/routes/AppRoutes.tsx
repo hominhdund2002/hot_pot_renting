@@ -51,6 +51,7 @@ import ManagerLayout from "../layouts/ManagerLayout/ManagerLayout";
 import OrderDetail from "../containers/ManageOrder/SubPage/OrderDetail";
 import TableHotpotDetailPage from "../pages/Admin/TableHotpotDetail/TableHotpotDetailPage";
 import TableMaintenanceHotpotDetailPage from "../pages/Admin/TableMaintenanceHotpot/TableMaintenanceHopotPage";
+import ShippingListPage from "../pages/Staff/Shipping/ShippingListPage";
 
 const AppRoute: React.FC = () => {
   return (
@@ -271,6 +272,10 @@ const AppRoute: React.FC = () => {
         <Route
           path={config.staffRoutes.pickupRental}
           element={<PickupRentalPage />}
+        />
+        <Route
+          path={config.staffRoutes.shippingOrder}
+          element={<ShippingListPage />}
         />
         {/* <Route
           path={config.staffRoutes.retrieveRentalEquipment}

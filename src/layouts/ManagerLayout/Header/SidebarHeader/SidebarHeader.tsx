@@ -32,6 +32,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import PersonIcon from "@mui/icons-material/Person";
 import useAuth from "../../../../hooks/useAuth";
+import authApi from "../../../../api/authAPI";
 
 export const drawerWidth = 280;
 interface SidebarDrawerProps {
@@ -93,11 +94,15 @@ const SidebarDrawer: React.FC<SidebarDrawerProps> = ({ open, setOpen }) => {
     setAnchorEl(null);
   };
 
-  const handleLogout = () => {
-    // Add logout logic here
-    handleUserMenuClose();
-    // navigate to login page
-    navigate("/");
+  const handleLogout = async () => {
+    try {
+      await authApi.logout();
+      localStorage.removeItem("userInfor");
+      handleUserMenuClose();
+      navigate("/");
+    } catch (error) {
+      console.log(error);
+    }
   };
   const [notifications] = useState([
     {
