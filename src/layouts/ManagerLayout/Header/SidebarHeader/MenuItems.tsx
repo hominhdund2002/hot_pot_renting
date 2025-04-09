@@ -77,11 +77,6 @@ export const menuItems: MenuItemLayout[] = [
         ],
       },
       {
-        icon: <SettingsIcon />,
-        label: config.Vntext.SideBar.Settings,
-        path: "/settings",
-      },
-      {
         icon: <Iconify icon={"ri:feedback-line"} />,
         label: config.Vntext.SideBar.Feedback,
         path: config.adminRoutes.feedback,
@@ -237,7 +232,7 @@ export const menuItems: MenuItemLayout[] = [
       {
         label: config.Vntext.SideBar.shippingList,
         icon: <LocalShippingIcon />,
-        path: "#",
+        path: staffRoutes.shippingOrder,
       },
       //dashboard
       {
