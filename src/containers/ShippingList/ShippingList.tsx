@@ -18,19 +18,20 @@ import { ShippingOrder } from "../../types/shippingOrder";
 import DoneIcon from "@mui/icons-material/Done";
 import DeliveryDiningIcon from "@mui/icons-material/DeliveryDining";
 import useAuth from "../../hooks/useAuth";
+import { OrderStatus } from "../../api/Services/orderManagementService";
+import staffGetOrderApi from "../../api/staffGetOrderAPI";
+import { toast } from "react-toastify";
 
 const ShippingList = () => {
   //Declare
   const [shippingList, setShippingList] = React.useState<ShippingOrder[]>([]);
   const theme = useTheme();
   const { auth } = useAuth();
-
+  const id = auth?.user?.id;
   //Call api
   const getShippingList = async () => {
     try {
-      const res = await staffShippingListApi.getShippingOrderByStaffId(
-        auth?.user?.id
-      );
+      const res = await staffShippingListApi.getShippingOrderByStaffId(id);
       setShippingList(res?.data);
     } catch (error: any) {
       console.log(error?.message);
@@ -38,7 +39,7 @@ const ShippingList = () => {
   };
   React.useEffect(() => {
     getShippingList();
-  }, []);
+  }, [id]);
 
   //handle redirect to gg map
   const handleViewOnMap = (address: any) => {
@@ -51,10 +52,21 @@ const ShippingList = () => {
     }
   };
 
+  const body = {
+    status: OrderStatus.Delivered,
+    notes: "R",
+  };
+
   //handle confirm delivery
-  const handleConfirmDelivery = (orderId: any) => {
-    // Implement the logic to confirm delivery here
-    console.log("Confirm delivery for order ID:", orderId);
+  const handleConfirmDelivery = async (orderId: any) => {
+    try {
+      const res = await staffGetOrderApi.updateStatus(orderId, body);
+      getShippingList();
+      toast.success("Cập nhật trạng thái đơn hàng thành công!");
+      console.log(res);
+    } catch (error: any) {
+      console.log(error?.message);
+    }
   };
 
   //Header arr
@@ -87,8 +99,8 @@ const ShippingList = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {shippingList.map((row) => (
-                <TableRow key={row?.orderID}>
+              {shippingList.map((row, index) => (
+                <TableRow key={index}>
                   <TableCell align="left">{row?.orderID}</TableCell>
                   <TableCell align="left">{row?.customerName}</TableCell>
                   <TableCell align="left">{row?.deliveryAddress}</TableCell>
