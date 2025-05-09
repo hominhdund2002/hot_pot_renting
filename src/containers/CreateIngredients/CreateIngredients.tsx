@@ -133,9 +133,11 @@ const CreateIngredients: React.FC = () => {
       navigate(config.adminRoutes.manageIngredients);
       toast.success("Thêm mới thành công");
       console.log(resData);
-    } catch (error) {
-      console.error(error);
-      toast.error("Có lỗi xảy ra khi thêm nguyên liệu");
+    } catch (error: any) {
+      const apiError = error?.response?.data || error;
+      const errorMessage = apiError?.message || "Something went wrong!";
+      const firstDetailedError = apiError?.errors?.[0];
+      toast.error(firstDetailedError || errorMessage);
     }
   };
 

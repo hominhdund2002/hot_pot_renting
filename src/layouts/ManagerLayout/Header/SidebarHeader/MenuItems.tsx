@@ -2,7 +2,6 @@ import {
   Dashboard as DashboardIcon,
   Inventory as InventoryIcon,
   People as PeopleIcon,
-  Settings as SettingsIcon,
 } from "@mui/icons-material";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import EngineeringIcon from "@mui/icons-material/Engineering";
@@ -75,11 +74,6 @@ export const menuItems: MenuItemLayout[] = [
             path: config.adminRoutes.ingredientType,
           },
         ],
-      },
-      {
-        icon: <SettingsIcon />,
-        label: config.Vntext.SideBar.Settings,
-        path: "/settings",
       },
       {
         icon: <Iconify icon={"ri:feedback-line"} />,
