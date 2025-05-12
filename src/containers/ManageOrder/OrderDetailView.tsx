@@ -1,6 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // src/pages/OrderManagement/OrderDetailView.tsx
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import EditIcon from "@mui/icons-material/Edit";
+import TwoWheelerIcon from "@mui/icons-material/TwoWheeler";
 import {
   Alert,
   alpha,
@@ -15,15 +18,17 @@ import {
   Divider,
   FormControl,
   InputLabel,
-  List,
-  ListItem,
-  ListItemText,
   MenuItem,
   Select,
   SelectChangeEvent,
   Snackbar,
   TextField,
   Typography,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
@@ -31,17 +36,13 @@ import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import {
-  Order,
-  orderManagementService,
-  OrderStatus,
-} from "../../api/Services/orderManagementService";
+import { orderManagementService } from "../../api/Services/orderManagementService";
 import staffService from "../../api/Services/staffService";
+import vehicleService from "../../api/Services/vehicleService";
 import {
   ActionButton,
   ActionButtonsContainer,
   BackButton,
-  CustomerEmail,
   CustomerName,
   DeliveryChip,
   DetailCard,
@@ -53,7 +54,6 @@ import {
   HeaderPaper,
   InfoLabel,
   InfoValue,
-  ItemSectionTitle,
   LoadingContainer,
   OrderInfoGrid,
   OrderInfoItem,
@@ -67,18 +67,66 @@ import {
   StyledCardContent,
   StyledCardHeader,
 } from "../../components/manager/styles/OrderDetailStyles";
+import {
+  AllocateOrderWithVehicleRequest,
+  DeliveryStatusUpdateRequest,
+  DeliveryTimeUpdateRequest,
+  OrderDetailDTO,
+  OrderStatus,
+  VehicleType,
+  StaffTaskType,
+} from "../../types/orderManagement";
 import { StaffAvailabilityDto } from "../../types/staff";
+import { VehicleDTO } from "../../types/vehicle";
 import {
   formatCurrency,
   formatDate,
-  getOrderStatusLabel,
+  formatDetailDate,
 } from "../../utils/formatters";
+
+// Helper function to get vehicle icon based on type
+const getVehicleIcon = (type?: VehicleType) => {
+  if (type === VehicleType.Car) {
+    return <DirectionsCarIcon fontSize="small" />;
+  } else if (type === VehicleType.Scooter) {
+    return <TwoWheelerIcon fontSize="small" />;
+  }
+  return undefined;
+};
+
+// Helper function to get vehicle type name in Vietnamese
+const getVehicleTypeName = (type?: VehicleType): string => {
+  if (type === VehicleType.Car) {
+    return "Ô tô";
+  } else if (type === VehicleType.Scooter) {
+    return "Xe máy";
+  }
+  return "Không có";
+};
+
+const getItemTypeDisplay = (itemType: string) => {
+  switch (itemType) {
+    case "Ingredient":
+      return { label: "Nguyên liệu", color: "primary" };
+    case "Customization":
+      return { label: "Tùy chỉnh", color: "secondary" };
+    case "Combo":
+      return { label: "Combo", color: "success" };
+    case "Utensil":
+      return { label: "Dụng cụ", color: "info" };
+    case "Hotpot":
+      return { label: "Lẩu", color: "warning" };
+    default:
+      return { label: itemType, color: "default" };
+  }
+};
 
 const OrderDetailView: React.FC = () => {
   const { orderId } = useParams<{ orderId: string }>();
   const navigate = useNavigate();
-  const [order, setOrder] = useState<Order | null>(null);
+  const [order, setOrder] = useState<OrderDetailDTO | null>(null);
   const [staff, setStaff] = useState<StaffAvailabilityDto[]>([]);
+  const [vehicles, setVehicles] = useState<VehicleDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -92,6 +140,12 @@ const OrderDetailView: React.FC = () => {
   // Form states
   const [newStatus, setNewStatus] = useState<OrderStatus>(OrderStatus.Pending);
   const [selectedStaffId, setSelectedStaffId] = useState<number>(0);
+  const [selectedVehicleId, setSelectedVehicleId] = useState<number | null>(
+    null
+  );
+  const [selectedTaskType, setSelectedTaskType] = useState<StaffTaskType>(
+    StaffTaskType.Shipping
+  );
   const [isDelivered, setIsDelivered] = useState(false);
   const [deliveryNotes, setDeliveryNotes] = useState("");
   const [deliveryTime, setDeliveryTime] = useState<Date | null>(null);
@@ -111,15 +165,17 @@ const OrderDetailView: React.FC = () => {
         setLoading(true);
         // Get order details
         const orderData = await orderManagementService.getOrderWithDetails(
-          parseInt(orderId)
+          orderId
         );
         setOrder(orderData);
-
-        // Get available staff and handle both array and single object responses
+        // Get available staff
         const staffData = await staffService.getAvailableStaff();
         // Check if staffData is an array, if not, convert it to an array
         if (Array.isArray(staffData)) {
-          setStaff(staffData);
+          const availableStaff = staffData.filter(
+            (staff) => staff.isAvailable === true
+          );
+          setStaff(availableStaff);
         } else if (staffData) {
           // If it's a single object, wrap it in an array
           setStaff([staffData]);
@@ -127,24 +183,26 @@ const OrderDetailView: React.FC = () => {
           // If it's null or undefined, set an empty array
           setStaff([]);
         }
-
+        // Get available vehicles
+        const vehiclesData = await vehicleService.getAvailableVehicles();
+        setVehicles(vehiclesData);
         // Initialize form states based on order data
         setNewStatus(orderData.status);
-        if (orderData.shippingOrder) {
-          setIsDelivered(orderData.shippingOrder.isDelivered);
-          setDeliveryNotes(orderData.shippingOrder.deliveryNotes || "");
-          // src/pages/OrderManagement/OrderDetailView.tsx (continued)
+        if (orderData.shippingInfo) {
+          setIsDelivered(orderData.shippingInfo.isDelivered);
+          setDeliveryNotes(orderData.shippingInfo.deliveryNotes || "");
           setDeliveryTime(
-            orderData.shippingOrder.deliveryTime
-              ? new Date(orderData.shippingOrder.deliveryTime)
+            orderData.shippingInfo.deliveryTime
+              ? new Date(orderData.shippingInfo.deliveryTime)
               : null
           );
-          setSelectedStaffId(orderData.shippingOrder.staffId);
+          setSelectedStaffId(orderData.shippingInfo.staffId);
+          setSelectedVehicleId(orderData.vehicleInfo?.vehicleId || null);
         }
         setError(null);
       } catch (err) {
         console.error("Error fetching order details:", err);
-        setError(`Failed to load order details. Please try again later.`);
+        setError(`Không thể tải thông tin đơn hàng. Vui lòng thử lại sau.`);
       } finally {
         setLoading(false);
       }
@@ -199,19 +257,27 @@ const OrderDetailView: React.FC = () => {
     setSelectedStaffId(Number(event.target.value));
   };
 
+  const handleVehicleChange = (event: SelectChangeEvent<number>) => {
+    setSelectedVehicleId(Number(event.target.value) || null);
+  };
+
+  const handleTaskTypeChange = (event: SelectChangeEvent<number>) => {
+    setSelectedTaskType(Number(event.target.value) as StaffTaskType);
+  };
+
   // Action handlers
   const handleUpdateStatus = async () => {
     if (!order) return;
     try {
       setUpdating(true);
       const updatedOrder = await orderManagementService.updateOrderStatus(
-        order.orderId,
-        { status: newStatus }
+        order.orderCode,
+        newStatus
       );
       setOrder({ ...order, ...updatedOrder });
       setSnackbar({
         open: true,
-        message: `Order status updated successfully`,
+        message: `Trạng thái đơn hàng đã được cập nhật thành công`,
         severity: "success",
       });
       handleCloseStatusDialog();
@@ -219,8 +285,8 @@ const OrderDetailView: React.FC = () => {
       console.error("Error updating order status:", err);
       setSnackbar({
         open: true,
-        message: `Failed to update order status: ${
-          err instanceof Error ? err.message : "Unknown error"
+        message: `Không thể cập nhật trạng thái đơn hàng: ${
+          err instanceof Error ? err.message : "Lỗi không xác định"
         }`,
         severity: "error",
       });
@@ -233,22 +299,27 @@ const OrderDetailView: React.FC = () => {
     if (!order || !selectedStaffId) {
       setSnackbar({
         open: true,
-        message: "Please select a staff member",
+        message: "Vui lòng chọn một nhân viên",
         severity: "error",
       });
       return;
     }
     try {
       setUpdating(true);
-      const shippingOrder = await orderManagementService.allocateOrderToStaff({
-        orderId: order.orderId,
+      // Use the new API method that supports vehicle allocation
+      const request: AllocateOrderWithVehicleRequest = {
+        orderId: Number(order.orderId),
         staffId: selectedStaffId,
-      });
-      // Update the order with the new shipping order
-      setOrder({ ...order, shippingOrder });
+        taskType: selectedTaskType,
+        vehicleId: selectedVehicleId || undefined,
+      };
+      const shippingOrder =
+        await orderManagementService.allocateOrderToStaffWithVehicle(request);
+      // Update the order with the new shipping info
+      setOrder({ ...order, shippingInfo: shippingOrder });
       setSnackbar({
         open: true,
-        message: `Order successfully allocated to staff`,
+        message: `Đơn hàng đã được phân công cho nhân viên thành công`,
         severity: "success",
       });
       handleCloseAllocateDialog();
@@ -256,8 +327,8 @@ const OrderDetailView: React.FC = () => {
       console.error("Error allocating order:", err);
       setSnackbar({
         open: true,
-        message: `Failed to allocate order: ${
-          err instanceof Error ? err.message : "Unknown error"
+        message: `Không thể phân công đơn hàng: ${
+          err instanceof Error ? err.message : "Lỗi không xác định"
         }`,
         severity: "error",
       });
@@ -267,22 +338,32 @@ const OrderDetailView: React.FC = () => {
   };
 
   const handleUpdateDeliveryStatus = async () => {
-    if (!order?.shippingOrder) return;
+    if (!order?.shippingInfo) return;
     try {
       setUpdating(true);
-      const updatedShippingOrder =
+      const request: DeliveryStatusUpdateRequest = {
+        isDelivered,
+        notes: deliveryNotes || undefined,
+      };
+      const updatedDeliveryStatus =
         await orderManagementService.updateDeliveryStatus(
-          order.shippingOrder.shippingOrderId,
-          {
-            isDelivered,
-            notes: deliveryNotes,
-          }
+          order.shippingInfo.shippingOrderId,
+          request
         );
-      // Update the order with the updated shipping order
-      setOrder({ ...order, shippingOrder: updatedShippingOrder });
+      // Merge the updated delivery status with the existing shipping info
+      // instead of replacing the entire object
+      const updatedShippingInfo = {
+        ...order.shippingInfo,
+        isDelivered: updatedDeliveryStatus.isDelivered,
+        notes:
+          updatedDeliveryStatus.deliveryNotes ||
+          order.shippingInfo.deliveryNotes,
+      };
+      // Update the order with the merged shipping info
+      setOrder({ ...order, shippingInfo: updatedShippingInfo });
       setSnackbar({
         open: true,
-        message: `Delivery status updated successfully`,
+        message: `Trạng thái giao hàng đã được cập nhật thành công`,
         severity: "success",
       });
       handleCloseDeliveryStatusDialog();
@@ -290,8 +371,8 @@ const OrderDetailView: React.FC = () => {
       console.error("Error updating delivery status:", err);
       setSnackbar({
         open: true,
-        message: `Failed to update delivery status: ${
-          err instanceof Error ? err.message : "Unknown error"
+        message: `Không thể cập nhật trạng thái giao hàng: ${
+          err instanceof Error ? err.message : "Lỗi không xác định"
         }`,
         severity: "error",
       });
@@ -301,21 +382,28 @@ const OrderDetailView: React.FC = () => {
   };
 
   const handleUpdateDeliveryTime = async () => {
-    if (!order?.shippingOrder || !deliveryTime) return;
+    if (!order?.shippingInfo || !deliveryTime) return;
     try {
       setUpdating(true);
-      const updatedShippingOrder =
+      const request: DeliveryTimeUpdateRequest = {
+        deliveryTime: deliveryTime.toISOString(),
+      };
+      const updatedDeliveryTime =
         await orderManagementService.updateDeliveryTime(
-          order.shippingOrder.shippingOrderId,
-          {
-            deliveryTime: deliveryTime.toISOString(),
-          }
+          order.shippingInfo.shippingOrderId,
+          request
         );
-      // Update the order with the updated shipping order
-      setOrder({ ...order, shippingOrder: updatedShippingOrder });
+      // Merge the updated delivery time with the existing shipping info
+      // instead of replacing the entire object
+      const updatedShippingInfo = {
+        ...order.shippingInfo,
+        deliveryTime: updatedDeliveryTime.deliveryTime,
+      };
+      // Update the order with the merged shipping info
+      setOrder({ ...order, shippingInfo: updatedShippingInfo });
       setSnackbar({
         open: true,
-        message: `Delivery time updated successfully`,
+        message: `Thời gian giao hàng đã được cập nhật thành công`,
         severity: "success",
       });
       handleCloseDeliveryTimeDialog();
@@ -323,8 +411,8 @@ const OrderDetailView: React.FC = () => {
       console.error("Error updating delivery time:", err);
       setSnackbar({
         open: true,
-        message: `Failed to update delivery time: ${
-          err instanceof Error ? err.message : "Unknown error"
+        message: `Không thể cập nhật thời gian giao hàng: ${
+          err instanceof Error ? err.message : "Lỗi không xác định"
         }`,
         severity: "error",
       });
@@ -349,7 +437,7 @@ const OrderDetailView: React.FC = () => {
     return (
       <ErrorContainer>
         <BackButton startIcon={<ArrowBackIcon />} onClick={handleGoBack}>
-          Back
+          Quay lại
         </BackButton>
         <Alert severity="error">{error}</Alert>
       </ErrorContainer>
@@ -360,9 +448,9 @@ const OrderDetailView: React.FC = () => {
     return (
       <ErrorContainer>
         <BackButton startIcon={<ArrowBackIcon />} onClick={handleGoBack}>
-          Back
+          Quay lại
         </BackButton>
-        <Alert severity="warning">Order not found</Alert>
+        <Alert severity="warning">Không tìm thấy đơn hàng</Alert>
       </ErrorContainer>
     );
   }
@@ -370,59 +458,46 @@ const OrderDetailView: React.FC = () => {
   return (
     <DetailPageContainer>
       <BackButton startIcon={<ArrowBackIcon />} onClick={handleGoBack}>
-        Back to Orders
+        Quay lại danh sách đơn hàng
       </BackButton>
-
       <Grid container spacing={3}>
         {/* Order Header */}
         <Grid size={{ xs: 12 }}>
           <HeaderPaper>
             <HeaderContainer>
-              <OrderTitle variant="h5">Order #{order.orderId}</OrderTitle>
+              <OrderTitle variant="h5">Đơn hàng #{order.orderCode}</OrderTitle>
               <StatusChip
-                label={getOrderStatusLabel(order.status)}
+                label={getVietnameseOrderStatusLabel(order.status)}
                 status={order.status}
               />
             </HeaderContainer>
-
             <OrderInfoGrid>
               <OrderInfoItem>
-                <InfoLabel>Order Date</InfoLabel>
-                <InfoValue>{formatDate(order.createdAt)}</InfoValue>
+                <InfoLabel>Ngày đặt hàng</InfoLabel>
+                <InfoValue>
+                  {formatDate(order.createdAt || new Date().toISOString())}
+                </InfoValue>
               </OrderInfoItem>
-
               <OrderInfoItem>
-                <InfoLabel>Total Amount</InfoLabel>
+                <InfoLabel>Tổng tiền</InfoLabel>
                 <InfoValue>{formatCurrency(order.totalPrice)}</InfoValue>
               </OrderInfoItem>
-
-              <OrderInfoItem>
-                <InfoLabel>Order Type</InfoLabel>
-                <Box sx={{ display: "flex", gap: 1, mt: 0.5 }}>
-                  {order.hasSellItems && <Chip label="Sell" size="small" />}
-                  {order.hasRentItems && (
-                    <Chip label="Rent" size="small" color="secondary" />
-                  )}
-                </Box>
-              </OrderInfoItem>
             </OrderInfoGrid>
-
             <ActionButtonsContainer>
               <ActionButton
                 variant="outlined"
                 startIcon={<EditIcon />}
                 onClick={handleOpenStatusDialog}
               >
-                Update Status
+                Cập nhật trạng thái
               </ActionButton>
-
-              {!order.shippingOrder ? (
+              {!order.shippingInfo ? (
                 <ActionButton
                   variant="contained"
                   color="primary"
                   onClick={handleOpenAllocateDialog}
                 >
-                  Allocate to Staff
+                  Phân công nhân viên
                 </ActionButton>
               ) : (
                 <>
@@ -431,61 +506,50 @@ const OrderDetailView: React.FC = () => {
                     color="primary"
                     onClick={handleOpenDeliveryStatusDialog}
                   >
-                    Update Delivery Status
+                    Cập nhật trạng thái giao hàng
                   </ActionButton>
                   <ActionButton
                     variant="outlined"
                     color="primary"
                     onClick={handleOpenDeliveryTimeDialog}
                   >
-                    Set Delivery Time
+                    Đặt thời gian giao hàng
                   </ActionButton>
                 </>
               )}
             </ActionButtonsContainer>
           </HeaderPaper>
         </Grid>
-
         {/* Customer Information */}
         <Grid size={{ xs: 12, md: 6 }}>
           <DetailCard>
-            <StyledCardHeader title="Customer Information" />
+            <StyledCardHeader title="Thông tin khách hàng" />
             <Divider />
             <StyledCardContent>
+              <SectionTitle>Tên khách hàng</SectionTitle>
               <CustomerName>
-                {order.user?.fullName || "Unknown Customer"}
+                {order.userName || "Khách hàng không xác định"}
               </CustomerName>
-              <CustomerEmail>
-                {order.user?.email || "No email provided"}
-              </CustomerEmail>
-
-              <SectionTitle>Phone Number</SectionTitle>
-              <SectionValue>
-                {order.user?.phoneNumber || "No phone number provided"}
-              </SectionValue>
-
-              <SectionTitle>Shipping Address</SectionTitle>
-              <SectionValue>
-                {order.address || "No address provided"}
-              </SectionValue>
-
+              <SectionTitle>Số Điện thoại</SectionTitle>
+              <SectionValue>0{order.userPhone}</SectionValue>
+              <SectionTitle>Địa chỉ giao hàng</SectionTitle>
+              <SectionValue>{order.address || "Không có địa chỉ"}</SectionValue>
               {order.notes && (
                 <>
-                  <SectionTitle>Order Notes</SectionTitle>
+                  <SectionTitle>Ghi chú đơn hàng</SectionTitle>
                   <SectionValue>{order.notes}</SectionValue>
                 </>
               )}
             </StyledCardContent>
           </DetailCard>
         </Grid>
-
         {/* Shipping Information */}
         <Grid size={{ xs: 12, md: 6 }}>
           <DetailCard>
             <StyledCardHeader
-              title="Shipping Information"
+              title="Thông tin giao hàng"
               action={
-                !order.shippingOrder && (
+                !order.shippingInfo && (
                   <Button
                     variant="contained"
                     size="small"
@@ -497,192 +561,208 @@ const OrderDetailView: React.FC = () => {
                       px: 2,
                     }}
                   >
-                    Allocate
+                    Phân công
                   </Button>
                 )
               }
             />
             <Divider />
             <StyledCardContent>
-              {order.shippingOrder ? (
+              {order.shippingInfo ? (
                 <>
-                  <SectionTitle>Assigned Staff</SectionTitle>
+                  <SectionTitle>Nhân viên phụ trách</SectionTitle>
                   <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
-                    {order.shippingOrder.staff?.fullName || "Unknown Staff"}
+                    {order.shippingInfo.staffName || "Nhân viên không xác định"}
                   </Typography>
-
-                  <SectionTitle>Delivery Status</SectionTitle>
+                  {/* Vehicle Information - New Section */}
+                  {order.vehicleInfo && (
+                    <>
+                      <SectionTitle>Phương tiện giao hàng</SectionTitle>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          mb: 2,
+                          gap: 1,
+                        }}
+                      >
+                        {getVehicleIcon(order.vehicleInfo.vehicleType)}
+                        <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                          {order.vehicleInfo.vehicleName} -{" "}
+                          {order.vehicleInfo.licensePlate}
+                        </Typography>
+                        <Chip
+                          label={getVehicleTypeName(
+                            order.vehicleInfo.vehicleType
+                          )}
+                          size="small"
+                          color={
+                            order.vehicleInfo.vehicleType === VehicleType.Car
+                              ? "primary"
+                              : "secondary"
+                          }
+                          sx={{ ml: 1, fontWeight: 500 }}
+                        />
+                      </Box>
+                    </>
+                  )}
+                  <SectionTitle>Trạng thái giao hàng</SectionTitle>
                   <DeliveryChip
                     label={
-                      order.shippingOrder.isDelivered
-                        ? "Delivered"
-                        : "Pending Delivery"
+                      order.shippingInfo.isDelivered
+                        ? "Đã giao"
+                        : "Đang chờ giao"
                     }
-                    delivered={order.shippingOrder.isDelivered}
+                    delivered={order.shippingInfo.isDelivered}
                   />
-
-                  <SectionTitle>Scheduled Delivery Time</SectionTitle>
+                  <SectionTitle>Thời gian giao hàng dự kiến</SectionTitle>
                   <SectionValue>
-                    {order.shippingOrder.deliveryTime
-                      ? formatDate(order.shippingOrder.deliveryTime)
-                      : "Not scheduled yet"}
+                    {order.shippingInfo.deliveryTime
+                      ? formatDetailDate(order.shippingInfo.deliveryTime)
+                      : "Chưa lên lịch"}
                   </SectionValue>
-
-                  {order.shippingOrder.deliveryNotes && (
+                  {order.shippingInfo.deliveryNotes && (
                     <>
-                      <SectionTitle>Delivery Notes</SectionTitle>
+                      <SectionTitle>Ghi chú giao hàng</SectionTitle>
                       <SectionValue>
-                        {order.shippingOrder.deliveryNotes}
+                        {order.shippingInfo.deliveryNotes}
                       </SectionValue>
                     </>
                   )}
-
                   <ActionButtonsContainer>
                     <ActionButton
                       variant="outlined"
                       size="small"
                       onClick={handleOpenDeliveryStatusDialog}
                     >
-                      Update Status
+                      Cập nhật trạng thái
                     </ActionButton>
                     <ActionButton
                       variant="outlined"
                       size="small"
                       onClick={handleOpenDeliveryTimeDialog}
                     >
-                      Set Time
+                      Đặt thời gian
                     </ActionButton>
                   </ActionButtonsContainer>
                 </>
               ) : (
                 <EmptyStateContainer>
                   <EmptyStateText>
-                    This order has not been allocated to a staff member yet.
+                    Đơn hàng này chưa được phân công cho nhân viên nào.
                   </EmptyStateText>
                   <ActionButton
                     variant="contained"
                     onClick={handleOpenAllocateDialog}
                   >
-                    Allocate to Staff
+                    Phân công nhân viên
                   </ActionButton>
                 </EmptyStateContainer>
               )}
             </StyledCardContent>
           </DetailCard>
         </Grid>
-
         {/* Order Items */}
         <Grid size={{ xs: 12 }}>
           <DetailCard>
-            <StyledCardHeader title="Order Items" />
+            <StyledCardHeader title="Chi tiết đơn hàng" />
             <Divider />
             <StyledCardContent>
               <OrderItemsContainer>
-                {/* Sell Items */}
-                {order.sellOrder &&
-                  order.sellOrder.sellOrderDetails.length > 0 && (
-                    <>
-                      <ItemSectionTitle>Sell Items</ItemSectionTitle>
-                      <List
-                        sx={{
-                          bgcolor: (theme) =>
-                            alpha(theme.palette.background.paper, 0.5),
-                          borderRadius: 2,
-                          overflow: "hidden",
-                        }}
-                      >
-                        {order.sellOrder.sellOrderDetails.map((item, index) => (
-                          <ListItem
-                            key={`sell-${index}`}
-                            divider={
-                              index !==
-                              order.sellOrder!.sellOrderDetails.length - 1
-                            }
-                            sx={{
-                              py: 1.5,
-                              transition: "all 0.2s",
-                              "&:hover": {
-                                bgcolor: (theme) =>
-                                  alpha(theme.palette.primary.main, 0.05),
-                              },
-                            }}
-                          >
-                            <ListItemText
-                              primary={
-                                <Typography fontWeight="600">
-                                  {item.name}
-                                </Typography>
-                              }
-                              secondary={`Quantity: ${item.quantity}`}
-                            />
-                            <Typography
-                              variant="body1"
-                              fontWeight="medium"
-                              color="primary"
-                            >
-                              {formatCurrency(item.price)}
-                            </Typography>
-                          </ListItem>
+                {/* Display order items */}
+                {order.orderItems.length > 0 ? (
+                  <Box sx={{ mb: 3 }}>
+                    <Table>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell sx={{ fontWeight: 600 }}>
+                            Sản phẩm
+                          </TableCell>
+                          <TableCell sx={{ fontWeight: 600 }}>Loại</TableCell>
+                          <TableCell sx={{ fontWeight: 600 }}>
+                            Số lượng
+                          </TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {order.orderItems.map((item) => (
+                          <TableRow key={item.orderDetailId}>
+                            <TableCell>{item.itemName}</TableCell>
+                            <TableCell>
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 1,
+                                }}
+                              >
+                                <Chip
+                                  label={
+                                    getItemTypeDisplay(item.itemType).label
+                                  }
+                                  color={
+                                    getItemTypeDisplay(item.itemType)
+                                      .color as any
+                                  }
+                                  size="small"
+                                />
+                              </Box>
+                            </TableCell>
+                            <TableCell>{item.quantity}</TableCell>
+                          </TableRow>
                         ))}
-                      </List>
-                    </>
-                  )}
-
-                {/* Rent Items */}
-                {order.rentOrder &&
-                  order.rentOrder.rentOrderDetails.length > 0 && (
-                    <>
-                      <ItemSectionTitle>Rent Items</ItemSectionTitle>
-                      <List
-                        sx={{
-                          bgcolor: (theme) =>
-                            alpha(theme.palette.background.paper, 0.5),
-                          borderRadius: 2,
-                          overflow: "hidden",
-                        }}
-                      >
-                        {order.rentOrder.rentOrderDetails.map((item, index) => (
-                          <ListItem
-                            key={`rent-${index}`}
-                            divider={
-                              index !==
-                              order.rentOrder!.rentOrderDetails.length - 1
-                            }
-                            // src/pages/OrderManagement/OrderDetailView.tsx (continued)
-                            sx={{
-                              py: 1.5,
-                              transition: "all 0.2s",
-                              "&:hover": {
-                                bgcolor: (theme) =>
-                                  alpha(theme.palette.primary.main, 0.05),
-                              },
-                            }}
-                          >
-                            <ListItemText
-                              primary={
-                                <Typography fontWeight="600">
-                                  {item.name}
-                                </Typography>
-                              }
-                              secondary={`Quantity: ${item.quantity}`}
-                            />
-                            <Typography
-                              variant="body1"
-                              fontWeight="medium"
-                              color="primary"
-                            >
-                              {formatCurrency(item.price)}
-                            </Typography>
-                          </ListItem>
-                        ))}
-                      </List>
-                    </>
-                  )}
-
+                      </TableBody>
+                    </Table>
+                  </Box>
+                ) : (
+                  <Typography
+                    variant="body1"
+                    sx={{ fontStyle: "italic", color: "text.secondary" }}
+                  >
+                    Không có mặt hàng nào trong đơn hàng này.
+                  </Typography>
+                )}
+                {/* Display rental information if available */}
+                {order.hasRentItems && order.rentalInfo && (
+                  <Box
+                    sx={{
+                      mt: 3,
+                      p: 2,
+                      bgcolor: (theme) =>
+                        alpha(theme.palette.secondary.light, 0.1),
+                      borderRadius: 2,
+                    }}
+                  >
+                    <Typography
+                      variant="subtitle1"
+                      sx={{ fontWeight: 600, mb: 1 }}
+                    >
+                      Thông tin thuê
+                    </Typography>
+                    <Grid container spacing={2}>
+                      <Grid size={{ xs: 12, sm: 6 }}>
+                        <Typography variant="body2" color="text.secondary">
+                          Ngày bắt đầu thuê
+                        </Typography>
+                        <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                          {formatDate(order.rentalInfo.rentalStartDate)}
+                        </Typography>
+                      </Grid>
+                      <Grid size={{ xs: 12, sm: 6 }}>
+                        <Typography variant="body2" color="text.secondary">
+                          Ngày dự kiến trả
+                        </Typography>
+                        <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                          {formatDate(order.rentalInfo.expectedReturnDate)}
+                        </Typography>
+                      </Grid>
+                    </Grid>
+                  </Box>
+                )}
                 {/* Order Summary */}
                 <OrderTotalContainer>
                   <OrderTotal>
-                    Total: {formatCurrency(order.totalPrice)}
+                    Tổng cộng: {formatCurrency(order.totalPrice)}
                   </OrderTotal>
                 </OrderTotalContainer>
               </OrderItemsContainer>
@@ -690,15 +770,16 @@ const OrderDetailView: React.FC = () => {
           </DetailCard>
         </Grid>
       </Grid>
-
       {/* Update Status Dialog */}
       <Dialog
         open={openStatusDialog}
         onClose={handleCloseStatusDialog}
-        PaperProps={{
-          sx: {
-            borderRadius: 3,
-            boxShadow: "0 8px 32px 0 rgba(0,0,0,0.1)",
+        slotProps={{
+          paper: {
+            sx: {
+              borderRadius: 3,
+              boxShadow: "0 8px 32px 0 rgba(0,0,0,0.1)",
+            },
           },
         }}
       >
@@ -709,16 +790,16 @@ const OrderDetailView: React.FC = () => {
             pb: 1,
           }}
         >
-          Update Order Status
+          Cập nhật trạng thái đơn hàng
         </DialogTitle>
         <DialogContent sx={{ pt: 2, px: 3, pb: 2 }}>
           <Box sx={{ mt: 1, minWidth: 300 }}>
             <FormControl fullWidth>
-              <InputLabel id="status-select-label">Status</InputLabel>
+              <InputLabel id="status-select-label">Trạng thái</InputLabel>
               <Select
                 labelId="status-select-label"
                 value={newStatus}
-                label="Status"
+                label="Trạng thái"
                 onChange={handleStatusChange}
                 sx={{
                   borderRadius: 2,
@@ -728,13 +809,13 @@ const OrderDetailView: React.FC = () => {
                   },
                 }}
               >
-                <MenuItem value={OrderStatus.Pending}>Pending</MenuItem>
-                <MenuItem value={OrderStatus.Processing}>Processing</MenuItem>
-                <MenuItem value={OrderStatus.Shipping}>Shipping</MenuItem>
-                <MenuItem value={OrderStatus.Delivered}>Delivered</MenuItem>
-                <MenuItem value={OrderStatus.Completed}>Completed</MenuItem>
-                <MenuItem value={OrderStatus.Cancelled}>Cancelled</MenuItem>
-                <MenuItem value={OrderStatus.Returning}>Returning</MenuItem>
+                <MenuItem value={OrderStatus.Pending}>Chờ xử lý</MenuItem>
+                <MenuItem value={OrderStatus.Processing}>Đang xử lý</MenuItem>
+                <MenuItem value={OrderStatus.Shipping}>Đang giao</MenuItem>
+                <MenuItem value={OrderStatus.Delivered}>Đã giao</MenuItem>
+                <MenuItem value={OrderStatus.Completed}>Hoàn thành</MenuItem>
+                <MenuItem value={OrderStatus.Cancelled}>Đã hủy</MenuItem>
+                <MenuItem value={OrderStatus.Returning}>Đang trả</MenuItem>
               </Select>
             </FormControl>
           </Box>
@@ -749,7 +830,7 @@ const OrderDetailView: React.FC = () => {
               px: 2,
             }}
           >
-            Cancel
+            Hủy bỏ
           </Button>
           <Button
             onClick={handleUpdateStatus}
@@ -763,19 +844,20 @@ const OrderDetailView: React.FC = () => {
               boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
             }}
           >
-            {updating ? <CircularProgress size={24} /> : "Update"}
+            {updating ? <CircularProgress size={24} /> : "Cập nhật"}
           </Button>
         </DialogActions>
       </Dialog>
-
-      {/* Allocate Order Dialog */}
+      {/* Allocate Order Dialog - Updated with Task Type and Vehicle Selection */}
       <Dialog
         open={openAllocateDialog}
         onClose={handleCloseAllocateDialog}
-        PaperProps={{
-          sx: {
-            borderRadius: 3,
-            boxShadow: "0 8px 32px 0 rgba(0,0,0,0.1)",
+        slotProps={{
+          paper: {
+            sx: {
+              borderRadius: 3,
+              boxShadow: "0 8px 32px 0 rgba(0,0,0,0.1)",
+            },
           },
         }}
       >
@@ -786,16 +868,39 @@ const OrderDetailView: React.FC = () => {
             pb: 1,
           }}
         >
-          Allocate Order to Staff
+          Phân công đơn hàng cho nhân viên
         </DialogTitle>
         <DialogContent sx={{ pt: 2, px: 3, pb: 2 }}>
           <Box sx={{ mt: 1, minWidth: 300 }}>
-            <FormControl fullWidth>
-              <InputLabel id="staff-select-label">Select Staff</InputLabel>
+            {/* Task Type Selection - New Section */}
+            <FormControl fullWidth sx={{ mb: 3 }}>
+              <InputLabel id="task-type-select-label">Loại nhiệm vụ</InputLabel>
+              <Select
+                labelId="task-type-select-label"
+                value={selectedTaskType}
+                label="Loại nhiệm vụ"
+                onChange={handleTaskTypeChange}
+                sx={{
+                  borderRadius: 2,
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: (theme) =>
+                      alpha(theme.palette.primary.main, 0.2),
+                  },
+                }}
+              >
+                <MenuItem value={StaffTaskType.Preparation}>
+                  Chuẩn bị đơn hàng
+                </MenuItem>
+                <MenuItem value={StaffTaskType.Shipping}>Giao hàng</MenuItem>
+              </Select>
+            </FormControl>
+
+            <FormControl fullWidth sx={{ mb: 3 }}>
+              <InputLabel id="staff-select-label">Chọn nhân viên</InputLabel>
               <Select
                 labelId="staff-select-label"
                 value={selectedStaffId}
-                label="Select Staff"
+                label="Chọn nhân viên"
                 onChange={handleStaffChange}
                 sx={{
                   borderRadius: 2,
@@ -806,18 +911,61 @@ const OrderDetailView: React.FC = () => {
                 }}
               >
                 <MenuItem value={0} disabled>
-                  Select a staff member
+                  Chọn một nhân viên
                 </MenuItem>
                 {staff.map((staffMember) => (
-                  <MenuItem
-                    key={staffMember.staffId}
-                    value={staffMember.staffId}
-                  >
+                  <MenuItem key={staffMember.id} value={staffMember.id}>
                     {staffMember.name}
                   </MenuItem>
                 ))}
               </Select>
             </FormControl>
+
+            {/* Vehicle Selection - Only show for shipping task type */}
+            {selectedTaskType === StaffTaskType.Shipping && (
+              <FormControl fullWidth>
+                <InputLabel id="vehicle-select-label">
+                  Chọn phương tiện (Tùy chọn)
+                </InputLabel>
+                <Select
+                  labelId="vehicle-select-label"
+                  value={selectedVehicleId || 0}
+                  label="Chọn phương tiện (Tùy chọn)"
+                  onChange={handleVehicleChange}
+                  sx={{
+                    borderRadius: 2,
+                    "& .MuiOutlinedInput-notchedOutline": {
+                      borderColor: (theme) =>
+                        alpha(theme.palette.primary.main, 0.2),
+                    },
+                  }}
+                >
+                  <MenuItem value={0}>Không sử dụng phương tiện</MenuItem>
+                  {vehicles.map((vehicle) => (
+                    <MenuItem key={vehicle.vehicleId} value={vehicle.vehicleId}>
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
+                        {getVehicleIcon(vehicle.type)}
+                        <span>
+                          {vehicle.name} - {vehicle.licensePlate}
+                        </span>
+                        <Chip
+                          label={getVehicleTypeName(vehicle.type)}
+                          size="small"
+                          color={
+                            vehicle.type === VehicleType.Car
+                              ? "primary"
+                              : "secondary"
+                          }
+                          sx={{ ml: 1, fontWeight: 500 }}
+                        />
+                      </Box>
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            )}
           </Box>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 3 }}>
@@ -830,7 +978,7 @@ const OrderDetailView: React.FC = () => {
               px: 2,
             }}
           >
-            Cancel
+            Hủy bỏ
           </Button>
           <Button
             onClick={handleAllocateOrder}
@@ -844,11 +992,10 @@ const OrderDetailView: React.FC = () => {
               boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
             }}
           >
-            {updating ? <CircularProgress size={24} /> : "Allocate"}
+            {updating ? <CircularProgress size={24} /> : "Phân công"}
           </Button>
         </DialogActions>
       </Dialog>
-
       {/* Update Delivery Status Dialog */}
       <Dialog
         open={openDeliveryStatusDialog}
@@ -867,18 +1014,36 @@ const OrderDetailView: React.FC = () => {
             pb: 1,
           }}
         >
-          Update Delivery Status
+          Cập nhật trạng thái giao hàng
         </DialogTitle>
         <DialogContent sx={{ pt: 2, px: 3, pb: 2 }}>
           <Box sx={{ mt: 1, minWidth: 300 }}>
+            {/* Display vehicle information if available */}
+            {order.vehicleInfo && (
+              <Box sx={{ mb: 3 }}>
+                <Typography
+                  variant="subtitle2"
+                  sx={{ mb: 1, color: "text.secondary" }}
+                >
+                  Thông tin phương tiện
+                </Typography>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  {getVehicleIcon(order.vehicleInfo.vehicleType)}
+                  <Typography variant="body2">
+                    {order.vehicleInfo.vehicleName} -{" "}
+                    {order.vehicleInfo.licensePlate}
+                  </Typography>
+                </Box>
+              </Box>
+            )}
             <FormControl fullWidth sx={{ mb: 3 }}>
               <InputLabel id="delivery-status-label">
-                Delivery Status
+                Trạng thái giao hàng
               </InputLabel>
               <Select
                 labelId="delivery-status-label"
                 value={isDelivered ? 1 : 0}
-                label="Delivery Status"
+                label="Trạng thái giao hàng"
                 onChange={(e) => setIsDelivered(e.target.value === 1)}
                 sx={{
                   borderRadius: 2,
@@ -888,13 +1053,13 @@ const OrderDetailView: React.FC = () => {
                   },
                 }}
               >
-                <MenuItem value={0}>Pending</MenuItem>
-                <MenuItem value={1}>Delivered</MenuItem>
+                <MenuItem value={0}>Đang chờ</MenuItem>
+                <MenuItem value={1}>Đã giao</MenuItem>
               </Select>
             </FormControl>
             <TextField
               margin="dense"
-              label="Delivery Notes"
+              label="Ghi chú giao hàng"
               fullWidth
               multiline
               rows={4}
@@ -923,15 +1088,15 @@ const OrderDetailView: React.FC = () => {
               px: 2,
             }}
           >
-            Cancel
+            Hủy bỏ
           </Button>
           <Button
             onClick={handleUpdateDeliveryStatus}
             variant="contained"
             disabled={
               updating ||
-              (order.shippingOrder?.isDelivered === isDelivered &&
-                order.shippingOrder?.deliveryNotes === deliveryNotes)
+              (order.shippingInfo?.isDelivered === isDelivered &&
+                order.shippingInfo?.deliveryNotes === deliveryNotes)
             }
             sx={{
               borderRadius: 2,
@@ -941,20 +1106,21 @@ const OrderDetailView: React.FC = () => {
               boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
             }}
           >
-            {updating ? <CircularProgress size={24} /> : "Update"}
+            {updating ? <CircularProgress size={24} /> : "Cập nhật"}
           </Button>
         </DialogActions>
       </Dialog>
-
       {/* Update Delivery Time Dialog */}
       <LocalizationProvider dateAdapter={AdapterDateFns}>
         <Dialog
           open={openDeliveryTimeDialog}
           onClose={handleCloseDeliveryTimeDialog}
-          PaperProps={{
-            sx: {
-              borderRadius: 3,
-              boxShadow: "0 8px 32px 0 rgba(0,0,0,0.1)",
+          slotProps={{
+            paper: {
+              sx: {
+                borderRadius: 3,
+                boxShadow: "0 8px 32px 0 rgba(0,0,0,0.1)",
+              },
             },
           }}
         >
@@ -965,12 +1131,30 @@ const OrderDetailView: React.FC = () => {
               pb: 1,
             }}
           >
-            Set Delivery Time
+            Đặt thời gian giao hàng
           </DialogTitle>
           <DialogContent sx={{ pt: 2, px: 3, pb: 2 }}>
             <Box sx={{ mt: 1, minWidth: 300 }}>
+              {/* Display vehicle information if available */}
+              {order.vehicleInfo && (
+                <Box sx={{ mb: 3 }}>
+                  <Typography
+                    variant="subtitle2"
+                    sx={{ mb: 1, color: "text.secondary" }}
+                  >
+                    Thông tin phương tiện
+                  </Typography>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    {getVehicleIcon(order.vehicleInfo.vehicleType)}
+                    <Typography variant="body2">
+                      {order.vehicleInfo.vehicleName} -{" "}
+                      {order.vehicleInfo.licensePlate}
+                    </Typography>
+                  </Box>
+                </Box>
+              )}
               <DateTimePicker
-                label="Delivery Time"
+                label="Thời gian giao hàng"
                 value={deliveryTime}
                 onChange={(newValue) => setDeliveryTime(newValue)}
                 slotProps={{
@@ -1000,7 +1184,7 @@ const OrderDetailView: React.FC = () => {
                 px: 2,
               }}
             >
-              Cancel
+              Hủy bỏ
             </Button>
             <Button
               onClick={handleUpdateDeliveryTime}
@@ -1014,12 +1198,11 @@ const OrderDetailView: React.FC = () => {
                 boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
               }}
             >
-              {updating ? <CircularProgress size={24} /> : "Update"}
+              {updating ? <CircularProgress size={24} /> : "Cập nhật"}
             </Button>
           </DialogActions>
         </Dialog>
       </LocalizationProvider>
-
       {/* Snackbar for notifications */}
       <Snackbar
         open={snackbar.open}
@@ -1042,6 +1225,21 @@ const OrderDetailView: React.FC = () => {
       </Snackbar>
     </DetailPageContainer>
   );
+};
+
+// Hàm trợ giúp để dịch trạng thái đơn hàng sang tiếng Việt
+const getVietnameseOrderStatusLabel = (status: any): string => {
+  const statusMap: Record<string, string> = {
+    Pending: "Chờ xử lý",
+    Processing: "Đang xử lý",
+    Shipping: "Đang giao",
+    Delivered: "Đã giao",
+    Completed: "Hoàn thành",
+    Cancelled: "Đã hủy",
+    Returning: "Đang trả",
+  };
+  const statusString = typeof status === "string" ? status : String(status);
+  return statusMap[statusString] || statusString;
 };
 
 export default OrderDetailView;
