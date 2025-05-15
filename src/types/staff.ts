@@ -20,14 +20,38 @@ export interface StaffDto {
 }
 
 export interface StaffAvailabilityDto {
-  staffId: number;
+  id: number;
   name: string;
   email: string;
-  phoneNumber: string;
-  available: boolean;
+  phone: string;
+  staffType: StaffType;
+  isAvailable: boolean;
+  isEligible: boolean;
+  assignmentCount: number;
+  workDays?: WorkDays;
+}
+
+// Add StaffType enum if not already defined
+export enum StaffType {
+  Preparation = 1,
+  Shipping = 2,
 }
 
 export interface StaffAvailabilityStatus {
   available: boolean;
   reason: string;
+}
+
+export enum WorkDays {
+  None = 0,
+  Monday = 1,
+  Tuesday = 2,
+  Wednesday = 4,
+  Thursday = 8,
+  Friday = 16,
+  Saturday = 32,
+  Sunday = 64,
+  Weekdays = 31, // Mon-Fri
+  Weekend = 96, // Sat-Sun
+  AllDays = 127, // All days
 }
