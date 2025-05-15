@@ -9,6 +9,7 @@ import {
   Card,
   CardContent,
   Container,
+  Grid,
   IconButton,
   Paper,
   Table,
@@ -25,7 +26,6 @@ import {
   CircularProgress,
   Alert,
 } from "@mui/material";
-import Grid from "@mui/material/Grid2";
 import {
   ArrowBack,
   CheckCircle,
@@ -275,7 +275,7 @@ const AssignmentDetail = () => {
 
       <Grid container spacing={3}>
         {/* Order and Customer Information */}
-        <Grid size={{ xs: 12, md: 4 }}>
+        <Grid item xs={12} md={4}>
           <Paper
             elevation={2}
             sx={{
@@ -366,7 +366,7 @@ const AssignmentDetail = () => {
         </Grid>
 
         {/* Rental Timeline */}
-        <Grid size={{ xs: 12, md: 8 }}>
+        <Grid item xs={12} md={8}>
           <Card
             elevation={2}
             sx={{
@@ -494,7 +494,7 @@ const AssignmentDetail = () => {
         </Grid>
 
         {/* Product List Table */}
-        <Grid size={{ xs: 12 }}>
+        <Grid item xs={12}>
           <Paper
             elevation={2}
             sx={{
@@ -726,7 +726,7 @@ const AssignmentDetail = () => {
         </Grid>
 
         {/* Action buttons */}
-        <Grid size={{ xs: 12 }}>
+        <Grid item xs={12}>
           <Paper
             elevation={2}
             sx={{
@@ -785,7 +785,7 @@ const AssignmentDetail = () => {
       </Grid>
       {/* Return Information if item is returned */}
       {rentalOrder.actualReturnDate && (
-        <Grid size={{ xs: 12 }}>
+        <Grid item xs={12}>
           <Paper
             elevation={2}
             sx={{
@@ -805,7 +805,7 @@ const AssignmentDetail = () => {
             </Typography>
             <Divider sx={{ mb: 3 }} />
             <Grid container spacing={3}>
-              <Grid size={{ xs: 12, md: 6 }}>
+              <Grid item xs={12} md={6}>
                 <Typography variant="subtitle1" fontWeight="medium">
                   Tình trạng nhận:
                 </Typography>
@@ -816,7 +816,7 @@ const AssignmentDetail = () => {
                   {rentalOrder.returnCondition || "Không có ghi chú"}
                 </Typography>
               </Grid>
-              <Grid size={{ xs: 12, md: 6 }}>
+              <Grid item xs={12} md={6}>
                 <Typography variant="subtitle1" fontWeight="medium">
                   Ghi chú thuê:
                 </Typography>
@@ -827,7 +827,7 @@ const AssignmentDetail = () => {
                   {rentalOrder.rentalNotes || "Không có ghi chú"}
                 </Typography>
               </Grid>
-              <Grid size={{ xs: 12, md: 6 }}>
+              <Grid item xs={12} md={6}>
                 <Typography variant="subtitle1" fontWeight="medium">
                   Phí Hư Hỏng:
                 </Typography>
@@ -840,7 +840,7 @@ const AssignmentDetail = () => {
                     : "None"}
                 </Typography>
               </Grid>
-              <Grid size={{ xs: 12, md: 6 }}>
+              <Grid item xs={12} md={6}>
                 <Typography variant="subtitle1" fontWeight="medium">
                   Phí Trả Trễ:
                 </Typography>

@@ -1,33 +1,13 @@
-// src/components/replacement/StyledAssignStaff.tsx
-import { Typography, Stack, Paper } from "@mui/material";
-import { styled } from "@mui/material/styles";
-import { StaffAvailabilityDto } from "../../../types/staff";
+// src/components/replacement/AssignStaff.tsx
+import { Paper, Typography, Stack } from "@mui/material";
+import { StaffDto } from "../../../types/staff";
 import StaffSelection from "./StaffSelection";
 import { AnimatedButton } from "../../../components/StyledComponents";
-
-// Create styled components
-const AssignStaffContainer = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(2),
-  borderRadius: theme.shape.borderRadius * 2,
-}));
-
-const AssignStaffTitle = styled(Typography)({
-  fontWeight: 600,
-});
-
-const AssignStaffContent = styled(Stack)(({ theme }) => ({
-  marginTop: theme.spacing(1),
-}));
-
-const AssignButton = styled(AnimatedButton)(({ theme }) => ({
-  marginTop: theme.spacing(1),
-  // Add any additional button styling here
-}));
 
 interface AssignStaffProps {
   selectedStaffId: number | null;
   setSelectedStaffId: (id: number | null) => void;
-  staff: StaffAvailabilityDto[];
+  staff: StaffDto[];
   loading: boolean;
   onAssign: () => void;
 }
@@ -40,27 +20,28 @@ const AssignStaff: React.FC<AssignStaffProps> = ({
   onAssign,
 }) => {
   return (
-    <AssignStaffContainer variant="outlined">
-      <AssignStaffTitle variant="subtitle1" gutterBottom>
-        Phân công nhân viên
-      </AssignStaffTitle>
-      <AssignStaffContent spacing={2}>
+    <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
+      <Typography variant="subtitle1" fontWeight={600} gutterBottom>
+        Assign Staff
+      </Typography>
+      <Stack spacing={2}>
         <StaffSelection
           selectedStaffId={selectedStaffId}
           setSelectedStaffId={setSelectedStaffId}
           staff={staff}
           loading={loading}
         />
-        <AssignButton
+
+        <AnimatedButton
           variant="contained"
           color="primary"
           onClick={onAssign}
           disabled={selectedStaffId === null}
         >
-          Phân công nhân viên
-        </AssignButton>
-      </AssignStaffContent>
-    </AssignStaffContainer>
+          Assign Staff
+        </AnimatedButton>
+      </Stack>
+    </Paper>
   );
 };
 

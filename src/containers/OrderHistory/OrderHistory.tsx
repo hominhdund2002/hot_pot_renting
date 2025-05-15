@@ -353,7 +353,7 @@ const OrderHistory: React.FC = () => {
 
   // Handle page change
   const handleChangePage = (
-    _event: React.ChangeEvent<unknown>,
+    event: React.ChangeEvent<unknown>,
     newPage: number
   ) => {
     setPage(newPage);

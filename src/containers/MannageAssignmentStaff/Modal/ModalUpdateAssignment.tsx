@@ -83,6 +83,7 @@ export const AssignmentCompletionDialog: React.FC<
         ...formData,
         completedDate: new Date().toISOString(),
         assignmentId: assignId,
+        damageFee: 0,
       };
 
       console.log(submissionData);

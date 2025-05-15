@@ -1,24 +1,5 @@
 import { Paper, Typography } from "@mui/material";
-import { styled } from "@mui/material/styles";
 import { ReplacementRequestDetailDto } from "../../../types/replacement";
-
-const NotesContainer = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(2),
-  borderRadius: theme.shape.borderRadius * 2,
-}));
-
-const NotesTitle = styled(Typography)({
-  fontWeight: 600,
-});
-
-const NotesContent = styled(Typography)({
-  whiteSpace: "pre-line",
-});
-
-const ReviewNotesTitle = styled(Typography)(({ theme }) => ({
-  fontWeight: 600,
-  marginTop: theme.spacing(2),
-}));
 
 interface NotesInfoProps {
   request: ReplacementRequestDetailDto;
@@ -26,22 +7,25 @@ interface NotesInfoProps {
 
 const NotesInfo: React.FC<NotesInfoProps> = ({ request }) => {
   return (
-    <NotesContainer variant="outlined">
-      <NotesTitle variant="subtitle1" gutterBottom>
-        Ghi chú
-      </NotesTitle>
-      <NotesContent variant="body2">
-        {request.additionalNotes || "Không có ghi chú bổ sung nào."}
-      </NotesContent>
+    <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
+      <Typography variant="subtitle1" fontWeight={600} gutterBottom>
+        Notes
+      </Typography>
+      <Typography variant="body2" sx={{ whiteSpace: "pre-line" }}>
+        {request.additionalNotes || "No additional notes provided."}
+      </Typography>
+
       {request.reviewNotes && (
         <>
-          <ReviewNotesTitle variant="subtitle2">
-            Ghi chú xem xét:
-          </ReviewNotesTitle>
-          <NotesContent variant="body2">{request.reviewNotes}</NotesContent>
+          <Typography variant="subtitle2" fontWeight={600} sx={{ mt: 2 }}>
+            Review Notes:
+          </Typography>
+          <Typography variant="body2" sx={{ whiteSpace: "pre-line" }}>
+            {request.reviewNotes}
+          </Typography>
         </>
       )}
-    </NotesContainer>
+    </Paper>
   );
 };
 

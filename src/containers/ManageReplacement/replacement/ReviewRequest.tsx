@@ -1,31 +1,5 @@
 import { Button, Paper, Stack, TextField, Typography } from "@mui/material";
-import { styled } from "@mui/material/styles";
 import { AnimatedButton } from "../../../components/StyledComponents";
-
-const ReviewContainer = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(2),
-  borderRadius: theme.shape.borderRadius * 2,
-}));
-
-const ReviewTitle = styled(Typography)({
-  fontWeight: 600,
-});
-
-const ButtonsContainer = styled(Stack)({
-  flexDirection: "row",
-  spacing: 2,
-});
-
-const ActionButton = styled(Button, {
-  shouldForwardProp: (prop) => prop !== "isActive",
-})<{ isActive?: boolean }>(({ theme }) => ({
-  flex: 1,
-  borderRadius: theme.shape.borderRadius * 2,
-}));
-
-const NotesField = styled(TextField)({
-  width: "100%",
-});
 
 interface ReviewRequestProps {
   isApproved: boolean;
@@ -43,47 +17,51 @@ const ReviewRequest: React.FC<ReviewRequestProps> = ({
   onReview,
 }) => {
   return (
-    <ReviewContainer variant="outlined">
-      <ReviewTitle variant="subtitle1" gutterBottom>
-        Xem xét yêu cầu
-      </ReviewTitle>
+    <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
+      <Typography variant="subtitle1" fontWeight={600} gutterBottom>
+        Review Request
+      </Typography>
       <Stack spacing={2}>
-        <ButtonsContainer spacing={2}>
-          <ActionButton
+        <Stack direction="row" spacing={2}>
+          <Button
             variant={isApproved ? "contained" : "outlined"}
             color="primary"
             onClick={() => setIsApproved(true)}
+            sx={{ flex: 1, borderRadius: 2 }}
           >
-            Phê duyệt
-          </ActionButton>
-          <ActionButton
+            Approve
+          </Button>
+          <Button
             variant={!isApproved ? "contained" : "outlined"}
             color="error"
             onClick={() => setIsApproved(false)}
+            sx={{ flex: 1, borderRadius: 2 }}
           >
-            Từ chối
-          </ActionButton>
-        </ButtonsContainer>
-        <NotesField
-          label="Ghi chú xem xét"
+            Reject
+          </Button>
+        </Stack>
+
+        <TextField
+          label="Review Notes"
           multiline
           rows={3}
           fullWidth
           value={reviewNotes}
           onChange={(e) => setReviewNotes(e.target.value)}
           variant="outlined"
-          placeholder="Cung cấp ghi chú về quyết định của bạn..."
+          placeholder="Provide notes about your decision..."
         />
+
         <AnimatedButton
           variant="contained"
           color={isApproved ? "primary" : "error"}
           onClick={onReview}
           disabled={!reviewNotes.trim()}
         >
-          {isApproved ? "Phê duyệt yêu cầu" : "Từ chối yêu cầu"}
+          {isApproved ? "Approve Request" : "Reject Request"}
         </AnimatedButton>
       </Stack>
-    </ReviewContainer>
+    </Paper>
   );
 };
 

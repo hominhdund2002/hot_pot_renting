@@ -28,9 +28,9 @@ import { formatCurrency, formatDate } from "../../../utils/formatters";
 const RentalDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-
-  // Updated to use getRentOrder instead of getRentalDetail
-  const { data, loading, error, execute } = useApi(rentalService.getRentOrder);
+  const { data, loading, error, execute } = useApi(
+    rentalService.getRentalDetail
+  );
 
   useEffect(() => {
     if (id) {
@@ -40,9 +40,9 @@ const RentalDetail: React.FC = () => {
 
   const handleRecordReturn = () => {
     if (data) {
-      navigate("/rentals/record-return", {
+      navigate("/record-return", {
         state: {
-          rentOrderId: data.orderId,
+          rentOrderDetailId: data.rentOrderDetailId,
           customerName: data.customerName,
           equipmentName: data.utensilName || data.hotpotName,
           expectedReturnDate: data.expectedReturnDate,
@@ -66,7 +66,7 @@ const RentalDetail: React.FC = () => {
             <ArrowBackIcon />
           </IconButton>
           <SectionHeading variant="h4" component="h1">
-            Chi tiết thuê #{id}
+            Rental Detail #{id}
           </SectionHeading>
         </Box>
 
@@ -79,7 +79,7 @@ const RentalDetail: React.FC = () => {
                   color="primary"
                   onClick={handleRecordReturn}
                 >
-                  Ghi nhận trả
+                  Record Return
                 </AnimatedButton>
               )}
             </Box>
@@ -89,13 +89,13 @@ const RentalDetail: React.FC = () => {
                 <StyledCard elevation={2} sx={{ height: "100%" }}>
                   <Box sx={{ p: 3 }}>
                     <CardTitle variant="h6" gutterBottom>
-                      Thông tin khách hàng
+                      Customer Information
                     </CardTitle>
                     <StyledDivider sx={{ my: 1.5 }} />
                     <List dense>
                       <ListItem>
                         <ListItemText
-                          primary="Tên"
+                          primary="Name"
                           secondary={data.customerName}
                           primaryTypographyProps={{
                             fontWeight: 600,
@@ -106,7 +106,7 @@ const RentalDetail: React.FC = () => {
                       </ListItem>
                       <ListItem>
                         <ListItemText
-                          primary="Địa chỉ"
+                          primary="Address"
                           secondary={data.customerAddress}
                           primaryTypographyProps={{
                             fontWeight: 600,
@@ -116,7 +116,7 @@ const RentalDetail: React.FC = () => {
                       </ListItem>
                       <ListItem>
                         <ListItemText
-                          primary="Điện thoại"
+                          primary="Phone"
                           secondary={data.customerPhone}
                           primaryTypographyProps={{
                             fontWeight: 600,
@@ -133,14 +133,14 @@ const RentalDetail: React.FC = () => {
                 <StyledCard elevation={2} sx={{ height: "100%" }}>
                   <Box sx={{ p: 3 }}>
                     <CardTitle variant="h6" gutterBottom>
-                      Thông tin thiết bị
+                      Equipment Information
                     </CardTitle>
                     <StyledDivider sx={{ my: 1.5 }} />
                     <List dense>
                       <ListItem>
                         <ListItemText
-                          primary="Loại"
-                          secondary={data.utensilId ? "Dụng cụ" : "Nồi lẩu"}
+                          primary="Type"
+                          secondary={data.utensilId ? "Utensil" : "Hotpot"}
                           primaryTypographyProps={{
                             fontWeight: 600,
                             color: "text.primary",
@@ -150,7 +150,7 @@ const RentalDetail: React.FC = () => {
                       </ListItem>
                       <ListItem>
                         <ListItemText
-                          primary="Tên"
+                          primary="Name"
                           secondary={data.utensilName || data.hotpotName}
                           primaryTypographyProps={{
                             fontWeight: 600,
@@ -161,7 +161,7 @@ const RentalDetail: React.FC = () => {
                       </ListItem>
                       <ListItem>
                         <ListItemText
-                          primary="Số lượng"
+                          primary="Quantity"
                           secondary={data.quantity}
                           primaryTypographyProps={{
                             fontWeight: 600,
@@ -179,9 +179,10 @@ const RentalDetail: React.FC = () => {
                 <StyledCard elevation={2}>
                   <Box sx={{ p: 3 }}>
                     <CardTitle variant="h6" gutterBottom>
-                      Chi tiết thuê
+                      Rental Details
                     </CardTitle>
                     <StyledDivider sx={{ my: 1.5 }} />
+
                     <Grid container spacing={2}>
                       <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                         <Typography
@@ -189,7 +190,7 @@ const RentalDetail: React.FC = () => {
                           color="text.secondary"
                           fontWeight={500}
                         >
-                          Mã đơn hàng
+                          Order ID
                         </Typography>
                         <Typography variant="body1" fontWeight={600}>
                           {data.orderId}
@@ -201,7 +202,7 @@ const RentalDetail: React.FC = () => {
                           color="text.secondary"
                           fontWeight={500}
                         >
-                          Giá thuê
+                          Rental Price
                         </Typography>
                         <Typography variant="body1" fontWeight={600}>
                           {formatCurrency(data.rentalPrice)}
@@ -213,7 +214,7 @@ const RentalDetail: React.FC = () => {
                           color="text.secondary"
                           fontWeight={500}
                         >
-                          Ngày bắt đầu thuê
+                          Rental Start Date
                         </Typography>
                         <Typography variant="body1" fontWeight={600}>
                           {formatDate(data.rentalStartDate)}
@@ -225,7 +226,7 @@ const RentalDetail: React.FC = () => {
                           color="text.secondary"
                           fontWeight={500}
                         >
-                          Ngày trả dự kiến
+                          Expected Return Date
                         </Typography>
                         <Typography variant="body1" fontWeight={600}>
                           {formatDate(data.expectedReturnDate)}
@@ -242,12 +243,12 @@ const RentalDetail: React.FC = () => {
                           color="text.secondary"
                           fontWeight={500}
                         >
-                          Ngày trả thực tế
+                          Actual Return Date
                         </Typography>
                         <Typography variant="body1" fontWeight={600}>
                           {data.actualReturnDate
                             ? formatDate(data.actualReturnDate)
-                            : "Chưa trả"}
+                            : "Not returned yet"}
                         </Typography>
                       </Grid>
                       <Grid size={{ xs: 12, sm: 6, md: 4 }}>
@@ -256,12 +257,10 @@ const RentalDetail: React.FC = () => {
                           color="text.secondary"
                           fontWeight={500}
                         >
-                          Phí trễ hạn
+                          Late Fee
                         </Typography>
                         <Typography variant="body1" fontWeight={600}>
-                          {data.lateFee
-                            ? formatCurrency(data.lateFee)
-                            : "Không có"}
+                          {data.lateFee ? formatCurrency(data.lateFee) : "N/A"}
                         </Typography>
                       </Grid>
                       <Grid size={{ xs: 12, sm: 6, md: 4 }}>
@@ -270,12 +269,12 @@ const RentalDetail: React.FC = () => {
                           color="text.secondary"
                           fontWeight={500}
                         >
-                          Phí hư hỏng
+                          Damage Fee
                         </Typography>
                         <Typography variant="body1" fontWeight={600}>
                           {data.damageFee
                             ? formatCurrency(data.damageFee)
-                            : "Không có"}
+                            : "N/A"}
                         </Typography>
                       </Grid>
 
@@ -289,10 +288,10 @@ const RentalDetail: React.FC = () => {
                           color="text.secondary"
                           fontWeight={500}
                         >
-                          Ghi chú thuê
+                          Rental Notes
                         </Typography>
                         <Typography variant="body1">
-                          {data.rentalNotes || "Không có ghi chú"}
+                          {data.rentalNotes || "No notes"}
                         </Typography>
                       </Grid>
                       <Grid size={{ xs: 12, sm: 6 }}>
@@ -301,10 +300,10 @@ const RentalDetail: React.FC = () => {
                           color="text.secondary"
                           fontWeight={500}
                         >
-                          Tình trạng trả
+                          Return Condition
                         </Typography>
                         <Typography variant="body1">
-                          {data.returnCondition || "Chưa ghi nhận"}
+                          {data.returnCondition || "Not recorded yet"}
                         </Typography>
                       </Grid>
                     </Grid>

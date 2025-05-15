@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import { IOrder } from "../../types/order";
@@ -11,7 +10,7 @@ const OrderTable = () => {
   const [orderData, setOrderData] = useState<IOrder[]>([]);
   const [selectOrderdata, setSelectedOrderData] = useState<any>();
   const [size, setSize] = useState<number>(10);
-  const [total, _setTotal] = useState<number>(10);
+  const [total, setTotal] = useState<number>(10);
   const [page, setPage] = useState<number>(0);
 
   //select data
@@ -21,7 +20,7 @@ const OrderTable = () => {
 
   //Handle pagination
   const handleChangePage = (
-    _event: React.MouseEvent<HTMLButtonElement> | null,
+    event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number
   ) => {
     setPage(newPage);

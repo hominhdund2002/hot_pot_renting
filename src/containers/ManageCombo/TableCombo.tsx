@@ -29,6 +29,7 @@ const TableCombo = () => {
         const res: any = await adminComboAPI.getListCombo({
           pageNumber: page + 1,
           pageSize: size,
+          isCustomizable: true,
         });
         setDataCombo(res?.items || []);
         setTotal(res?.totalCount || 0);

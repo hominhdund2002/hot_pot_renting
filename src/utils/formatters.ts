@@ -1,19 +1,14 @@
 import { format, differenceInDays } from "date-fns";
-import { vi } from "date-fns/locale";
-import { OrderStatus } from "../types/orderManagement";
+import { OrderStatus } from "../api/Services/orderManagementService";
 
 export const formatDate = (dateString: string): string => {
-  return format(new Date(dateString), "dd/MM/yyyy", { locale: vi });
-};
-
-export const formatDetailDate = (dateString: string): string => {
-  return format(new Date(dateString), "dd/MM/yyyy, HH:mm", { locale: vi });
+  return format(new Date(dateString), "MMM dd, yyyy");
 };
 
 export const formatCurrency = (amount: number): string => {
-  return new Intl.NumberFormat("vi-VN", {
+  return new Intl.NumberFormat("en-US", {
     style: "currency",
-    currency: "VND",
+    currency: "USD",
   }).format(amount);
 };
 

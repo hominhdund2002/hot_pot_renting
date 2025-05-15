@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Box } from "@mui/material";
 import React, { useEffect } from "react";
 import { useParams } from "react-router";

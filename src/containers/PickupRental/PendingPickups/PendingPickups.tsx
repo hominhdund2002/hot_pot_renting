@@ -39,15 +39,14 @@ const PendingPickups: React.FC = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const { data, loading, error, execute } = useApi(
-    rentalService.getRentalListings
+    rentalService.getPendingPickups
   );
 
   useEffect(() => {
-    // Use the new getRentalListings method with 'pending' type
-    execute("pending", page + 1, rowsPerPage);
+    execute(page + 1, rowsPerPage);
   }, [execute, page, rowsPerPage]);
 
-  const handleChangePage = (_event: unknown, newPage: number) => {
+  const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
   };
 
@@ -65,7 +64,7 @@ const PendingPickups: React.FC = () => {
   const handleRecordReturn = (rental: RentalListing) => {
     navigate("/rentals/record-return", {
       state: {
-        rentOrderId: rental.orderId,
+        rentOrderDetailId: rental.rentOrderDetailId,
         customerName: rental.customerName,
         equipmentName: rental.equipmentName,
         expectedReturnDate: rental.expectedReturnDate,
@@ -78,14 +77,14 @@ const PendingPickups: React.FC = () => {
       {loading && <LoadingSpinner />}
       {error && <ErrorAlert message={error} />}
 
-      {!loading && !error && data?.items?.length === 0 ? (
+      {data && data.items.length === 0 ? (
         <EmptyStateContainer>
           <Typography variant="h6" fontWeight={600}>
-            Không tìm thấy lấy hàng đang chờ xử lý
+            No pending pickups found
           </Typography>
           <CardDescription>
-            Không có đơn thuê nào cần lấy hàng hôm nay. Kiểm tra lại sau để xem
-            các lần trả sắp tới.
+            There are no rentals due for pickup today. Check back later for
+            upcoming returns.
           </CardDescription>
         </EmptyStateContainer>
       ) : (
@@ -94,16 +93,16 @@ const PendingPickups: React.FC = () => {
             <StyledTable>
               <TableHead>
                 <TableRow>
-                  <TableCell>Mã đơn hàng</TableCell>
-                  <TableCell>Khách hàng</TableCell>
-                  <TableCell>Thiết bị</TableCell>
-                  <TableCell>Ngày trả dự kiến</TableCell>
-                  <TableCell>Giá thuê</TableCell>
-                  <TableCell>Hành động</TableCell>
+                  <TableCell>Order ID</TableCell>
+                  <TableCell>Customer</TableCell>
+                  <TableCell>Equipment</TableCell>
+                  <TableCell>Expected Return</TableCell>
+                  <TableCell>Rental Price</TableCell>
+                  <TableCell>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {data?.items?.map((rental) => (
+                {data?.items.map((rental) => (
                   <TableRow key={rental.rentOrderDetailId}>
                     <TableCell>#{rental.orderId}</TableCell>
                     <TableCell>
@@ -116,7 +115,7 @@ const PendingPickups: React.FC = () => {
                       <EquipmentCell>
                         <EquipmentName>{rental.equipmentName}</EquipmentName>
                         <EquipmentType>
-                          {rental.equipmentType} • SL: {rental.quantity}
+                          {rental.equipmentType} • Qty: {rental.quantity}
                         </EquipmentType>
                       </EquipmentCell>
                     </TableCell>
@@ -140,7 +139,7 @@ const PendingPickups: React.FC = () => {
                           }
                           sx={{ minWidth: "80px" }}
                         >
-                          Xem
+                          View
                         </AnimatedButton>
                         <AnimatedButton
                           variant="contained"
@@ -149,7 +148,7 @@ const PendingPickups: React.FC = () => {
                           onClick={() => handleRecordReturn(rental)}
                           sx={{ minWidth: "120px" }}
                         >
-                          Ghi nhận trả
+                          Record Return
                         </AnimatedButton>
                       </ActionButtonsContainer>
                     </TableCell>
@@ -166,10 +165,6 @@ const PendingPickups: React.FC = () => {
             page={page}
             onPageChange={handleChangePage}
             onRowsPerPageChange={handleChangeRowsPerPage}
-            labelRowsPerPage="Số hàng mỗi trang:"
-            labelDisplayedRows={({ from, to, count }) =>
-              `${from}-${to} của ${count}`
-            }
           />
         </>
       )}
