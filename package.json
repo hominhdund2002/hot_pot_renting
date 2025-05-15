@@ -62,8 +62,11 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
+<<<<<<< HEAD
     "@types/numeral": "^2.0.5",
     "@types/express": "^5.0.1",
+=======
+>>>>>>> parent of 762c381 (Fix: the UI)
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
     "@types/react-lazy-load-image-component": "^1.6.4",

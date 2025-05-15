@@ -5,7 +5,6 @@ import { Box, Typography, styled } from "@mui/material";
 
 interface DropFileInputProps {
   onFileChange: (files: File[]) => void;
-  uploadProgress?: number | null;
 }
 
 const DropZone = styled(Box)(({ theme }) => ({
@@ -30,10 +29,7 @@ const DropZone = styled(Box)(({ theme }) => ({
     height: "150px",
   },
 }));
-const DropFileInput: React.FC<DropFileInputProps> = ({
-  onFileChange,
-  uploadProgress,
-}) => {
+const DropFileInput: React.FC<DropFileInputProps> = ({ onFileChange }) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [fileList, setFileList] = useState<File[]>([]);
@@ -73,25 +69,20 @@ const DropFileInput: React.FC<DropFileInputProps> = ({
         onDragEnter={onDragEnter}
         onDragLeave={onDragLeave}
         onDrop={onDrop}
-        onClick={() => fileInputRef.current?.click()}
+        onClick={() => fileInputRef.current?.click()} // ✅ Allow clicking to choose files
       >
+        <Box>
+          <CloudUploadIcon fontSize="large" color="primary" />
+          <Typography variant="body1">
+            Drag & Drop your files here or click to browse
+          </Typography>
+        </Box>
         <input
+          ref={fileInputRef} // ✅ Reference to trigger file input
           type="file"
-          ref={fileInputRef}
           onChange={onFileDrop}
           style={{ display: "none" }}
         />
-        <Box>
-          <CloudUploadIcon fontSize="large" />
-          <Typography>
-            Kéo và thả các tập tin của bạn ở đây hoặc nhấp để duyệt
-          </Typography>
-          {uploadProgress !== null && (
-            <Typography color="primary" sx={{ mt: 2 }}>
-              Đang tải lên: {(uploadProgress ?? 0).toFixed(0)}%
-            </Typography>
-          )}
-        </Box>
       </DropZone>
     </>
   );
