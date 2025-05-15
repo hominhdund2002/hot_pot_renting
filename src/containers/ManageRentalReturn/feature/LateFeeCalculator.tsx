@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // src/components/manager/LateFeeCalculator.tsx
 import { Alert, CircularProgress } from "@mui/material";
 import Grid from "@mui/material/Grid2";
@@ -103,7 +104,7 @@ const LateFeeCalculator: React.FC = () => {
               <DatePicker
                 label="Actual Return Date"
                 value={returnDate}
-                onChange={(newValue) => setReturnDate(newValue)}
+                onChange={(newValue: any) => setReturnDate(newValue)}
                 disabled={loading}
                 slotProps={{
                   textField: {
@@ -112,7 +113,7 @@ const LateFeeCalculator: React.FC = () => {
                     sx: {
                       "& .MuiOutlinedInput-root": {
                         borderRadius: 3,
-                        backgroundColor: (theme) =>
+                        backgroundColor: (theme: any) =>
                           alpha(theme.palette.background.paper, 0.8),
                       },
                     },

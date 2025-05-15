@@ -2,22 +2,25 @@
 // import React from "react";
 import { useFormik } from "formik";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 // import { toast } from "react-toastify";
+import { FaLock, FaUser } from "react-icons/fa";
+import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import * as Yup from "yup";
-import { FaUser, FaLock } from "react-icons/fa";
 // import authApi from "../../services/api/AuthAPI";
 // import "./SignIn.scss";
 import classNames from "classnames/bind";
-import styles from "./authenticate.module.scss";
-import authApi from "../../../api/authAPI";
+import { jwtDecode } from "jwt-decode";
 import { toast } from "react-toastify";
+import authApi from "../../../api/authAPI";
 import useAuth from "../../../hooks/useAuth";
+import styles from "./authenticate.module.scss";
 
 export const AuthenticatePage = () => {
   const navigate = useNavigate();
   const cx = classNames.bind(styles);
   const { setAuth } = useAuth();
-  const { auth } = useAuth();
+  const [showPassword, setShowPassword] = useState(false);
 
   const validationSchema = Yup.object({
     phoneNumber: Yup.string()
@@ -43,14 +46,15 @@ export const AuthenticatePage = () => {
         });
         localStorage.setItem("userInfor", JSON.stringify(response?.data));
         console.log("first", response?.data);
+        const decoded: any = jwtDecode(response?.data?.accessToken);
         setAuth({
           user: response?.data,
           accessToken: response?.data?.accessToken,
         });
-        if (auth?.user?.role === "Admin") {
+        if (decoded?.role == "Admin") {
           navigate("/dashboard");
-        } else if (auth?.user?.role === "Manager") {
-          navigate("/dashboard");
+        } else if (decoded?.role == "Manager") {
+          navigate("/manage-order");
         } else {
           navigate("/assign-order");
         }
@@ -83,13 +87,33 @@ export const AuthenticatePage = () => {
           <div className={cx("input-box")}>
             <input
               id="password"
-              type="password"
+              type={showPassword ? "text" : "password"}
               className={cx("input-text")}
               style={{ color: "black" }}
               placeholder="Mật khẩu *"
               {...formik.getFieldProps("password")}
             />
             <FaLock className={cx("icon")} />
+            <span
+              style={{
+                position: "absolute",
+                right: "40px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                cursor: "pointer",
+                zIndex: 2,
+              }}
+              onClick={() => setShowPassword((prev) => !prev)}
+              tabIndex={0}
+              role="button"
+              aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+            >
+              {showPassword ? (
+                <AiOutlineEyeInvisible size={20} />
+              ) : (
+                <AiOutlineEye size={20} />
+              )}
+            </span>
           </div>
           {formik.touched.password && formik.errors.password ? (
             <div className={cx("error")}>{formik.errors.password}</div>

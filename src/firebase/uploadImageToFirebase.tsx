@@ -32,11 +32,9 @@ export function uploadImageToFirebase(file: File) {
   });
 }
 
-export function uploadVideoToFirebase(
-  file: File,
-  onProgress?: (percent: number) => void
-): Promise<string> {
+export function uploadVideoToFirebase(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
+    // Validate if the file is a video
     if (!file.type.startsWith("video/")) {
       reject(new Error("Invalid file type. Please upload a video."));
       return;
@@ -44,6 +42,7 @@ export function uploadVideoToFirebase(
 
     const videoName = `videos/${new Date().getTime()}-${file.name}`;
     const storageRef = ref(storage, videoName);
+
     const uploadTask = uploadBytesResumable(storageRef, file);
 
     uploadTask.on(
@@ -52,9 +51,6 @@ export function uploadVideoToFirebase(
         const progress =
           (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
         console.log(`Upload is ${progress.toFixed(2)}% done`);
-        if (onProgress) {
-          onProgress(progress);
-        }
       },
       (error) => {
         console.error("Upload failed:", error);
@@ -63,8 +59,10 @@ export function uploadVideoToFirebase(
       async () => {
         try {
           const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+          console.log("Video available at:", downloadURL);
           resolve(downloadURL);
         } catch (error) {
+          console.error("Failed to get download URL:", error);
           reject(error);
         }
       }

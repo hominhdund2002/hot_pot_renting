@@ -1,16 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   Box,
   Button,
   Chip,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  MenuItem,
   Paper,
-  Select,
-  Stack,
   Table,
   TableBody,
   TableCell,
@@ -21,11 +15,12 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
-import { AssignOrderType } from "../../types/assignOrder";
+import React, { useState } from "react";
+import { OrderStatus } from "../../types/orderManagement";
 import staffGetOrderApi from "../../api/staffGetOrderAPI";
 import useAuth from "../../hooks/useAuth";
-import { jwtDecode } from "jwt-decode";
+import { AssignOrderType } from "../../types/assignOrder";
+import { toast } from "react-toastify";
 
 const StatusChip = ({ status }: { status: string }) => {
   const theme = useTheme();
@@ -57,7 +52,7 @@ const AssignOrder: React.FC = () => {
   //call api
   const getAssignOrderByStaffId = async () => {
     try {
-      const res = await staffGetOrderApi.getAssignOrderByStaffId(id);
+      const res = await staffGetOrderApi.getAssignOrderByStaffId();
       setOrders(res?.data);
     } catch (error: any) {
       console.log(error?.message);
@@ -66,7 +61,7 @@ const AssignOrder: React.FC = () => {
 
   React.useEffect(() => {
     getAssignOrderByStaffId();
-  }, [id]);
+  }, []);
 
   //Header arr
   const headerArr = [
@@ -76,6 +71,23 @@ const AssignOrder: React.FC = () => {
     "Trạng thái",
     "Thao tác",
   ];
+
+  const body = {
+    status: "Shipping",
+  };
+
+  //handle
+  const handleChangeStatus = async (orderId: any) => {
+    console.log("log id: ", orderId);
+    try {
+      const res = await staffGetOrderApi.updateStatus(orderId, body);
+      toast.success("Cập nhật trạng thái đơn hàng thành công!");
+      getAssignOrderByStaffId();
+      console.log(res);
+    } catch (error: any) {
+      console.log(error?.message);
+    }
+  };
 
   return (
     <Box
@@ -119,7 +131,11 @@ const AssignOrder: React.FC = () => {
                   <StatusChip status={order.status} />
                 </TableCell>
                 <TableCell>
-                  <Button variant="contained" color="primary">
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => handleChangeStatus(order.orderId)}
+                  >
                     Đơn hàng sẵn sàng
                   </Button>
                 </TableCell>
