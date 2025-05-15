@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   Button,
   Dialog,
@@ -21,6 +21,7 @@ import {
   TableCell,
   Checkbox,
   MenuItem,
+  InputAdornment,
 } from "@mui/material";
 import {
   Add as AddIcon,
@@ -28,14 +29,16 @@ import {
   Close as CloseIcon,
   Save as SaveIcon,
   Refresh as RefreshIcon,
+  Search as SearchIcon,
+  Clear as ClearIcon,
 } from "@mui/icons-material";
 import adminIngredientsAPI from "../../../api/Services/adminIngredientsAPI";
 import { Ingredient } from "../../../types/ingredients";
-import BatchPagination from "./BatchPagination"; // Import the pagination component
+import BatchPagination from "./BatchPagination";
 import adminBatchAPI from "../../../api/Services/adminBatch";
 import { toast } from "react-toastify";
+import useDebounce from "../../../hooks/useDebounce";
 
-// Define types for our model
 interface Batch {
   ingredientId: number;
   totalAmount: number;
@@ -75,6 +78,12 @@ export default function UpdateQuantityModal({
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
+  // State for search
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [filteredIngredients, setFilteredIngredients] = useState<Ingredient[]>(
+    []
+  );
+
   // State for selected ingredients in the table
   const [selectedIngredients, setSelectedIngredients] = useState<number[]>([]);
 
@@ -83,9 +92,27 @@ export default function UpdateQuantityModal({
     batches: [],
   });
 
+  //debounce
+  const debounce = useDebounce(searchTerm, 500);
   // Pagination state for batches (lô hàng)
   const [batchesPage, setBatchesPage] = useState<number>(1);
   const [batchesPerPage] = useState<number>(5); // Fixed size of 5
+
+  // Filter ingredients based on search term
+  useEffect(() => {
+    if (!debounce) {
+      setFilteredIngredients(ingredients);
+    } else {
+      const filtered = ingredients.filter(
+        (ingredient) =>
+          ingredient.name.toLowerCase().includes(debounce.toLowerCase()) ||
+          ingredient.ingredientTypeName
+            .toLowerCase()
+            .includes(debounce.toLowerCase())
+      );
+      setFilteredIngredients(filtered);
+    }
+  }, [ingredients, debounce]);
 
   // Reset model when dialog opens
   useEffect(() => {
@@ -94,6 +121,7 @@ export default function UpdateQuantityModal({
         batches: [],
       });
       setSelectedIngredients([]);
+      setSearchTerm(""); // Reset search term
       fetchIngredients();
     }
   }, [open]);
@@ -126,6 +154,50 @@ export default function UpdateQuantityModal({
     });
   };
 
+  // Handle select all checkbox (considering filtered ingredients)
+  const handleSelectAll = () => {
+    const visibleIngredientIds = filteredIngredients.map((i) => i.ingredientId);
+    const selectedVisibleIngredients = selectedIngredients.filter((id) =>
+      visibleIngredientIds.includes(id)
+    );
+
+    if (selectedVisibleIngredients.length === visibleIngredientIds.length) {
+      // Deselect all visible ingredients
+      setSelectedIngredients((prev) =>
+        prev.filter((id) => !visibleIngredientIds.includes(id))
+      );
+    } else {
+      // Select all visible ingredients
+      setSelectedIngredients((prev) => {
+        const newSelected = [...prev];
+        visibleIngredientIds.forEach((id) => {
+          if (!newSelected.includes(id)) {
+            newSelected.push(id);
+          }
+        });
+        return newSelected;
+      });
+    }
+  };
+
+  // Get select all checkbox state
+  const getSelectAllState = () => {
+    const visibleIngredientIds = filteredIngredients.map((i) => i.ingredientId);
+    const selectedVisibleIngredients = selectedIngredients.filter((id) =>
+      visibleIngredientIds.includes(id)
+    );
+
+    if (selectedVisibleIngredients.length === 0) {
+      return { checked: false, indeterminate: false };
+    } else if (
+      selectedVisibleIngredients.length === visibleIngredientIds.length
+    ) {
+      return { checked: true, indeterminate: false };
+    } else {
+      return { checked: false, indeterminate: true };
+    }
+  };
+
   // Handlers for batches
   const handleSave = async () => {
     try {
@@ -141,7 +213,6 @@ export default function UpdateQuantityModal({
       console.log(prepareData);
       const data = { batches: prepareData };
       //  API call
-
       const response = await adminBatchAPI.CreateNewBatch(data);
 
       console.log(response);
@@ -209,6 +280,13 @@ export default function UpdateQuantityModal({
   const handleBatchPageChange = (page: number) => {
     setBatchesPage(page);
   };
+
+  // Handle search clear
+  const handleClearSearch = () => {
+    setSearchTerm("");
+  };
+
+  const selectAllState = getSelectAllState();
 
   return (
     <Dialog
@@ -278,31 +356,45 @@ export default function UpdateQuantityModal({
                 </Button>
               </Box>
             </Box>
+
+            {/* Search Field */}
+            <Box sx={{ px: 2, pb: 2 }}>
+              <TextField
+                fullWidth
+                size="small"
+                placeholder="Tìm kiếm theo tên nguyên liệu hoặc loại..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon />
+                    </InputAdornment>
+                  ),
+                  endAdornment: searchTerm && (
+                    <InputAdornment position="end">
+                      <IconButton
+                        size="small"
+                        onClick={handleClearSearch}
+                        edge="end"
+                      >
+                        <ClearIcon />
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </Box>
+
             <TableContainer sx={{ maxHeight: 300 }}>
               <Table stickyHeader size="small">
                 <TableHead>
                   <TableRow>
                     <TableCell padding="checkbox">
                       <Checkbox
-                        indeterminate={
-                          selectedIngredients.length > 0 &&
-                          selectedIngredients.length < ingredients.length
-                        }
-                        checked={
-                          ingredients.length > 0 &&
-                          selectedIngredients.length === ingredients.length
-                        }
-                        onChange={() => {
-                          if (
-                            selectedIngredients.length === ingredients.length
-                          ) {
-                            setSelectedIngredients([]);
-                          } else {
-                            setSelectedIngredients(
-                              ingredients.map((i) => i.ingredientId)
-                            );
-                          }
-                        }}
+                        indeterminate={selectAllState.indeterminate}
+                        checked={selectAllState.checked}
+                        onChange={handleSelectAll}
                       />
                     </TableCell>
                     <TableCell>Tên nguyên liệu</TableCell>
@@ -311,7 +403,7 @@ export default function UpdateQuantityModal({
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {ingredients.map((ingredient) => (
+                  {filteredIngredients.map((ingredient) => (
                     <TableRow
                       key={ingredient.ingredientId}
                       hover
@@ -357,6 +449,17 @@ export default function UpdateQuantityModal({
                       </TableCell>
                     </TableRow>
                   ))}
+                  {filteredIngredients.length === 0 && !isLoading && (
+                    <TableRow>
+                      <TableCell colSpan={4} align="center" sx={{ py: 3 }}>
+                        <Typography variant="body2" color="text.secondary">
+                          {searchTerm
+                            ? "Không tìm thấy nguyên liệu nào"
+                            : "Không có dữ liệu"}
+                        </Typography>
+                      </TableCell>
+                    </TableRow>
+                  )}
                 </TableBody>
               </Table>
             </TableContainer>
