@@ -46,6 +46,8 @@ interface Batch {
   unit: string;
 }
 
+console.log(1);
+
 interface UpdateQuantityModel {
   batches: Batch[];
 }
