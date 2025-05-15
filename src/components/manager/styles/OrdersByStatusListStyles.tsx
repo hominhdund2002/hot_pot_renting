@@ -152,18 +152,17 @@ export const OrderTypeChip = styled(Chip)(({ theme }) => ({
 }));
 
 // Shipping status chip with dynamic color
-// In your OrdersByStatusListStyles.ts file
-export const ShippingStatusChip = styled(Chip, {
-  shouldForwardProp: (prop) => prop !== "delivered",
-})<{ delivered?: boolean }>(({ theme, delivered }) => ({
-  backgroundColor: delivered
-    ? alpha(theme.palette.success.main, 0.1)
-    : alpha(theme.palette.warning.main, 0.1),
-  color: delivered ? theme.palette.success.main : theme.palette.warning.main,
-  fontWeight: 500,
-  borderRadius: 8,
-  // other styles
-}));
+export const ShippingStatusChip = styled(Chip)<{ delivered?: boolean }>(
+  ({ theme, delivered }) => ({
+    height: 24,
+    fontSize: "0.75rem",
+    fontWeight: 600,
+    backgroundColor: delivered
+      ? theme.palette.success.main
+      : theme.palette.warning.main,
+    color: "white",
+  })
+);
 
 // Unallocated chip
 export const UnallocatedChip = styled(Chip)(({ theme }) => ({

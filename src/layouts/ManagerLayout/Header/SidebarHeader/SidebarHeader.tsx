@@ -1,17 +1,9 @@
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import ErrorIcon from "@mui/icons-material/Error";
-import ExpandLess from "@mui/icons-material/ExpandLess";
-import ExpandMore from "@mui/icons-material/ExpandMore";
-import LogoutIcon from "@mui/icons-material/Logout";
-import MenuIcon from "@mui/icons-material/Menu";
-import PersonIcon from "@mui/icons-material/Person";
-import SyncIcon from "@mui/icons-material/Sync";
-import WifiIcon from "@mui/icons-material/Wifi";
-import WifiOffIcon from "@mui/icons-material/WifiOff";
+import React, { useState } from "react";
 import {
   AppBar,
   Avatar,
   Box,
+  Button,
   Chip,
   Collapse,
   Divider,
@@ -27,55 +19,48 @@ import {
   Typography,
   useMediaQuery,
   useTheme,
-  Badge,
-  Button,
 } from "@mui/material";
-import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import authApi from "../../../../api/authAPI";
-import LogoContainer from "../../../../components/Logo/Logo";
-import { useNotifications } from "../../../../context/NotificationContext";
-import useAuth from "../../../../hooks/useAuth";
-import {
-  ConnectionState,
-  Notification,
-  NotificationGroup,
-  NotificationPriority,
-} from "../../../../types/notifications";
+import ExpandLess from "@mui/icons-material/ExpandLess";
+import ExpandMore from "@mui/icons-material/ExpandMore";
 import { menuItems } from "./MenuItems";
+import LogoContainer from "../../../../components/Logo/Logo";
+// // Icons
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import LogoutIcon from "@mui/icons-material/Logout";
+import MenuIcon from "@mui/icons-material/Menu";
 import NotificationsIcon from "@mui/icons-material/Notifications";
-import PriorityHighIcon from "@mui/icons-material/PriorityHigh";
-import EquipmentIcon from "@mui/icons-material/Handyman";
-import FeedbackIcon from "@mui/icons-material/Feedback";
-import LocalShippingIcon from "@mui/icons-material/LocalShipping";
-import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
-import ScheduleIcon from "@mui/icons-material/Schedule";
-import SystemUpdateIcon from "@mui/icons-material/SystemUpdate";
+import PersonIcon from "@mui/icons-material/Person";
+import useAuth from "../../../../hooks/useAuth";
+import authApi from "../../../../api/authAPI";
 
 export const drawerWidth = 280;
-
 interface SidebarDrawerProps {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
+interface Notification {
+  id: number;
+  message: string;
+  time: string;
+  read: boolean;
+}
 const SidebarDrawer: React.FC<SidebarDrawerProps> = ({ open, setOpen }) => {
   const theme = useTheme();
   const navigate = useNavigate();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const { auth } = useAuth();
+
   const role = auth?.user?.role;
-
-  // Get notifications from context
-  const { notifications, connectionState, markAsRead, markAllAsRead } =
-    useNotifications();
-
+  console.log("role: ", role);
   // State for expanding/collapsing menu categories
   const [openCategories, setOpenCategories] = useState<{
     [key: string]: boolean;
   }>({});
 
   // User data (replace with actual user data)
+
   const userData = auth?.user;
 
   // Toggle category open/close
@@ -90,18 +75,9 @@ const SidebarDrawer: React.FC<SidebarDrawerProps> = ({ open, setOpen }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const userMenuOpen = Boolean(anchorEl);
   const drawerVariant = isMobile ? "temporary" : "persistent";
-
   // Notification state
   const [notificationAnchorEl, setNotificationAnchorEl] =
     useState<null | HTMLElement>(null);
-
-  // Add state for notification filtering
-  const [selectedGroup, setSelectedGroup] = useState<NotificationGroup | "all">(
-    "all"
-  );
-  const [selectedPriority, setSelectedPriority] = useState<
-    NotificationPriority | "all"
-  >("all");
 
   // Handle navigation
   const handleNavigation = (route: string) => {
@@ -128,9 +104,27 @@ const SidebarDrawer: React.FC<SidebarDrawerProps> = ({ open, setOpen }) => {
       console.log(error);
     }
   };
-
-  // Calculate unread notifications count
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  const [notifications] = useState([
+    {
+      id: 1,
+      message: "New order #123 received",
+      time: "5 min ago",
+      read: false,
+    },
+    {
+      id: 2,
+      message: "Equipment HP-001 maintenance due",
+      time: "1 hour ago",
+      read: false,
+    },
+    {
+      id: 3,
+      message: "Customer feedback received",
+      time: "2 hours ago",
+      read: true,
+    },
+  ]);
+  const [unreadCount] = useState(2);
 
   const handleNotificationOpen = (event: React.MouseEvent<HTMLElement>) => {
     setNotificationAnchorEl(event.currentTarget);
@@ -139,124 +133,6 @@ const SidebarDrawer: React.FC<SidebarDrawerProps> = ({ open, setOpen }) => {
   const handleNotificationClose = () => {
     setNotificationAnchorEl(null);
   };
-
-  const handleNotificationClick = (notification: Notification) => {
-    // Mark notification as read
-    markAsRead(notification.id);
-
-    // Handle navigation based on notification type
-    switch (notification.type) {
-      case "ConditionIssue":
-        navigate(`/equipment/condition/${notification.data.conditionLogId}`);
-        break;
-      case "FeedbackResponse":
-        navigate(`/feedback/${notification.data.feedbackId}`);
-        break;
-      case "ScheduleUpdate":
-        navigate("/schedule");
-        break;
-      case "RentalNotification":
-        navigate("/rentals");
-        break;
-      case "ReplacementVerified":
-      case "ReplacementCompleted":
-        navigate(`/replacements/${notification.data.RequestId}`);
-        break;
-      case "LowStock":
-        navigate("/inventory");
-        break;
-      case "UnavailableEquipment":
-        navigate("/equipment");
-        break;
-      // Add more navigation cases as needed
-      default:
-        // Default action for other notification types
-        break;
-    }
-    handleNotificationClose();
-  };
-
-  const handleViewAllNotifications = () => {
-    navigate("/notifications");
-    handleNotificationClose();
-  };
-
-  const handleMarkAllAsRead = () => {
-    markAllAsRead();
-  };
-
-  // Format timestamp
-  const formatTimestamp = (timestamp: Date): string => {
-    const now = new Date();
-    const notificationTime = new Date(timestamp);
-    const diffMs = now.getTime() - notificationTime.getTime();
-    const diffMins = Math.round(diffMs / 60000);
-    if (diffMins < 1) return "Just now";
-    if (diffMins < 60) return `${diffMins} min ago`;
-    const diffHours = Math.floor(diffMins / 60);
-    if (diffHours < 24)
-      return `${diffHours} hour${diffHours > 1 ? "s" : ""} ago`;
-    const diffDays = Math.floor(diffHours / 24);
-    if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? "s" : ""} ago`;
-    return notificationTime.toLocaleDateString();
-  };
-
-  // Get connection status icon
-  const getConnectionStatusIcon = (state: ConnectionState) => {
-    switch (state) {
-      case "connected":
-        return <WifiIcon fontSize="small" color="success" />;
-      case "disconnected":
-        return <WifiOffIcon fontSize="small" color="error" />;
-      case "reconnecting":
-        return <SyncIcon fontSize="small" color="warning" />;
-      case "error":
-        return <ErrorIcon fontSize="small" color="error" />;
-      default:
-        return <WifiOffIcon fontSize="small" />;
-    }
-  };
-
-  // Get filtered notifications
-  const getFilteredNotifications = () => {
-    let filtered = [...notifications];
-    if (selectedGroup !== "all") {
-      filtered = filtered.filter((n) => n.group === selectedGroup);
-    }
-    if (selectedPriority !== "all") {
-      filtered = filtered.filter((n) => n.priority === selectedPriority);
-    }
-    return filtered;
-  };
-
-  const getNotificationIcon = (group: NotificationGroup) => {
-    switch (group) {
-      case "equipment":
-        return <EquipmentIcon fontSize="small" />;
-      case "feedback":
-        return <FeedbackIcon fontSize="small" />;
-      case "rental":
-        return <LocalShippingIcon fontSize="small" />;
-      case "replacement":
-        return <SwapHorizIcon fontSize="small" />;
-      case "schedule":
-        return <ScheduleIcon fontSize="small" />;
-      case "system":
-        return <SystemUpdateIcon fontSize="small" />;
-    }
-  };
-
-  const getPriorityColor = (priority: NotificationPriority): string => {
-    switch (priority) {
-      case "high":
-        return "#f44336";
-      case "medium":
-        return "#ff9800";
-      case "low":
-        return "#4caf50";
-    }
-  };
-
   // Find menu items for the current user role
   const currentRoleMenuItems =
     menuItems.find((item) => item.role == role)?.menu || [];
@@ -281,6 +157,7 @@ const SidebarDrawer: React.FC<SidebarDrawerProps> = ({ open, setOpen }) => {
           >
             <MenuIcon />
           </IconButton>
+
           <Box
             sx={{
               display: "flex",
@@ -290,26 +167,9 @@ const SidebarDrawer: React.FC<SidebarDrawerProps> = ({ open, setOpen }) => {
           >
             <LogoContainer />
           </Box>
+
           <Box sx={{ flexGrow: 1 }} />
-          {/* Connection status indicator */}
-          <Box sx={{ mr: 2, display: "flex", alignItems: "center" }}>
-            <Chip
-              icon={getConnectionStatusIcon(connectionState)}
-              label={
-                connectionState.charAt(0).toUpperCase() +
-                connectionState.slice(1)
-              }
-              size="small"
-              color={
-                connectionState === "connected"
-                  ? "success"
-                  : connectionState === "reconnecting"
-                  ? "warning"
-                  : "error"
-              }
-              variant="outlined"
-            />
-          </Box>
+
           {/* Notification section */}
           <Box sx={{ mr: 2 }}>
             <IconButton
@@ -323,13 +183,29 @@ const SidebarDrawer: React.FC<SidebarDrawerProps> = ({ open, setOpen }) => {
                 },
               }}
             >
-              <Badge
-                badgeContent={unreadCount}
-                color="error"
-                overlap="circular"
-              >
-                <NotificationsIcon />
-              </Badge>
+              <NotificationsIcon />
+              {unreadCount > 0 && (
+                <Box
+                  sx={{
+                    position: "absolute",
+                    top: 2,
+                    right: 2,
+                    backgroundColor: "error.main",
+                    color: "white",
+                    borderRadius: "50%",
+                    width: 18,
+                    height: 18,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "0.7rem",
+                    fontWeight: "bold",
+                    boxShadow: "0 0 0 2px #fff",
+                  }}
+                >
+                  {unreadCount}
+                </Box>
+              )}
             </IconButton>
             <Menu
               anchorEl={notificationAnchorEl}
@@ -340,96 +216,49 @@ const SidebarDrawer: React.FC<SidebarDrawerProps> = ({ open, setOpen }) => {
               PaperProps={{
                 elevation: 3,
                 sx: {
-                  width: 350,
-                  maxHeight: 500,
+                  width: 320,
+                  maxHeight: 400,
                   overflowY: "auto",
                   borderRadius: 2,
                   mt: 1,
+                  "& .MuiList-root": {
+                    padding: 0,
+                  },
                 },
               }}
             >
-              <Box sx={{ p: 2, borderBottom: 1, borderColor: "divider" }}>
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    mb: 1,
-                  }}
+              <Box
+                sx={{
+                  p: 2,
+                  borderBottom: 1,
+                  borderColor: "divider",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <Typography
+                  variant="h6"
+                  sx={{ fontWeight: 600, fontSize: "1rem" }}
                 >
-                  <Typography
-                    variant="h6"
-                    sx={{ fontWeight: 600, fontSize: "1rem" }}
-                  >
-                    Notifications
-                  </Typography>
-                  {unreadCount > 0 && (
-                    <Button
-                      size="small"
-                      variant="text"
-                      onClick={handleMarkAllAsRead}
-                      sx={{ fontSize: "0.75rem" }}
-                    >
-                      Mark all read
-                    </Button>
-                  )}
-                </Box>
-                {/* Filters */}
-                <Box sx={{ display: "flex", gap: 1, mt: 1 }}>
-                  <Box sx={{ minWidth: 120 }}>
-                    <select
-                      value={selectedGroup}
-                      onChange={(e) =>
-                        setSelectedGroup(
-                          e.target.value as NotificationGroup | "all"
-                        )
-                      }
-                      style={{
-                        width: "100%",
-                        padding: "4px 8px",
-                        borderRadius: "4px",
-                        border: "1px solid #ddd",
-                      }}
-                    >
-                      <option value="all">All Types</option>
-                      <option value="equipment">Equipment</option>
-                      <option value="feedback">Feedback</option>
-                      <option value="rental">Rental</option>
-                      <option value="replacement">Replacement</option>
-                      <option value="schedule">Schedule</option>
-                      <option value="system">System</option>
-                    </select>
-                  </Box>
-                  <Box sx={{ minWidth: 120 }}>
-                    <select
-                      value={selectedPriority}
-                      onChange={(e) =>
-                        setSelectedPriority(
-                          e.target.value as NotificationPriority | "all"
-                        )
-                      }
-                      style={{
-                        width: "100%",
-                        padding: "4px 8px",
-                        borderRadius: "4px",
-                        border: "1px solid #ddd",
-                      }}
-                    >
-                      <option value="all">All Priorities</option>
-                      <option value="high">High Priority</option>
-                      <option value="medium">Medium Priority</option>
-                      <option value="low">Low Priority</option>
-                    </select>
-                  </Box>
-                </Box>
+                  Notifications
+                </Typography>
+                {unreadCount > 0 && (
+                  <Chip
+                    size="small"
+                    label={`${unreadCount} new`}
+                    color="primary"
+                    sx={{ height: 24 }}
+                  />
+                )}
               </Box>
-              {/* Notification list */}
-              {getFilteredNotifications().length > 0 ? (
+
+              {notifications.length > 0 ? (
                 <>
-                  {getFilteredNotifications().map((notification) => (
+                  {notifications.map((notification: Notification) => (
                     <MenuItem
                       key={notification.id}
-                      onClick={() => handleNotificationClick(notification)}
+                      onClick={handleNotificationClose}
                       sx={{
                         py: 1.5,
                         px: 2,
@@ -443,97 +272,49 @@ const SidebarDrawer: React.FC<SidebarDrawerProps> = ({ open, setOpen }) => {
                             ? "action.hover"
                             : "action.selected",
                         },
+                        display: "flex",
+                        alignItems: "flex-start",
                       }}
                     >
-                      <Box sx={{ display: "flex", width: "100%" }}>
-                        {/* Priority indicator */}
+                      <Box sx={{ width: "100%" }}>
                         <Box
                           sx={{
-                            width: 4,
-                            borderRadius: 2,
-                            bgcolor: getPriorityColor(notification.priority),
-                            mr: 2,
-                            alignSelf: "stretch",
+                            display: "flex",
+                            justifyContent: "space-between",
+                            mb: 0.5,
                           }}
-                        />
-                        {/* Notification content */}
-                        <Box sx={{ flexGrow: 1 }}>
-                          <Box
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              mb: 0.5,
-                            }}
-                          >
-                            {getNotificationIcon(notification.group)}
-                            <Typography
-                              variant="body2"
-                              sx={{
-                                ml: 1,
-                                fontWeight: notification.read
-                                  ? "normal"
-                                  : "bold",
-                              }}
-                            >
-                              {notification.title}
-                            </Typography>
-                          </Box>
+                        >
                           <Typography
-                            variant="body2"
-                            color="text.secondary"
+                            variant="body1"
                             sx={{
-                              display: "-webkit-box",
-                              WebkitLineClamp: 2,
-                              WebkitBoxOrient: "vertical",
-                              overflow: "hidden",
-                              textOverflow: "ellipsis",
+                              fontWeight: notification.read ? "normal" : "bold",
+                              fontSize: "0.9rem",
+                              lineHeight: 1.3,
                             }}
                           >
                             {notification.message}
                           </Typography>
-                          <Box
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 1,
-                              mt: 0.5,
-                            }}
-                          >
-                            <Typography
-                              variant="caption"
-                              color="text.secondary"
-                            >
-                              {formatTimestamp(notification.timestamp)}
-                            </Typography>
-                            <Typography
-                              variant="caption"
+                          {!notification.read && (
+                            <Box
                               sx={{
-                                color: getPriorityColor(notification.priority),
-                                display: "flex",
-                                alignItems: "center",
-                                gap: 0.5,
+                                width: 8,
+                                height: 8,
+                                borderRadius: "50%",
+                                bgcolor: "primary.main",
+                                ml: 1,
+                                mt: 0.8,
+                                flexShrink: 0,
                               }}
-                            >
-                              {notification.priority === "high" && (
-                                <PriorityHighIcon sx={{ fontSize: 14 }} />
-                              )}
-                              {notification.priority.charAt(0).toUpperCase() +
-                                notification.priority.slice(1)}
-                            </Typography>
-                          </Box>
+                            />
+                          )}
                         </Box>
-                        {!notification.read && (
-                          <Box
-                            sx={{
-                              width: 8,
-                              height: 8,
-                              borderRadius: "50%",
-                              bgcolor: "primary.main",
-                              ml: 1,
-                              mt: 0.8,
-                            }}
-                          />
-                        )}
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          sx={{ fontSize: "0.75rem" }}
+                        >
+                          {notification.time}
+                        </Typography>
                       </Box>
                     </MenuItem>
                   ))}
@@ -543,13 +324,17 @@ const SidebarDrawer: React.FC<SidebarDrawerProps> = ({ open, setOpen }) => {
                       textAlign: "center",
                       borderTop: 1,
                       borderColor: "divider",
+                      bgcolor: "background.default",
                     }}
                   >
                     <Button
                       color="primary"
                       size="small"
-                      onClick={handleViewAllNotifications}
-                      sx={{ fontWeight: 500, textTransform: "none" }}
+                      sx={{
+                        fontWeight: 500,
+                        textTransform: "none",
+                        fontSize: "0.85rem",
+                      }}
                     >
                       View All Notifications
                     </Button>
@@ -558,12 +343,13 @@ const SidebarDrawer: React.FC<SidebarDrawerProps> = ({ open, setOpen }) => {
               ) : (
                 <Box sx={{ p: 3, textAlign: "center" }}>
                   <Typography variant="body2" color="text.secondary">
-                    No notifications found
+                    No notifications yet
                   </Typography>
                 </Box>
               )}
             </Menu>
           </Box>
+
           {/* User profile section */}
           <Box sx={{ display: "flex", alignItems: "center" }}>
             <Chip
@@ -611,6 +397,7 @@ const SidebarDrawer: React.FC<SidebarDrawerProps> = ({ open, setOpen }) => {
           </Box>
         </Toolbar>
       </AppBar>
+
       <Drawer
         variant={drawerVariant}
         open={open}
@@ -643,7 +430,9 @@ const SidebarDrawer: React.FC<SidebarDrawerProps> = ({ open, setOpen }) => {
             {userData?.role}
           </Typography>
         </Box>
+
         <Divider sx={{ my: 2 }} />
+
         <List component="nav" sx={{ px: 1 }}>
           {currentRoleMenuItems.map((menuItem, index) => {
             // If menu item has no children, render a simple list item
@@ -660,6 +449,7 @@ const SidebarDrawer: React.FC<SidebarDrawerProps> = ({ open, setOpen }) => {
                 </ListItemButton>
               );
             }
+
             // If menu item has children, render expandable category
             return (
               <React.Fragment key={`${menuItem.label}-${index}`}>

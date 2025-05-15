@@ -1,13 +1,12 @@
 import { Box } from "@mui/material";
-
+import DepositConfirmation from "../../../containers/DepositConfirmation/DepositConfirmation";
 import OverrideMuiTheme from "../../../theme/override";
-import PaymentManagement from "../../../containers/PaymentManagement/PaymentManagement";
 
-export const PaymentManagementPage = () => {
+export const DepositConfirmationPage = () => {
   return (
     <OverrideMuiTheme>
       <Box>
-        <PaymentManagement />
+        <DepositConfirmation />
       </Box>
     </OverrideMuiTheme>
   );

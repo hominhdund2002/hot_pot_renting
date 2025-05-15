@@ -1,22 +1,26 @@
 // src/components/manager/ManagerRentalDashboard.tsx
 import AssignmentIcon from "@mui/icons-material/Assignment";
+import CalculateIcon from "@mui/icons-material/Calculate";
+import EventIcon from "@mui/icons-material/Event";
+import HistoryIcon from "@mui/icons-material/History";
 import ListAltIcon from "@mui/icons-material/ListAlt";
-// import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import { Box, CardActions, CardContent, Typography } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  AnimatedButton,
   CardDescription,
   CardIcon,
   CardTitle,
   DashboardContainer,
   SectionContainer,
-  StyledCard,
-  StyledContainer,
+  SectionHeading,
   StyledDivider,
+  StyledCard,
+  AnimatedButton,
   StyledPaper,
+  StyledContainer,
 } from "../../components/StyledComponents";
 
 const ManagerRentalDashboard: React.FC = () => {
@@ -31,25 +35,26 @@ const ManagerRentalDashboard: React.FC = () => {
       <StyledPaper elevation={0}>
         <DashboardContainer>
           <Typography variant="h4" gutterBottom>
-            Quản lý thu hồi
+            Rental Management Dashboard
           </Typography>
 
           <SectionContainer>
+            <SectionHeading variant="h5">Pickup Management</SectionHeading>
             <StyledDivider />
 
             <Grid container spacing={3}>
-              <Grid size={{ xs: 12, md: 12, lg: 6 }}>
+              <Grid size={{ xs: 12, md: 6, lg: 4 }}>
                 <StyledCard sx={{ height: "100%" }}>
                   <CardContent sx={{ flexGrow: 1 }}>
                     <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
                       <CardIcon>
                         <AssignmentIcon />
                       </CardIcon>
-                      <CardTitle>Phân công thu hồi</CardTitle>
+                      <CardTitle>Unassigned Pickups</CardTitle>
                     </Box>
                     <CardDescription>
-                      Xem và phân công nhân viên đến thu hồi thiết bị từ khách
-                      hàng.
+                      View and assign staff to equipment pickups that need to be
+                      retrieved from customers.
                     </CardDescription>
                   </CardContent>
                   <CardActions sx={{ p: 2, pt: 0 }}>
@@ -59,23 +64,24 @@ const ManagerRentalDashboard: React.FC = () => {
                       fullWidth
                       onClick={() => navigateTo("/unassigned-pickups")}
                     >
-                      Quản lý thu hồi chưa được chỉ định
+                      Manage Unassigned Pickups
                     </AnimatedButton>
                   </CardActions>
                 </StyledCard>
               </Grid>
 
-              {/* <Grid size={{ xs: 12, md: 6, lg: 4 }}>
+              <Grid size={{ xs: 12, md: 6, lg: 4 }}>
                 <StyledCard sx={{ height: "100%" }}>
                   <CardContent sx={{ flexGrow: 1 }}>
                     <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
                       <CardIcon>
                         <PersonAddIcon />
                       </CardIcon>
-                      <CardTitle>Phân công nhân viên</CardTitle>
+                      <CardTitle>Assign Staff</CardTitle>
                     </Box>
                     <CardDescription>
-                      Chỉ định trực tiếp nhân viên thực hiện việc thu hồi
+                      Directly assign staff members to pickup tasks and provide
+                      them with instructions.
                     </CardDescription>
                   </CardContent>
                   <CardActions sx={{ p: 2, pt: 0 }}>
@@ -89,20 +95,20 @@ const ManagerRentalDashboard: React.FC = () => {
                     </AnimatedButton>
                   </CardActions>
                 </StyledCard>
-              </Grid> */}
+              </Grid>
 
-              <Grid size={{ xs: 12, md: 12, lg: 6 }}>
+              <Grid size={{ xs: 12, md: 6, lg: 4 }}>
                 <StyledCard sx={{ height: "100%" }}>
                   <CardContent sx={{ flexGrow: 1 }}>
                     <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
                       <CardIcon>
                         <ListAltIcon />
                       </CardIcon>
-                      <CardTitle>Theo dõi nhiệm vụ</CardTitle>
+                      <CardTitle>Current Assignments</CardTitle>
                     </Box>
                     <CardDescription>
-                      Xem tất cả các nhiệm vụ hiện tại của nhân viên và theo dõi
-                      tiến độ của họ.
+                      View all current staff assignments and track their
+                      progress.
                     </CardDescription>
                   </CardContent>
                   <CardActions sx={{ p: 2, pt: 0 }}>
@@ -112,7 +118,7 @@ const ManagerRentalDashboard: React.FC = () => {
                       fullWidth
                       onClick={() => navigateTo("/current-assignments")}
                     >
-                      Xem nhiệm vụ của nhân viên
+                      View Current Assignments
                     </AnimatedButton>
                   </CardActions>
                 </StyledCard>
@@ -120,7 +126,7 @@ const ManagerRentalDashboard: React.FC = () => {
             </Grid>
           </SectionContainer>
 
-          {/* <SectionContainer>
+          <SectionContainer>
             <SectionHeading variant="h5">Rental History</SectionHeading>
             <StyledDivider />
 
@@ -152,9 +158,9 @@ const ManagerRentalDashboard: React.FC = () => {
                 </StyledCard>
               </Grid>
             </Grid>
-          </SectionContainer> */}
+          </SectionContainer>
 
-          {/* <SectionContainer>
+          <SectionContainer>
             <SectionHeading variant="h5">Management Tools</SectionHeading>
             <StyledDivider />
 
@@ -212,7 +218,7 @@ const ManagerRentalDashboard: React.FC = () => {
                 </StyledCard>
               </Grid>
             </Grid>
-          </SectionContainer> */}
+          </SectionContainer>
         </DashboardContainer>
       </StyledPaper>
     </StyledContainer>

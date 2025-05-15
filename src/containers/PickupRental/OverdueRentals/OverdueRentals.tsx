@@ -1,3 +1,4 @@
+// src/pages/OverdueRentals/OverdueRentals.tsx
 import {
   TableBody,
   TableCell,
@@ -30,6 +31,8 @@ import {
 import { useApi } from "../../../hooks/useApi";
 import { RentalListing } from "../../../types/rentalPickup";
 import { formatDate, getDaysOverdue } from "../../../utils/formatters";
+
+// Additional styled component for overdue days
 import { Box } from "@mui/material";
 
 const OverdueRentals: React.FC = () => {
@@ -38,14 +41,14 @@ const OverdueRentals: React.FC = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const { data, loading, error, execute } = useApi(
-    rentalService.getRentalListings
+    rentalService.getOverdueRentals
   );
 
   useEffect(() => {
-    execute("overdue", page + 1, rowsPerPage);
+    execute(page + 1, rowsPerPage);
   }, [execute, page, rowsPerPage]);
 
-  const handleChangePage = (_event: unknown, newPage: number) => {
+  const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
   };
 
@@ -63,7 +66,7 @@ const OverdueRentals: React.FC = () => {
   const handleRecordReturn = (rental: RentalListing) => {
     navigate("/rentals/record-return", {
       state: {
-        rentOrderId: rental.orderId,
+        rentOrderDetailId: rental.rentOrderDetailId,
         customerName: rental.customerName,
         equipmentName: rental.equipmentName,
         expectedReturnDate: rental.expectedReturnDate,
@@ -82,14 +85,14 @@ const OverdueRentals: React.FC = () => {
       {loading && <LoadingSpinner />}
       {error && <ErrorAlert message={error} />}
 
-      {!loading && !error && data?.items?.length === 0 ? (
+      {data && data.items.length === 0 ? (
         <EmptyStateContainer>
           <Typography variant="h6" fontWeight={600}>
-            Không tìm thấy thuê quá hạn
+            No overdue rentals found
           </Typography>
           <CardDescription>
-            Tất cả các đơn thuê hiện đang đúng hạn. Kiểm tra lại sau để xem các
-            mục quá hạn.
+            All rentals are currently on time. Check back later for any overdue
+            items.
           </CardDescription>
         </EmptyStateContainer>
       ) : (
@@ -98,18 +101,19 @@ const OverdueRentals: React.FC = () => {
             <StyledTable>
               <TableHead>
                 <TableRow>
-                  <TableCell>Mã đơn hàng</TableCell>
-                  <TableCell>Khách hàng</TableCell>
-                  <TableCell>Thiết bị</TableCell>
-                  <TableCell>Ngày trả dự kiến</TableCell>
-                  <TableCell>Số ngày quá hạn</TableCell>
-                  <TableCell>Hành động</TableCell>
+                  <TableCell>Order ID</TableCell>
+                  <TableCell>Customer</TableCell>
+                  <TableCell>Equipment</TableCell>
+                  <TableCell>Expected Return</TableCell>
+                  <TableCell>Days Overdue</TableCell>
+                  <TableCell>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {data?.items?.map((rental) => {
+                {data?.items.map((rental) => {
                   const daysOverdue = getDaysOverdue(rental.expectedReturnDate);
                   const severity = getSeverity(daysOverdue);
+
                   return (
                     <TableRow key={rental.rentOrderDetailId}>
                       <TableCell>#{rental.orderId}</TableCell>
@@ -123,7 +127,7 @@ const OverdueRentals: React.FC = () => {
                         <EquipmentCell>
                           <EquipmentName>{rental.equipmentName}</EquipmentName>
                           <EquipmentType>
-                            {rental.equipmentType} • SL: {rental.quantity}
+                            {rental.equipmentType} • Qty: {rental.quantity}
                           </EquipmentType>
                         </EquipmentCell>
                       </TableCell>
@@ -135,7 +139,7 @@ const OverdueRentals: React.FC = () => {
                       <TableCell>
                         <StatusContainer>
                           <OverdueChip
-                            label={`${daysOverdue} ngày`}
+                            label={`${daysOverdue} days`}
                             severity={severity}
                             size="small"
                           />
@@ -151,7 +155,7 @@ const OverdueRentals: React.FC = () => {
                             }
                             sx={{ minWidth: "80px" }}
                           >
-                            Xem
+                            View
                           </AnimatedButton>
                           <AnimatedButton
                             variant="contained"
@@ -160,7 +164,7 @@ const OverdueRentals: React.FC = () => {
                             onClick={() => handleRecordReturn(rental)}
                             sx={{ minWidth: "120px" }}
                           >
-                            Ghi nhận trả
+                            Record Return
                           </AnimatedButton>
                         </ActionButtonsContainer>
                       </TableCell>
@@ -178,10 +182,6 @@ const OverdueRentals: React.FC = () => {
             page={page}
             onPageChange={handleChangePage}
             onRowsPerPageChange={handleChangeRowsPerPage}
-            labelRowsPerPage="Số hàng mỗi trang:"
-            labelDisplayedRows={({ from, to, count }) =>
-              `${from}-${to} của ${count}`
-            }
           />
         </>
       )}

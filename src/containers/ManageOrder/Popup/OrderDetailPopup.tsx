@@ -1,24 +1,26 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import CloseIcon from "@mui/icons-material/Close";
 import {
   Box,
   Dialog,
+  DialogActions,
   DialogContent,
   DialogTitle,
   IconButton,
   Typography,
 } from "@mui/material";
 import React from "react";
+import CloseIcon from "@mui/icons-material/Close";
 import { colors } from "../../../styles/Color/color";
 
 interface DetailPopupProps {
   handleOpen?: any;
   handleClose?: any;
+  detailData?: any;
 }
 
 const OrderDetailPopup: React.FC<DetailPopupProps> = ({
   handleOpen,
   handleClose,
+  detailData,
 }) => {
   return (
     <>

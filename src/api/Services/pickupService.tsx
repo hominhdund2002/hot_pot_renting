@@ -1,5 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 // src/services/api.ts
+// import { axiosClient } from "../axiosInstance"; // Import your axios instance
 import {
   ApiResponse,
   PagedResult,
@@ -13,47 +13,50 @@ import axiosClient from "../axiosInstance";
 export const rentalService = {
   // Get staff assignments
   getMyAssignments: async (
-    pendingOnly: boolean = false,
-    pageNumber: number = 1,
-    pageSize: number = 10
-  ): Promise<ApiResponse<PagedResult<StaffPickupAssignment>>> => {
-    const response = await axiosClient.get<
-      any,
-      ApiResponse<PagedResult<StaffPickupAssignment>>
-    >(
-      `/staff/rentals/my-assignments?pendingOnly=${pendingOnly}&pageNumber=${pageNumber}&pageSize=${pageSize}`
+    pendingOnly: boolean = false
+  ): Promise<ApiResponse<StaffPickupAssignment[]>> => {
+    const response = await axiosClient.get(
+      `/staff/rentals/my-assignments?pendingOnly=${pendingOnly}`
     );
-    return response;
+    return response.data;
   },
 
-  // Get rental listings (pending or overdue)
-  getRentalListings: async (
-    type: "pending" | "overdue" = "pending",
+  // Get all pending pickups
+  getPendingPickups: async (
     pageNumber: number = 1,
     pageSize: number = 10
   ): Promise<PagedResult<RentalListing>> => {
-    const response = await axiosClient.get<any, PagedResult<RentalListing>>(
-      `/staff/rentals/listings?type=${type}&pageNumber=${pageNumber}&pageSize=${pageSize}`
+    const response = await axiosClient.get(
+      `/staff/rentals/all-pending-pickups?pageNumber=${pageNumber}&pageSize=${pageSize}`
     );
-    return response;
+    return response.data;
   },
 
-  // Get rent order detail
-  getRentOrder: async (id: number): Promise<RentOrderDetail> => {
-    const response = await axiosClient.get<any, RentOrderDetail>(
-      `/staff/rentals/order/${id}`
+  // Get overdue rentals
+  getOverdueRentals: async (
+    pageNumber: number = 1,
+    pageSize: number = 10
+  ): Promise<PagedResult<RentalListing>> => {
+    const response = await axiosClient.get(
+      `/staff/rentals/overdue?pageNumber=${pageNumber}&pageSize=${pageSize}`
     );
-    return response;
+    return response.data;
+  },
+
+  // Get rental detail
+  getRentalDetail: async (id: number): Promise<RentOrderDetail> => {
+    const response = await axiosClient.get(`/staff/rentals/${id}`);
+    return response.data;
   },
 
   // Record return
   recordReturn: async (
     returnData: UnifiedReturnRequest
   ): Promise<ApiResponse<boolean>> => {
-    const response = await axiosClient.post<any, ApiResponse<boolean>>(
+    const response = await axiosClient.post(
       `/staff/rentals/record-return`,
       returnData
     );
-    return response;
+    return response.data;
   },
 };

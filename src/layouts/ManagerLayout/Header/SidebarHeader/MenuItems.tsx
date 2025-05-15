@@ -6,19 +6,19 @@ import {
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import EngineeringIcon from "@mui/icons-material/Engineering";
 import FeedbackIcon from "@mui/icons-material/Feedback";
-import ListAltIcon from "@mui/icons-material/ListAlt";
-import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
+import PaymentIcon from "@mui/icons-material/Payment";
 import ReceiptIcon from "@mui/icons-material/Receipt";
 import ScheduleIcon from "@mui/icons-material/Schedule";
 import SupportAgentIcon from "@mui/icons-material/SupportAgent";
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
-import PaymentIcon from "@mui/icons-material/Payment";
 import Iconify from "../../../../components/Iconify";
 import config from "../../../../configs";
 import { managerRoutes, staffRoutes } from "../../../../configs/routes";
-import { Role } from "../../../../routes/Roles";
 import { MenuItemLayout } from "../../../../types/menu";
+import ListAltIcon from "@mui/icons-material/ListAlt";
+import LocalShippingIcon from "@mui/icons-material/LocalShipping";
+import { Role } from "../../../../routes/Roles";
 
 // const AccessType = {
 //   MANAGER_SALE: [RoleTypes.MANAGER, RoleTypes.SALE],
@@ -85,90 +85,132 @@ export const menuItems: MenuItemLayout[] = [
   {
     role: "Manager",
     menu: [
+      //dashboard
+      {
+        icon: <DashboardIcon />,
+        label: config.Vntext.SideBar.Dashboard,
+        path: managerRoutes.home,
+        // role: AccessType.ADMIN_ACCESS,
+      },
       //inventory
       {
-        label: "Quản lý kho",
+        label: "Inventory Management",
         icon: <InventoryIcon />,
         path: "#",
         children: [
           {
-            label: "Tình trạng thiết bị trong kho",
+            label: "Equipment Stock Status",
             icon: <InventoryIcon />,
-            path: managerRoutes.manageEquipmentStock,
+            path: managerRoutes.manageRentals,
+          },
+          {
+            label: "Equipment Status Report",
+            icon: <AssignmentIcon />,
+            path: managerRoutes.equipmentStatusReport,
           },
         ],
       },
       //order
       {
-        label: "Quản lý đơn hàng",
+        label: "Order Management",
         icon: <ReceiptIcon />,
         path: "#",
         children: [
           {
-            label: "Quản lý đơn hàng",
+            label: "View Assigned Orders",
+            icon: <ReceiptIcon />,
+            path: staffRoutes.assignOrder,
+          },
+          {
+            label: "Manage Orders",
             icon: <InventoryIcon />,
             path: managerRoutes.manageOrder,
           },
-          // {
-          //   label: "Lịch sử đơn hàng",
-          //   icon: <AssignmentIcon />,
-          //   path: staffRoutes.orderHistory,
-          // },
+          {
+            label: "Order History",
+            icon: <AssignmentIcon />,
+            path: staffRoutes.orderHistory,
+          },
         ],
       },
       //maintenance
       {
-        label: "Bảo trì",
+        label: "Maintenance",
         icon: <EngineeringIcon />,
         path: "#",
         children: [
           {
-            label: "Danh sách bảo trì thiết bị",
+            label: "Resolve Equipment Failure",
+            icon: <EngineeringIcon />,
+            path: managerRoutes.resolveEquipmentFailure,
+          },
+          {
+            label: "Equipment Condition Log",
             icon: <AssignmentIcon />,
             path: managerRoutes.equipmentConditionLog,
           },
           {
-            label: "Quản lý thay thế thiết bị",
+            label: "Replacement Management",
             icon: <SwapHorizIcon />,
             path: managerRoutes.manageReplacement,
           },
-          {
-            label: "Quản lý xe",
-            icon: <SwapHorizIcon />,
-            path: managerRoutes.manageVehicle,
-          },
         ],
       },
+
       //report items
       {
-        label: "Báo cáo",
+        label: "Report",
         icon: <EngineeringIcon />,
         path: "#",
         children: [
           {
-            label: "Xem phản hồi",
+            label: "View Feedback",
             icon: <FeedbackIcon />,
             path: managerRoutes.feedbackManagement,
           },
           {
-            label: "Lịch làm việc",
+            label: "Work Schedule",
             icon: <ScheduleIcon />,
             path: managerRoutes.workAssignment,
           },
         ],
       },
+      //payments
       {
-        label: "Dịch vụ khách hàng",
+        label: "Payment",
+        icon: <EngineeringIcon />,
+        path: "#",
+        children: [
+          {
+            label: "Confirm Deposits",
+            icon: <PaymentIcon />,
+            path: staffRoutes.depositConfirmation,
+          },
+          {
+            label: "Manage Payment",
+            icon: <PaymentIcon />,
+            path: staffRoutes.paymentManagement,
+          },
+        ],
+      },
+      //customer
+      {
+        label: "Customer Service",
         icon: <SupportAgentIcon />,
         path: "#",
         children: [
           {
-            label: "Quản lý trả thiết bị thuê",
+            label: "Retrieve Rental Equipment",
+            icon: <InventoryIcon />,
+            path: staffRoutes.checkDeviceAfterReturn,
+          },
+          {
+            label: "Manage Return Rental",
             icon: <InventoryIcon />,
             path: managerRoutes.rentalDashboard,
           },
           {
-            label: "Trò chuyện với khách hàng",
+            label: "Chat with Customer",
             icon: <SupportAgentIcon />,
             path: managerRoutes.customerChat,
           },
@@ -197,11 +239,6 @@ export const menuItems: MenuItemLayout[] = [
         label: "Công việc",
         path: config.staffRoutes.staffMyAssignment,
         // role: AccessType.ADMIN_ACCESS,
-      },
-      {
-        label: "Quản lý thanh toán",
-        icon: <PaymentIcon />,
-        path: staffRoutes.paymentManagement,
       },
     ],
   },

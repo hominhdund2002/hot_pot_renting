@@ -11,7 +11,7 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const jsonString = localStorage.getItem("userInfor");
   const userStorage = jsonString ? JSON.parse(jsonString) : null;
-  const navigate = useNavigate();
+  let navigate = useNavigate();
   const accessToken = userStorage?.accessToken;
 
   const [auth, setAuth] = useState({ user: {}, accessToken: "" });

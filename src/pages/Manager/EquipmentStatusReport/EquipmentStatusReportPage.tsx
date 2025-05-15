@@ -1,13 +1,12 @@
 import { Box } from "@mui/material";
-
 import OverrideMuiTheme from "../../../theme/override";
-import PaymentManagement from "../../../containers/PaymentManagement/PaymentManagement";
+import EquipmentStatusReport from "../../../containers/EquipmentStatusReport/EquipmentStatusReport";
 
-export const PaymentManagementPage = () => {
+export const EquipmentStatusReportPage = () => {
   return (
     <OverrideMuiTheme>
       <Box>
-        <PaymentManagement />
+        <EquipmentStatusReport />
       </Box>
     </OverrideMuiTheme>
   );
