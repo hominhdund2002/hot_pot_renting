@@ -141,7 +141,30 @@ const Analytics: React.FC = () => {
   const hasData = dashboardData?.overallMetrics?.totalOrders > 0;
 
   if (!hasData) {
-    return <EmptyData title="Chưa có dữ liệu sẵn có" />;
+    return (
+      <>
+        <Typography variant="h4" sx={{ mb: 3 }}>
+          Thống kê cửa hàng
+        </Typography>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 3,
+          }}
+        >
+          <FormControl sx={{ minWidth: 120 }} size="small">
+            <InputLabel>Năm</InputLabel>
+            <Select value={year} label="Năm" onChange={handleYearChange}>
+              <MenuItem value={2024}>2024</MenuItem>
+              <MenuItem value={2025}>2025</MenuItem>
+            </Select>
+          </FormControl>
+        </Box>
+        <EmptyData title="Chưa có dữ liệu sẵn có" />
+      </>
+    );
   }
 
   // Format monthly data for charts
