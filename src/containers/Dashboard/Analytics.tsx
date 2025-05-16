@@ -91,7 +91,10 @@ const Analytics: React.FC = () => {
   const fetchDashboard = async () => {
     try {
       setLoading(true);
-      const response: any = await adminDashboard.getDashboard();
+      const params = {
+        year: year,
+      };
+      const response: any = await adminDashboard.getDashboard(params);
       setDashboardData(response);
 
       // Prepare pie chart data
@@ -142,11 +145,7 @@ const Analytics: React.FC = () => {
   }
 
   // Format monthly data for charts
-  const monthlyData =
-    dashboardData.monthlyData?.filter((month: any) => month.year === year) ||
-    [];
-
-  const monthlyDatas = monthlyData.map((month: any) => {
+  const monthlyDatas = dashboardData.monthlyData.map((month: any) => {
     return {
       ...month,
       monthName: translateMonthToVietnamese(month?.monthName),
