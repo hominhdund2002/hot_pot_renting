@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import ErrorIcon from "@mui/icons-material/Error";
 import ExpandLess from "@mui/icons-material/ExpandLess";
@@ -30,8 +31,8 @@ import {
   Badge,
   Button,
 } from "@mui/material";
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import authApi from "../../../../api/authAPI";
 import LogoContainer from "../../../../components/Logo/Logo";
 import { useNotifications } from "../../../../context/NotificationContext";
@@ -62,6 +63,7 @@ interface SidebarDrawerProps {
 const SidebarDrawer: React.FC<SidebarDrawerProps> = ({ open, setOpen }) => {
   const theme = useTheme();
   const navigate = useNavigate();
+  const location = useLocation();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const { auth } = useAuth();
   const role = auth?.user?.role;
@@ -77,6 +79,62 @@ const SidebarDrawer: React.FC<SidebarDrawerProps> = ({ open, setOpen }) => {
 
   // User data (replace with actual user data)
   const userData = auth?.user;
+
+  // Auto-expand categories that contain the current active route
+  useEffect(() => {
+    const currentRoleMenuItems =
+      menuItems.find((item) => item.role == role)?.menu || [];
+
+    const newOpenCategories: { [key: string]: boolean } = {};
+
+    currentRoleMenuItems.forEach((menuItem) => {
+      if (menuItem.children) {
+        const hasActiveChild = menuItem.children.some((child) =>
+          isActivePath(child.path)
+        );
+        if (hasActiveChild) {
+          newOpenCategories[menuItem.label] = true;
+        }
+      }
+    });
+
+    setOpenCategories((prev) => ({ ...prev, ...newOpenCategories }));
+  }, [location.pathname, role]);
+
+  // Helper function to check if a path is active
+  const isActivePath = (path: string): boolean => {
+    if (!path || path === "#") return false;
+
+    // Get current path without trailing slash
+    const currentPath = location.pathname.replace(/\/$/, "") || "/";
+    const menuPath = path.replace(/\/$/, "") || "/";
+
+    // Exact match first
+    if (currentPath === menuPath) return true;
+
+    // For non-root paths, check if current path starts with menu path
+    // but ensure we're matching complete path segments
+    if (menuPath !== "/" && menuPath.length > 1) {
+      const pathSegments = menuPath.split("/").filter(Boolean);
+      const currentSegments = currentPath.split("/").filter(Boolean);
+
+      // Must have at least as many segments as the menu path
+      if (currentSegments.length < pathSegments.length) return false;
+
+      // Check if all menu path segments match the beginning of current segments
+      return pathSegments.every(
+        (segment, index) => currentSegments[index] === segment
+      );
+    }
+
+    return false;
+  };
+
+  // Helper function to check if a parent category should be highlighted
+  const isParentActive = (menuItem: any): boolean => {
+    if (!menuItem.children) return false;
+    return menuItem.children.some((child: any) => isActivePath(child.path));
+  };
 
   // Toggle category open/close
   const handleCategoryToggle = (label: string) => {
@@ -648,26 +706,89 @@ const SidebarDrawer: React.FC<SidebarDrawerProps> = ({ open, setOpen }) => {
           {currentRoleMenuItems.map((menuItem, index) => {
             // If menu item has no children, render a simple list item
             if (!menuItem.children) {
+              const isActive = isActivePath(menuItem.path);
               return (
                 <ListItemButton
                   key={`${menuItem.label}-${index}`}
                   onClick={() =>
                     menuItem.path !== "#" && handleNavigation(menuItem.path)
                   }
+                  selected={isActive}
+                  sx={{
+                    borderRadius: 1,
+                    mb: 0.5,
+                    mx: 1,
+                    transition: "all 0.2s ease-in-out",
+                    "&.Mui-selected": {
+                      backgroundColor: theme.palette.primary.main,
+                      color: theme.palette.primary.contrastText,
+                      "&:hover": {
+                        backgroundColor: theme.palette.primary.dark,
+                      },
+                      "& .MuiListItemIcon-root": {
+                        color: theme.palette.primary.contrastText,
+                      },
+                    },
+                    "&:hover": {
+                      backgroundColor: isActive
+                        ? theme.palette.primary.dark
+                        : "rgba(0, 0, 0, 0.04)",
+                    },
+                  }}
                 >
-                  <ListItemIcon>{menuItem.icon}</ListItemIcon>
-                  <ListItemText primary={menuItem.label} />
+                  <ListItemIcon
+                    sx={{
+                      color: isActive
+                        ? theme.palette.primary.contrastText
+                        : "inherit",
+                      minWidth: 40,
+                    }}
+                  >
+                    {menuItem.icon}
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={menuItem.label}
+                    sx={{
+                      "& .MuiTypography-root": {
+                        fontWeight: isActive ? 600 : 400,
+                      },
+                    }}
+                  />
                 </ListItemButton>
               );
             }
             // If menu item has children, render expandable category
+            const hasActiveChild = isParentActive(menuItem);
             return (
               <React.Fragment key={`${menuItem.label}-${index}`}>
                 <ListItemButton
                   onClick={() => handleCategoryToggle(menuItem.label)}
+                  sx={{
+                    borderRadius: 1,
+                    mb: 0.5,
+                    mx: 1,
+                    transition: "all 0.2s ease-in-out",
+                    backgroundColor: hasActiveChild
+                      ? "rgba(25, 118, 210, 0.08)"
+                      : "transparent",
+                    "&:hover": {
+                      backgroundColor: hasActiveChild
+                        ? "rgba(25, 118, 210, 0.12)"
+                        : "rgba(0, 0, 0, 0.04)",
+                    },
+                  }}
                 >
-                  <ListItemIcon>{menuItem.icon}</ListItemIcon>
-                  <ListItemText primary={menuItem.label} />
+                  <ListItemIcon sx={{ minWidth: 40 }}>
+                    {menuItem.icon}
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={menuItem.label}
+                    sx={{
+                      "& .MuiTypography-root": {
+                        fontWeight: hasActiveChild ? 600 : 400,
+                      },
+                    }}
+                  />
                   {openCategories[menuItem.label] ? (
                     <ExpandLess />
                   ) : (
@@ -680,18 +801,57 @@ const SidebarDrawer: React.FC<SidebarDrawerProps> = ({ open, setOpen }) => {
                   unmountOnExit
                 >
                   <List component="div" disablePadding>
-                    {menuItem.children.map((childItem, childIndex) => (
-                      <ListItemButton
-                        key={`${childItem.label}-${childIndex}`}
-                        sx={{ pl: 4 }}
-                        onClick={() => handleNavigation(childItem.path)}
-                      >
-                        <ListItemIcon>
-                          {childItem.icon || menuItem.icon}
-                        </ListItemIcon>
-                        <ListItemText primary={childItem.label} />
-                      </ListItemButton>
-                    ))}
+                    {menuItem.children.map((childItem, childIndex) => {
+                      const isChildActive = isActivePath(childItem.path);
+                      return (
+                        <ListItemButton
+                          key={`${childItem.label}-${childIndex}`}
+                          sx={{
+                            pl: 4,
+                            borderRadius: 1,
+                            mb: 0.5,
+                            mx: 1,
+                            transition: "all 0.2s ease-in-out",
+                            "&.Mui-selected": {
+                              backgroundColor: theme.palette.primary.main,
+                              color: theme.palette.primary.contrastText,
+                              "&:hover": {
+                                backgroundColor: theme.palette.primary.dark,
+                              },
+                              "& .MuiListItemIcon-root": {
+                                color: theme.palette.primary.contrastText,
+                              },
+                            },
+                            "&:hover": {
+                              backgroundColor: isChildActive
+                                ? theme.palette.primary.dark
+                                : "rgba(0, 0, 0, 0.04)",
+                            },
+                          }}
+                          selected={isChildActive}
+                          onClick={() => handleNavigation(childItem.path)}
+                        >
+                          <ListItemIcon
+                            sx={{
+                              color: isChildActive
+                                ? theme.palette.primary.contrastText
+                                : "inherit",
+                              minWidth: 40,
+                            }}
+                          >
+                            {childItem.icon || menuItem.icon}
+                          </ListItemIcon>
+                          <ListItemText
+                            primary={childItem.label}
+                            sx={{
+                              "& .MuiTypography-root": {
+                                fontWeight: isChildActive ? 600 : 400,
+                              },
+                            }}
+                          />
+                        </ListItemButton>
+                      );
+                    })}
                   </List>
                 </Collapse>
               </React.Fragment>
