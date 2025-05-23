@@ -226,7 +226,7 @@ const ImportProduct: React.FC = () => {
 
     const newBatches = selectedIngredients.map((id) => ({
       ingredientId: id,
-      totalAmount: 0.0001,
+      totalAmount: 100,
       bestBeforeDate: new Date().toISOString(),
       unit: "g", // Default unit
       provideCompany: "", // Initialize with empty string
