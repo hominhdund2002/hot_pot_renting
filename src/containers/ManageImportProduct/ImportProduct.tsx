@@ -2,10 +2,6 @@
 import { useState, useEffect } from "react";
 import {
   Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
   TextField,
   Typography,
   Box,
@@ -22,41 +18,36 @@ import {
   Checkbox,
   MenuItem,
   InputAdornment,
+  Container,
 } from "@mui/material";
 import {
   Add as AddIcon,
   Delete as DeleteIcon,
-  Close as CloseIcon,
   Save as SaveIcon,
   Refresh as RefreshIcon,
   Search as SearchIcon,
   Clear as ClearIcon,
+  ArrowBack as ArrowBackIcon,
 } from "@mui/icons-material";
-import adminIngredientsAPI from "../../../api/Services/adminIngredientsAPI";
-import { Ingredient } from "../../../types/ingredients";
-import BatchPagination from "../../ManageImportProduct/BatchPagination";
-import adminBatchAPI from "../../../api/Services/adminBatch";
+import { useNavigate } from "react-router-dom";
+import adminIngredientsAPI from "../../api/Services/adminIngredientsAPI";
+import { Ingredient } from "../../types/ingredients";
+import BatchPagination from "./BatchPagination";
+import adminBatchAPI from "../../api/Services/adminBatch";
 import { toast } from "react-toastify";
-import useDebounce from "../../../hooks/useDebounce";
+import useDebounce from "../../hooks/useDebounce";
+import config from "../../configs";
 
 interface Batch {
   ingredientId: number;
   totalAmount: number;
   bestBeforeDate: string;
   unit: string;
+  provideCompany: string;
 }
-
-console.log(1);
 
 interface UpdateQuantityModel {
   batches: Batch[];
-}
-
-// Define props for the component
-interface UpdateQuantityModalProps {
-  open: boolean;
-  handleClose: () => void;
-  onSave?: () => void;
 }
 
 // Helper function to format date for input field
@@ -71,14 +62,13 @@ const convertDateToISO = (dateString: string): string => {
   return date.toISOString();
 };
 
-export default function UpdateQuantityModal({
-  open,
-  handleClose,
-  onSave,
-}: UpdateQuantityModalProps): JSX.Element {
+const ImportProduct: React.FC = () => {
+  const navigate = useNavigate();
+
   // State for ingredients list
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isSaving, setIsSaving] = useState<boolean>(false);
 
   // State for search
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -96,6 +86,7 @@ export default function UpdateQuantityModal({
 
   //debounce
   const debounce = useDebounce(searchTerm, 500);
+
   // Pagination state for batches (lô hàng)
   const [batchesPage, setBatchesPage] = useState<number>(1);
   const [batchesPerPage] = useState<number>(5); // Fixed size of 5
@@ -116,17 +107,14 @@ export default function UpdateQuantityModal({
     }
   }, [ingredients, debounce]);
 
-  // Reset model when dialog opens
+  // Initialize data on component mount
   useEffect(() => {
-    if (open) {
-      setModel({
-        batches: [],
-      });
-      setSelectedIngredients([]);
-      setSearchTerm(""); // Reset search term
-      fetchIngredients();
-    }
-  }, [open]);
+    setModel({
+      batches: [],
+    });
+    setSelectedIngredients([]);
+    fetchIngredients();
+  }, []);
 
   // Fetch all ingredients list without pagination
   const fetchIngredients = async () => {
@@ -203,7 +191,7 @@ export default function UpdateQuantityModal({
   // Handlers for batches
   const handleSave = async () => {
     try {
-      // Here you would send the model to your API
+      setIsSaving(true);
       console.log("Saving model:", model);
 
       const prepareData = model.batches.map(
@@ -214,35 +202,34 @@ export default function UpdateQuantityModal({
       );
       console.log(prepareData);
       const data = { batches: prepareData };
-      //  API call
-      const response = await adminBatchAPI.CreateNewBatch(data);
 
+      // API call
+      const response = await adminBatchAPI.CreateNewBatch(data);
       console.log(response);
 
-      if (onSave) {
-        onSave();
-        toast.success("Cập nhật thành công");
-      }
-      handleClose();
+      toast.success("Cập nhật thành công");
+      navigate(config.adminRoutes.manageIngredients);
     } catch (error: any) {
       const apiError = error?.response?.data || error;
       const errorMessage = apiError?.message || "Something went wrong!";
       const firstDetailedError = apiError?.errors?.[0];
 
       toast.error(firstDetailedError || errorMessage);
+    } finally {
+      setIsSaving(false);
     }
   };
 
   // Add batches for selected ingredients
-  // Initialize with default unit 'g' in addSelectedBatches function
   const addSelectedBatches = () => {
     if (selectedIngredients.length === 0) return;
 
     const newBatches = selectedIngredients.map((id) => ({
       ingredientId: id,
-      totalAmount: 0.0001,
+      totalAmount: 100,
       bestBeforeDate: new Date().toISOString(),
       unit: "g", // Default unit
+      provideCompany: "", // Initialize with empty string
     }));
 
     setModel({
@@ -290,35 +277,31 @@ export default function UpdateQuantityModal({
 
   const selectAllState = getSelectAllState();
 
+  const handleCancel = () => {
+    navigate(config.adminRoutes.manageIngredients);
+  };
+
   return (
-    <Dialog
-      open={open}
-      fullWidth
-      maxWidth="md"
-      onClose={(_event, reason) => {
-        if (reason === "backdropClick") return;
-        handleClose();
-      }}
-      aria-hidden={false}
-    >
-      <DialogTitle
+    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+      {/* Header with breadcrumbs */}
+      <Box
         sx={{
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
+          mb: 3,
         }}
       >
-        <Typography variant="h6" component="div">
-          Cập nhật số lượng nguyên liệu
-        </Typography>
-        <IconButton onClick={handleClose} size="small">
-          <CloseIcon fontSize="small" />
-        </IconButton>
-      </DialogTitle>
+        <Button
+          startIcon={<ArrowBackIcon />}
+          variant="outlined"
+          onClick={handleCancel}
+        >
+          Quay lại
+        </Button>
+      </Box>
 
-      <Divider />
-
-      <DialogContent>
+      <Paper elevation={3} sx={{ p: 3, mb: 4 }}>
         <Box sx={{ py: 2 }}>
           {/* Table of ingredients with checkboxes */}
           <Paper elevation={1} sx={{ width: "100%", mb: 3 }}>
@@ -467,8 +450,8 @@ export default function UpdateQuantityModal({
             </TableContainer>
           </Paper>
 
-          {/* Batches section - without pagination */}
-          {model.batches.length > 0 && (
+          {/* Batches section */}
+          {model.batches.length > 0 ? (
             <>
               <Divider sx={{ mb: 3 }} />
               <Box
@@ -499,54 +482,55 @@ export default function UpdateQuantityModal({
                         key={actualIndex}
                         elevation={1}
                         sx={{
-                          p: 1.5,
+                          p: 2,
                           borderRadius: 1,
                           border: "1px solid",
                           borderColor: "divider",
                         }}
                       >
+                        {/* Product Name Header */}
                         <Box
                           sx={{
                             display: "flex",
-                            flexWrap: "wrap",
+                            justifyContent: "space-between",
                             alignItems: "center",
-                            width: "100%",
-                            gap: 2,
-                            p: 1,
-                            border: "1px solid #e0e0e0",
-                            borderRadius: 2,
+                            pb: 2,
+                            borderBottom: "1px solid",
+                            borderColor: "divider",
                             mb: 2,
                           }}
                         >
-                          {/* Quantity + Unit */}
-                          <Box
-                            sx={{
-                              display: "flex",
-                              minWidth: 200,
-                              flexShrink: 0,
-                            }}
+                          <Typography
+                            variant="subtitle2"
+                            sx={{ fontWeight: 600 }}
                           >
-                            <Box
-                              sx={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                                alignItems: "center",
-                                pb: 1,
-                                borderBottom: "1px solid",
-                                borderColor: "divider",
-                                mr: 2,
-                              }}
-                            >
-                              <Typography variant="subtitle2" noWrap>
-                                Tên sản phẩm:{" "}
-                                {getIngredientNameById(batch.ingredientId)}
-                              </Typography>
-                            </Box>
+                            Tên sản phẩm:{" "}
+                            {getIngredientNameById(batch.ingredientId)}
+                          </Typography>
+                          <IconButton
+                            size="small"
+                            onClick={() => removeBatch(actualIndex)}
+                            aria-label="Delete batch"
+                            sx={{ color: "error.main" }}
+                          >
+                            <DeleteIcon fontSize="small" />
+                          </IconButton>
+                        </Box>
+
+                        {/* Form Fields */}
+                        <Box
+                          sx={{
+                            display: "grid",
+                            gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
+                            gap: 2,
+                          }}
+                        >
+                          {/* Quantity + Unit Row */}
+                          <Box sx={{ display: "flex", gap: 1 }}>
                             <TextField
-                              label="Số lượng"
+                              label="Khối lượng"
                               type="number"
                               size="small"
-                              sx={{ mr: 2 }}
                               value={batch.totalAmount}
                               onChange={(e) =>
                                 updateBatch(
@@ -555,9 +539,9 @@ export default function UpdateQuantityModal({
                                   parseFloat(e.target.value) || 0
                                 )
                               }
-                              fullWidth
+                              sx={{ flex: 1 }}
                               InputProps={{
-                                inputProps: { min: 0, step: 200 },
+                                inputProps: { min: 0, step: 0.1 },
                               }}
                             />
                             <TextField
@@ -567,15 +551,28 @@ export default function UpdateQuantityModal({
                               onChange={(e) =>
                                 updateBatch(actualIndex, "unit", e.target.value)
                               }
-                              sx={{
-                                minWidth: 80,
-                                "& .MuiSelect-select": { py: 1 },
-                              }}
+                              sx={{ minWidth: 80 }}
                             >
                               <MenuItem value="g">g</MenuItem>
                               <MenuItem value="kg">kg</MenuItem>
                             </TextField>
                           </Box>
+
+                          {/* Provide Company */}
+                          <TextField
+                            label="Nguồn nhập"
+                            type="text"
+                            size="small"
+                            value={batch.provideCompany}
+                            onChange={(e) =>
+                              updateBatch(
+                                actualIndex,
+                                "provideCompany",
+                                e.target.value
+                              )
+                            }
+                            placeholder="Nhập tên công ty cung cấp"
+                          />
 
                           {/* Expiration Date */}
                           <TextField
@@ -596,23 +593,11 @@ export default function UpdateQuantityModal({
                                 );
                               }
                             }}
-                            sx={{ minWidth: 180, flexShrink: 0 }}
                             InputProps={{
                               inputProps: { min: getTodayFormatted() },
                             }}
                             InputLabelProps={{ shrink: true }}
                           />
-
-                          {/* Spacer & Delete Button */}
-                          <Box sx={{ flexGrow: 1 }} />
-                          <IconButton
-                            size="small"
-                            onClick={() => removeBatch(actualIndex)}
-                            aria-label="Delete batch"
-                            sx={{ color: "error.main" }}
-                          >
-                            <DeleteIcon fontSize="small" />
-                          </IconButton>
                         </Box>
                       </Paper>
                     );
@@ -630,29 +615,56 @@ export default function UpdateQuantityModal({
                 />
               )}
             </>
+          ) : (
+            <Paper
+              elevation={0}
+              sx={{
+                p: 4,
+                textAlign: "center",
+                bgcolor: "#f9f9f9",
+                borderRadius: 1,
+              }}
+            >
+              <Typography color="text.secondary">
+                Chưa có lô hàng nào được thêm. Vui lòng chọn nguyên liệu từ danh
+                sách bên trên.
+              </Typography>
+            </Paper>
           )}
         </Box>
-      </DialogContent>
+      </Paper>
 
-      <Divider />
-
-      <DialogActions sx={{ p: 2 }}>
-        <Button onClick={handleClose} variant="outlined">
+      {/* Action buttons */}
+      <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2, mb: 4 }}>
+        <Button variant="outlined" size="large" onClick={handleCancel}>
           Hủy
         </Button>
         <Button
           onClick={handleSave}
           variant="contained"
           color="primary"
+          size="large"
           startIcon={<SaveIcon />}
           disabled={
             model.batches.length === 0 ||
-            model.batches.some((b) => b.totalAmount <= 0)
+            model.batches.some(
+              (b) => b.totalAmount <= 0 || !b.provideCompany.trim()
+            ) ||
+            isSaving
           }
         >
-          Lưu thay đổi ({model.batches.length} lô)
+          {isSaving ? (
+            <>
+              <CircularProgress size={24} color="inherit" sx={{ mr: 1 }} />
+              Đang lưu...
+            </>
+          ) : (
+            <>Lưu thay đổi ({model.batches.length} lô)</>
+          )}
         </Button>
-      </DialogActions>
-    </Dialog>
+      </Box>
+    </Container>
   );
-}
+};
+
+export default ImportProduct;

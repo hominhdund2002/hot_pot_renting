@@ -3,9 +3,9 @@ import React from "react";
 import HeaderBreadcrumbs from "../../../components/HeaderBreadcrumbs";
 import ContainerWrapper from "../../../components/Container";
 import config from "../../../configs";
-import TabCombo from "../../../containers/Createcombo/TabCombo";
+import HotpotGroupComboCreate from "../../../containers/Createcombo/HotpotGroupComboCreate";
 
-const CreateComboPage: React.FC = () => {
+const CreateGroupComboPage: React.FC = () => {
   return (
     <>
       <ContainerWrapper>
@@ -24,10 +24,10 @@ const CreateComboPage: React.FC = () => {
           ]}
         />
 
-        <TabCombo />
+        <HotpotGroupComboCreate />
       </ContainerWrapper>
     </>
   );
 };
 
-export default CreateComboPage;
+export default CreateGroupComboPage;

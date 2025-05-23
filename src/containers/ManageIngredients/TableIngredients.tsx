@@ -104,15 +104,6 @@ const TableIngredients = () => {
         >
           Thêm Nguyên Liệu
         </Button>
-        <Button
-          startIcon={<AddIcon />}
-          variant="contained"
-          onClick={() => {
-            setOpen(!open);
-          }}
-        >
-          Cập nhật số lượng nguyên liệu
-        </Button>
       </>
     );
   };
