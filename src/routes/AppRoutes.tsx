@@ -56,6 +56,7 @@ import { RentalDetailPage } from "../pages/Staff/PickupRental/RentalDetailPage";
 import { ProofOfDeliveryPage } from "../pages/Staff/ProofOfDelivery/ProofOfDeliveryPage";
 import ShippingListPage from "../pages/Staff/Shipping/ShippingListPage";
 import { ManageVehiclePage } from "../pages/Manager/ManageVehicle/ManageVehiclePage";
+import DiscountPage from "../pages/Admin/Discount/DiscountPage";
 import CreateGroupComboPage from "../pages/Admin/Combohotpot/CreateGroupComboPage";
 import ImportProductPage from "../pages/Admin/ImportProduct/ImportProductPage";
 
@@ -160,6 +161,11 @@ const AppRoute: React.FC = () => {
           key="dashboard"
           path={config.adminRoutes.dashboard}
           element={<DashboardPage />}
+        />
+        <Route
+          key="discount"
+          path={config.adminRoutes.discountManagement}
+          element={<DiscountPage />}
         />
         <Route
           key="order"
