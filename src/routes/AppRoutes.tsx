@@ -57,6 +57,8 @@ import { ProofOfDeliveryPage } from "../pages/Staff/ProofOfDelivery/ProofOfDeliv
 import ShippingListPage from "../pages/Staff/Shipping/ShippingListPage";
 import { ManageVehiclePage } from "../pages/Manager/ManageVehicle/ManageVehiclePage";
 import DiscountPage from "../pages/Admin/Discount/DiscountPage";
+import CreateGroupComboPage from "../pages/Admin/Combohotpot/CreateGroupComboPage";
+import ImportProductPage from "../pages/Admin/ImportProduct/ImportProductPage";
 
 const AppRoute: React.FC = () => {
   return (
@@ -196,6 +198,11 @@ const AppRoute: React.FC = () => {
           element={<CreateComboPage />}
         />
         <Route
+          key="createGroupCombo"
+          path={config.adminRoutes.createGroupCombo}
+          element={<CreateGroupComboPage />}
+        />
+        <Route
           key="createIngredients"
           path={config.adminRoutes.createIngredients}
           element={<CreateIngredientsPage />}
@@ -248,6 +255,12 @@ const AppRoute: React.FC = () => {
           key="hotpotTypeDetail"
           path={config.adminRoutes.DetailHotpotType}
           element={<TableHotpotDetailPage />}
+        />
+
+        <Route
+          key="importProducts"
+          path={config.adminRoutes.importProduct}
+          element={<ImportProductPage />}
         />
       </Route>
 

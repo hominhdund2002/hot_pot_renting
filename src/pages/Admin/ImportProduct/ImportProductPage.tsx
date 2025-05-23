@@ -1,33 +1,27 @@
 import React from "react";
-
 import HeaderBreadcrumbs from "../../../components/HeaderBreadcrumbs";
 import ContainerWrapper from "../../../components/Container";
 import config from "../../../configs";
-import TabCombo from "../../../containers/Createcombo/TabCombo";
+import ImportProduct from "../../../containers/ManageImportProduct/ImportProduct";
 
-const CreateComboPage: React.FC = () => {
+const ImportProductPage: React.FC = () => {
   return (
     <>
       <ContainerWrapper>
         <HeaderBreadcrumbs
-          heading={config.Vntext.CreateCombo.addNewMenu}
+          heading="Nhập hàng"
           links={[
             {
               name: config.Vntext.Dashboard.dashboard,
               href: config.adminRoutes.dashboard,
             },
-            {
-              name: config.Vntext.CreateCombo.Menu,
-              href: config.adminRoutes.tableHotPotCombo,
-            },
-            { name: config.Vntext.CreateCombo.addNewMenu },
+            { name: "Nhập hàng" },
           ]}
         />
-
-        <TabCombo />
+        <ImportProduct />{" "}
       </ContainerWrapper>
     </>
   );
 };
 
-export default CreateComboPage;
+export default ImportProductPage;
