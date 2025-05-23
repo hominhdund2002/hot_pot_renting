@@ -20,6 +20,7 @@ import config from "../../../../configs";
 import { managerRoutes, staffRoutes } from "../../../../configs/routes";
 import { Role } from "../../../../routes/Roles";
 import { MenuItemLayout } from "../../../../types/menu";
+import AssessmentIcon from "@mui/icons-material/Assessment";
 
 // const AccessType = {
 //   MANAGER_SALE: [RoleTypes.MANAGER, RoleTypes.SALE],
@@ -77,10 +78,17 @@ export const menuItems: MenuItemLayout[] = [
         ],
       },
       {
+        icon: <AssessmentIcon />,
+        label: "Nhập hàng",
+        path: config.adminRoutes.importProduct,
+        // role: AccessType.ADMIN_ACCESS,
+      },
+      {
         icon: <Discount />,
         label: config.Vntext.SideBar.discount,
         path: config.adminRoutes.discountManagement,
       },
+
       {
         icon: <Feedback />,
         label: config.Vntext.SideBar.Feedback,
