@@ -1,5 +1,7 @@
 import {
   Dashboard as DashboardIcon,
+  Discount,
+  Feedback,
   Inventory as InventoryIcon,
   People as PeopleIcon,
 } from "@mui/icons-material";
@@ -9,12 +11,11 @@ import FeedbackIcon from "@mui/icons-material/Feedback";
 import ListAltIcon from "@mui/icons-material/ListAlt";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
+import PaymentIcon from "@mui/icons-material/Payment";
 import ReceiptIcon from "@mui/icons-material/Receipt";
 import ScheduleIcon from "@mui/icons-material/Schedule";
 import SupportAgentIcon from "@mui/icons-material/SupportAgent";
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
-import PaymentIcon from "@mui/icons-material/Payment";
-import Iconify from "../../../../components/Iconify";
 import config from "../../../../configs";
 import { managerRoutes, staffRoutes } from "../../../../configs/routes";
 import { Role } from "../../../../routes/Roles";
@@ -76,7 +77,12 @@ export const menuItems: MenuItemLayout[] = [
         ],
       },
       {
-        icon: <Iconify icon={"ri:feedback-line"} />,
+        icon: <Discount />,
+        label: config.Vntext.SideBar.discount,
+        path: config.adminRoutes.discountManagement,
+      },
+      {
+        icon: <Feedback />,
         label: config.Vntext.SideBar.Feedback,
         path: config.adminRoutes.feedback,
       },

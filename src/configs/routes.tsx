@@ -45,6 +45,7 @@ export const adminRoutes = {
   ingredientType: "/dashboard/ingredientType",
   DetailHotpotType: "/dashboard/hotpotType/detail/:hotpotId",
   MaintenanceHotpot: "/dashboard/hotpotMaintenance",
+  discountManagement: "/dashboard/discount",
 };
 
 export const staffRoutes = {
