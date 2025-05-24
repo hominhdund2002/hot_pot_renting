@@ -4,15 +4,17 @@ import {
   Feedback,
   Inventory as InventoryIcon,
   People as PeopleIcon,
+  TakeoutDining as TakeoutDiningIcon,
+  SetMeal as IngredientIcon,
+  ListAlt as ListAltIcon,
 } from "@mui/icons-material";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import EngineeringIcon from "@mui/icons-material/Engineering";
 import FeedbackIcon from "@mui/icons-material/Feedback";
-import ListAltIcon from "@mui/icons-material/ListAlt";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
 import PaymentIcon from "@mui/icons-material/Payment";
-import ReceiptIcon from "@mui/icons-material/Receipt";
+// import ReceiptIcon from "@mui/icons-material/Receipt";
 import ScheduleIcon from "@mui/icons-material/Schedule";
 import SupportAgentIcon from "@mui/icons-material/SupportAgent";
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
@@ -21,6 +23,7 @@ import { managerRoutes, staffRoutes } from "../../../../configs/routes";
 import { Role } from "../../../../routes/Roles";
 import { MenuItemLayout } from "../../../../types/menu";
 import AssessmentIcon from "@mui/icons-material/Assessment";
+import Iconify from "../../../../components/Iconify";
 
 // const AccessType = {
 //   MANAGER_SALE: [RoleTypes.MANAGER, RoleTypes.SALE],
@@ -79,9 +82,18 @@ export const menuItems: MenuItemLayout[] = [
       },
       {
         icon: <AssessmentIcon />,
-        label: "Nhập hàng",
-        path: config.adminRoutes.importProduct,
-        // role: AccessType.ADMIN_ACCESS,
+        label: "Quản lí nhập hàng",
+        path: "#",
+        children: [
+          {
+            label: "Quản lí lô hàng",
+            path: config.adminRoutes.manageBatch,
+          },
+          {
+            label: "Nhập hàng",
+            path: config.adminRoutes.importProduct,
+          },
+        ],
       },
       {
         icon: <Discount />,
@@ -113,29 +125,22 @@ export const menuItems: MenuItemLayout[] = [
         path: "#",
         children: [
           {
-            label: "Tình trạng thiết bị trong kho",
-            icon: <InventoryIcon />,
-            path: managerRoutes.manageEquipmentStock,
+            label: "Quản lý nồi",
+            icon: <TakeoutDiningIcon />,
+            path: managerRoutes.equipmentAvailability,
+          },
+          {
+            label: "Quản lý nguyên liệu",
+            icon: <IngredientIcon />,
+            path: config.adminRoutes.manageIngredients,
           },
         ],
       },
       //order
       {
         label: "Quản lý đơn hàng",
-        icon: <ReceiptIcon />,
-        path: "#",
-        children: [
-          {
-            label: "Quản lý đơn hàng",
-            icon: <InventoryIcon />,
-            path: managerRoutes.manageOrder,
-          },
-          // {
-          //   label: "Lịch sử đơn hàng",
-          //   icon: <AssignmentIcon />,
-          //   path: staffRoutes.orderHistory,
-          // },
-        ],
+        icon: <ListAltIcon />,
+        path: managerRoutes.manageOrder,
       },
       //maintenance
       {
@@ -148,11 +153,11 @@ export const menuItems: MenuItemLayout[] = [
             icon: <AssignmentIcon />,
             path: managerRoutes.equipmentConditionLog,
           },
-          {
-            label: "Quản lý thay thế thiết bị",
-            icon: <SwapHorizIcon />,
-            path: managerRoutes.manageReplacement,
-          },
+          // {
+          //   label: "Quản lý thay thế thiết bị",
+          //   icon: <SwapHorizIcon />,
+          //   path: managerRoutes.manageReplacement,
+          // },
           {
             label: "Quản lý xe",
             icon: <SwapHorizIcon />,
@@ -162,21 +167,29 @@ export const menuItems: MenuItemLayout[] = [
       },
       //report items
       {
-        label: "Báo cáo",
-        icon: <EngineeringIcon />,
-        path: "#",
-        children: [
-          {
-            label: "Xem phản hồi",
-            icon: <FeedbackIcon />,
-            path: managerRoutes.feedbackManagement,
-          },
-          {
-            label: "Lịch làm việc",
-            icon: <ScheduleIcon />,
-            path: managerRoutes.workAssignment,
-          },
-        ],
+        // label: "Báo cáo",
+        // icon: <EngineeringIcon />,
+        // path: "#",
+        label: "Lịch làm việc",
+        icon: <ScheduleIcon />,
+        path: managerRoutes.workAssignment,
+        // children: [
+        //   {
+        //     label: "Xem phản hồi",
+        //     icon: <FeedbackIcon />,
+        //     path: managerRoutes.feedbackManagement,
+        //   },
+        //   {
+        //     label: "Lịch làm việc",
+        //     icon: <ScheduleIcon />,
+        //     path: managerRoutes.workAssignment,
+        //   },
+        // ],
+      },
+      {
+        label: "Xem phản hồi",
+        icon: <FeedbackIcon />,
+        path: managerRoutes.feedbackManagement,
       },
       {
         label: "Dịch vụ khách hàng",
@@ -194,6 +207,11 @@ export const menuItems: MenuItemLayout[] = [
             path: managerRoutes.customerChat,
           },
         ],
+      },
+      {
+        label: "Lịch sử phân công nhân viên",
+        icon: <PaymentIcon />,
+        path: managerRoutes.staffAssignmentHistory,
       },
     ],
   },
@@ -213,17 +231,29 @@ export const menuItems: MenuItemLayout[] = [
         path: staffRoutes.shippingOrder,
       },
       //dashboard
-      {
-        icon: <DashboardIcon />,
-        label: "Công việc",
-        path: config.staffRoutes.staffMyAssignment,
-        // role: AccessType.ADMIN_ACCESS,
-      },
+      // {
+      //   icon: <DashboardIcon />,
+      //   label: "Công việc",
+      //   path: config.staffRoutes.staffMyAssignment,
+      //   // role: AccessType.ADMIN_ACCESS,
+      // },
       {
         label: "Quản lý thanh toán",
         icon: <PaymentIcon />,
         path: staffRoutes.paymentManagement,
       },
+      // Rental Management
+      {
+        label: "Lấy thiết bị thuê",
+        icon: <Iconify icon="mdi:package-variant-closed" />,
+        path: staffRoutes.pickupRental,
+      },
+      // Order History
+      // {
+      //   label: "Lịch sử đơn hàng",
+      //   icon: <Iconify icon="mdi:history" />,
+      //   path: staffRoutes.orderHistory,
+      // },
     ],
   },
 ];
