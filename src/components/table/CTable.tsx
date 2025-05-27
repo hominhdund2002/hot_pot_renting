@@ -183,6 +183,8 @@ const CTable: React.FC<CTbaleProps> = ({
           return "Đang chờ";
         case "Complete":
           return "Hoàn thành";
+        case "InProgress":
+          return "Đang tiến hành";
         default:
           return "-";
       }
@@ -241,6 +243,16 @@ const CTable: React.FC<CTbaleProps> = ({
             <Chip
               label="Hoàn thành"
               color="success"
+              variant="outlined"
+              size="small"
+              sx={{ minWidth: "90px" }}
+            />
+          );
+        case "InProgress":
+          return (
+            <Chip
+              label="Đang tiến hành"
+              color="info"
               variant="outlined"
               size="small"
               sx={{ minWidth: "90px" }}
