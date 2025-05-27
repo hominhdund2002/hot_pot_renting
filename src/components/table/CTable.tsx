@@ -128,7 +128,26 @@ const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
         },
       },
     },
+    // Support for custom row styling based on data attributes
+    '&[data-expired="true"]': {
+      backgroundColor: alpha(theme.palette.error.main, 0.05),
+      "&:hover": {
+        backgroundColor: alpha(theme.palette.error.main, 0.1),
+      },
+    },
+    '&[data-expiring-soon="true"]': {
+      backgroundColor: alpha(theme.palette.warning.main, 0.05),
+      "&:hover": {
+        backgroundColor: alpha(theme.palette.warning.main, 0.1),
+      },
+    },
   },
+  // "& .MuiTableHead-root": {
+  //   "& .MuiTableCell-head": {
+  //     fontWeight: "bold",
+  //     fontSize: "0.875rem",
+  //   },
+  // },
 }));
 
 // const StyledTablePagination = styled(TablePagination)(({ theme }) => ({

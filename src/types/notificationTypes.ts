@@ -29,15 +29,22 @@ export interface UnreadCountResponse {
 
 // Notification types for type checking
 export enum NotificationType {
-  Order = "Order",
-  Feedback = "Feedback",
-  EquipmentCondition = "EquipmentCondition",
-  EquipmentStock = "EquipmentStock",
-  RentOrder = "RentOrder",
-  Schedule = "Schedule",
-  PrepOrder = "PrepOrder",
-  ShipOrder = "ShipOrder",
-  Ingredient = "Ingredient",
+  OrderCreated = "OrderCreated",
+  OrderStatusChanged = "OrderStatusChanged",
+  NewFeedback = "NewFeedback",
+  FeedbackApproved = "FeedbackApproved",
+  FeedbackResponse = "FeedbackResponse",
+  ReplacementRequestReceived = "ReplacementRequestReceived",
+  ReplacementRequestStatusChanged = "ReplacementRequestStatusChanged",
+  ReplacementReviewed = "ReplacementReviewed",
+  RentalExtended = "RentalExtended",
+  RentalDateAdjusted = "RentalDateAdjusted",
+  RentalReturned = "RentalReturned",
+  NewAssignment = "NewAssignment",
+  EquipmentVerification = "EquipmentVerification",
+  ReplacementStatusUpdate = "ReplacementStatusUpdate",
+  ReplacementCompleted = "ReplacementCompleted",
+  StaffReplacementAssignment = "StaffReplacementAssignment",
 }
 
 // Type definitions for specific notification data

@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import {
@@ -10,18 +9,20 @@ import {
   CircularProgress,
   Alert,
   AlertTitle,
+  Fade,
   Skeleton,
+  Container,
   Paper,
   Grid2,
   Divider,
   IconButton,
   Tooltip,
-  TableContainer,
 } from "@mui/material";
 import {
   Refresh as RefreshIcon,
   Inventory as InventoryIcon,
   Warning as WarningIcon,
+  CheckCircle as CheckCircleIcon,
   Info as InfoIcon,
 } from "@mui/icons-material";
 import CTable from "../../components/table/CTable";
@@ -93,30 +94,17 @@ const TableBatchDetail = () => {
     fetchBatchData();
   }, [batchNumber]);
 
-  // Enhanced table headers with optimized widths and responsive design
+  // Enhanced table headers with better formatting
   const tableHeader = [
     {
       id: "ingredientName",
       label: "Tên nguyên liệu",
       align: "left" as const,
-      minWidth: 140,
-      maxWidth: 180,
+      minWidth: 180,
       render: (value: string) => (
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <InventoryIcon
-            sx={{ fontSize: 16, color: "primary.main", flexShrink: 0 }}
-          />
-          <Typography
-            variant="body2"
-            fontWeight="medium"
-            sx={{
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-              maxWidth: "140px",
-            }}
-            title={value} // Show full text on hover
-          >
+          <InventoryIcon sx={{ fontSize: 16, color: "primary.main" }} />
+          <Typography variant="body2" fontWeight="medium">
             {value}
           </Typography>
         </Box>
@@ -126,63 +114,30 @@ const TableBatchDetail = () => {
       id: "batchNumber",
       label: "Số lô",
       align: "left" as const,
-      minWidth: 120,
-      maxWidth: 140,
+      minWidth: 160,
       render: (value: string) => (
         <Chip
           label={value}
           size="small"
           variant="outlined"
-          sx={{
-            fontFamily: "monospace",
-            fontSize: "0.7rem",
-            maxWidth: "120px",
-            "& .MuiChip-label": {
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-            },
-          }}
-          title={value}
+          sx={{ fontFamily: "monospace", fontSize: "0.75rem" }}
         />
       ),
     },
     {
       id: "provideCompany",
-      label: "Nhà cung cấp",
+      label: "Công ty cung cấp",
       align: "left" as const,
-      minWidth: 120,
-      maxWidth: 150,
-      render: (value: string) => (
-        <Typography
-          variant="body2"
-          sx={{
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-            maxWidth: "130px",
-          }}
-          title={value}
-        >
-          {value}
-        </Typography>
-      ),
+      minWidth: 160,
     },
     {
       id: "initialQuantity",
       label: "SL ban đầu",
       align: "right" as const,
-      minWidth: 90,
+      minWidth: 100,
       render: (value: number, row: IngredientBatchDetail) => (
-        <Typography
-          variant="body2"
-          fontWeight="medium"
-          sx={{ fontSize: "0.8rem" }}
-        >
-          {value.toLocaleString()}
-          <br />
-          <Typography component="span" variant="caption" color="text.secondary">
-            {row.unit}
-          </Typography>
+        <Typography variant="body2" fontWeight="medium">
+          {value.toLocaleString()} {row.unit}
         </Typography>
       ),
     },
@@ -190,7 +145,7 @@ const TableBatchDetail = () => {
       id: "remainingQuantity",
       label: "SL còn lại",
       align: "right" as const,
-      minWidth: 90,
+      minWidth: 100,
       render: (value: number, row: IngredientBatchDetail) => {
         const percentage = (value / row.initialQuantity) * 100;
         const color =
@@ -208,15 +163,8 @@ const TableBatchDetail = () => {
               alignItems: "flex-end",
             }}
           >
-            <Typography
-              variant="body2"
-              fontWeight="bold"
-              sx={{ color, fontSize: "0.8rem" }}
-            >
-              {value.toLocaleString()}
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              {row.unit}
+            <Typography variant="body2" fontWeight="bold" sx={{ color }}>
+              {value.toLocaleString()} {row.unit}
             </Typography>
           </Box>
         );
@@ -226,29 +174,20 @@ const TableBatchDetail = () => {
       id: "formattedQuantity",
       label: "Khối lượng",
       align: "right" as const,
-      minWidth: 80,
+      minWidth: 120,
       render: (value: string) => (
-        <Typography
-          variant="body2"
-          fontWeight="medium"
-          color="primary.main"
-          sx={{ fontSize: "0.8rem" }}
-        >
+        <Typography variant="body2" fontWeight="medium" color="primary.main">
           {value}
         </Typography>
       ),
     },
     {
       id: "bestBeforeDate",
-      label: "HSD",
+      label: "Hạn sử dụng",
       align: "center" as const,
-      minWidth: 100,
+      minWidth: 120,
       render: (value: string, row: IngredientBatchDetail) => {
-        const date = new Date(value).toLocaleDateString("vi-VN", {
-          day: "2-digit",
-          month: "2-digit",
-          year: "2-digit",
-        });
+        const date = new Date(value).toLocaleDateString("vi-VN");
         const isExpired = row.isExpired;
         const isExpiringSoon = !isExpired && row.daysUntilExpiration <= 7;
 
@@ -270,7 +209,6 @@ const TableBatchDetail = () => {
                   ? "warning.main"
                   : "text.primary",
                 fontWeight: isExpired || isExpiringSoon ? "bold" : "normal",
-                fontSize: "0.75rem",
               }}
             >
               {date}
@@ -278,7 +216,7 @@ const TableBatchDetail = () => {
             {(isExpired || isExpiringSoon) && (
               <WarningIcon
                 sx={{
-                  fontSize: 14,
+                  fontSize: 16,
                   color: isExpired ? "error.main" : "warning.main",
                 }}
               />
@@ -291,30 +229,26 @@ const TableBatchDetail = () => {
       id: "receivedDate",
       label: "Ngày nhận",
       align: "center" as const,
-      minWidth: 100,
+      minWidth: 120,
       render: (value: string) => (
-        <Typography variant="body2" sx={{ fontSize: "0.75rem" }}>
-          {new Date(value).toLocaleDateString("vi-VN", {
-            day: "2-digit",
-            month: "2-digit",
-            year: "2-digit",
-          })}
+        <Typography variant="body2">
+          {new Date(value).toLocaleDateString("vi-VN")}
         </Typography>
       ),
     },
     {
       id: "daysUntilExpiration",
-      label: "Còn lại",
+      label: "Số ngày còn lại",
       align: "center" as const,
-      minWidth: 80,
+      minWidth: 120,
       render: (value: number, row: IngredientBatchDetail) => {
         if (row.isExpired) {
           return (
             <Chip
-              label="Hết hạn"
+              label="Đã hết hạn"
               size="small"
               color="error"
-              sx={{ fontSize: "0.7rem", height: "20px" }}
+              icon={<WarningIcon />}
             />
           );
         }
@@ -322,11 +256,10 @@ const TableBatchDetail = () => {
         const color = value <= 3 ? "error" : value <= 7 ? "warning" : "success";
         return (
           <Chip
-            label={`${value}d`}
+            label={`${value} ngày`}
             size="small"
             color={color}
             variant={value <= 7 ? "filled" : "outlined"}
-            sx={{ fontSize: "0.7rem", height: "20px" }}
           />
         );
       },
@@ -335,19 +268,19 @@ const TableBatchDetail = () => {
       id: "isExpired",
       label: "Trạng thái",
       align: "center" as const,
-      minWidth: 100,
+      minWidth: 120,
       render: (value: boolean, row: IngredientBatchDetail) => {
         if (value) {
           return (
             <Chip
               label="HẾT HẠN"
-              size="small"
+              size="medium"
               color="error"
+              icon={<WarningIcon />}
               variant="filled"
               sx={{
                 fontWeight: "bold",
-                fontSize: "0.65rem",
-                height: "24px",
+                fontSize: "0.75rem",
                 animation: "pulse 2s infinite",
                 "@keyframes pulse": {
                   "0%": { opacity: 1 },
@@ -360,14 +293,14 @@ const TableBatchDetail = () => {
         } else if (row.daysUntilExpiration <= 7) {
           return (
             <Chip
-              label="SẮP HẾT"
-              size="small"
+              label="SẮP HẾT HẠN"
+              size="medium"
               color="warning"
+              icon={<WarningIcon />}
               variant="filled"
               sx={{
                 fontWeight: "bold",
-                fontSize: "0.65rem",
-                height: "24px",
+                fontSize: "0.75rem",
               }}
             />
           );
@@ -375,13 +308,13 @@ const TableBatchDetail = () => {
           return (
             <Chip
               label="CÒN HẠN"
-              size="small"
+              size="medium"
               color="success"
+              icon={<CheckCircleIcon />}
               variant="filled"
               sx={{
                 fontWeight: "bold",
-                fontSize: "0.65rem",
-                height: "24px",
+                fontSize: "0.75rem",
               }}
             />
           );
@@ -430,253 +363,222 @@ const TableBatchDetail = () => {
   }
 
   return (
-    <Box
-      sx={{
-        width: "100%",
-        maxWidth: "100vw",
-        overflow: "hidden",
-        px: { xs: 1, sm: 2, md: 3 }, // Responsive padding
-      }}
-    >
-      {/* Header */}
-      <Box
-        sx={{
-          mb: 3,
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexWrap: "wrap",
-          gap: 2,
-        }}
-      >
-        <Box sx={{ minWidth: 0, flex: 1 }}>
-          <Typography
-            variant="h4"
-            component="h1"
-            gutterBottom
+    <Container maxWidth="xl" sx={{ py: 3 }}>
+      <Fade in={true} timeout={500}>
+        <Box>
+          {/* Header */}
+          <Box
             sx={{
-              fontWeight: "bold",
-              color: "primary.main",
-              fontSize: { xs: "1.5rem", sm: "2rem", md: "2.5rem" },
-            }}
-          >
-            Chi tiết lô hàng
-          </Typography>
-          <Typography
-            variant="h6"
-            color="text.secondary"
-            sx={{
+              mb: 3,
               display: "flex",
+              justifyContent: "space-between",
               alignItems: "center",
-              gap: 1,
-              fontSize: { xs: "0.9rem", sm: "1rem", md: "1.25rem" },
-              overflow: "hidden",
-              textOverflow: "ellipsis",
             }}
           >
-            <InfoIcon sx={{ fontSize: 20, flexShrink: 0 }} />
-            Lô: {batchNumber}
-          </Typography>
-        </Box>
-        <Tooltip title="Làm mới dữ liệu">
-          <IconButton
-            onClick={fetchBatchData}
-            disabled={loading}
-            sx={{
-              bgcolor: "primary.main",
-              color: "white",
-              "&:hover": { bgcolor: "primary.dark" },
-              "&:disabled": { bgcolor: "grey.300" },
-              flexShrink: 0,
-            }}
-          >
-            {loading ? (
-              <CircularProgress size={24} color="inherit" />
-            ) : (
-              <RefreshIcon />
-            )}
-          </IconButton>
-        </Tooltip>
-      </Box>
-
-      {/* Error Alert */}
-      {error && (
-        <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError(null)}>
-          <AlertTitle>Lỗi</AlertTitle>
-          {error}
-        </Alert>
-      )}
-
-      {/* Summary Cards */}
-      {!error && dataBatch.length > 0 && (
-        <Grid2 container spacing={2} sx={{ mb: 3 }}>
-          <Grid2 size={{ xs: 12, sm: 6, md: 4 }}>
-            <Card
-              sx={{
-                height: "100%",
-                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-              }}
-            >
-              <CardContent sx={{ color: "white", textAlign: "center", p: 2 }}>
-                <InventoryIcon sx={{ fontSize: 32, mb: 1, opacity: 0.9 }} />
-                <Typography variant="h5" component="div" fontWeight="bold">
-                  {summary.totalItems}
-                </Typography>
-                <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                  Tổng số mặt hàng
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid2>
-
-          <Grid2 size={{ xs: 12, sm: 6, md: 4 }}>
-            <Card
-              sx={{
-                height: "100%",
-                background: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
-              }}
-            >
-              <CardContent sx={{ color: "white", textAlign: "center", p: 2 }}>
-                <WarningIcon sx={{ fontSize: 32, mb: 1, opacity: 0.9 }} />
-                <Typography variant="h5" component="div" fontWeight="bold">
-                  {summary.expiredItems}
-                </Typography>
-                <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                  Đã hết hạn
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid2>
-
-          <Grid2 size={{ xs: 12, sm: 6, md: 4 }}>
-            <Card
-              sx={{
-                height: "100%",
-                background: "linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)",
-              }}
-            >
-              <CardContent sx={{ color: "white", textAlign: "center", p: 2 }}>
-                <WarningIcon sx={{ fontSize: 32, mb: 1, opacity: 0.9 }} />
-                <Typography variant="h5" component="div" fontWeight="bold">
-                  {summary.expiringSoon}
-                </Typography>
-                <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                  Sắp hết hạn (≤7 ngày)
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid2>
-        </Grid2>
-      )}
-
-      <Divider sx={{ mb: 3 }} />
-
-      {/* Main Table with horizontal scroll */}
-      <Paper
-        elevation={0}
-        sx={{
-          borderRadius: 3,
-          overflow: "hidden",
-          border: "1px solid",
-          borderColor: "divider",
-          background: "linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%)",
-          width: "100%",
-          maxWidth: "100%",
-        }}
-      >
-        <TableContainer
-          sx={{
-            maxHeight: { xs: 400, sm: 500, md: 600 },
-            overflowX: "auto",
-            overflowY: "auto",
-          }}
-        >
-          <Box sx={{ position: "relative", minWidth: "800px" }}>
-            {loading && (
-              <Box
+            <Box>
+              <Typography
+                variant="h4"
+                component="h1"
+                gutterBottom
+                sx={{ fontWeight: "bold", color: "primary.main" }}
+              >
+                Chi tiết lô hàng
+              </Typography>
+              <Typography
+                variant="h6"
+                color="text.secondary"
+                sx={{ display: "flex", alignItems: "center", gap: 1 }}
+              >
+                <InfoIcon sx={{ fontSize: 20 }} />
+                Lô: {batchNumber}
+              </Typography>
+            </Box>
+            <Tooltip title="Làm mới dữ liệu">
+              <IconButton
+                onClick={fetchBatchData}
+                disabled={loading}
                 sx={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  bgcolor: "rgba(255, 255, 255, 0.8)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  zIndex: 1,
-                  backdropFilter: "blur(2px)",
+                  bgcolor: "primary.main",
+                  color: "white",
+                  "&:hover": { bgcolor: "primary.dark" },
+                  "&:disabled": { bgcolor: "grey.300" },
                 }}
               >
-                <CircularProgress size={40} />
-              </Box>
-            )}
-
-            <CTable
-              tableHeaderTitle={tableHeader}
-              data={paginatedData.map((item) => ({
-                ...item,
-                "data-expired": item.isExpired,
-                "data-expiring-soon":
-                  !item.isExpired && item.daysUntilExpiration <= 7,
-              }))}
-              total={total}
-              page={page}
-              size={size}
-              handleChangePage={handleChangePage}
-              handleChangeRowsPerPage={handleChangeRowsPerPage}
-              emptyMessage={
-                error
-                  ? "Có lỗi xảy ra khi tải dữ liệu"
-                  : "Không có dữ liệu chi tiết lô hàng"
-              }
-              sx={{
-                "& .MuiTable-root": {
-                  minWidth: "800px", // Ensure minimum width
-                },
-                "& .MuiTableHead-root": {
-                  "& .MuiTableCell-head": {
-                    color: "black",
-                    fontWeight: "bold",
-                    fontSize: "0.8rem",
-                    padding: "8px 4px",
-                    whiteSpace: "nowrap",
-                  },
-                },
-                "& .MuiTableBody-root": {
-                  "& .MuiTableCell-body": {
-                    padding: "8px 4px",
-                    fontSize: "0.8rem",
-                  },
-                },
-                "& .MuiTableRow-root:hover": {
-                  bgcolor: "action.hover",
-                  transform: "scale(1.001)",
-                  transition: "all 0.2s ease-in-out",
-                },
-                "& .MuiTableRow-root": {
-                  '&[data-expired="true"]': {
-                    bgcolor: "rgba(244, 67, 54, 0.05)",
-                    "&:hover": {
-                      bgcolor: "rgba(244, 67, 54, 0.1)",
-                    },
-                  },
-                  '&[data-expiring-soon="true"]': {
-                    bgcolor: "rgba(255, 152, 0, 0.05)",
-                    "&:hover": {
-                      bgcolor: "rgba(255, 152, 0, 0.1)",
-                    },
-                  },
-                },
-                "& .MuiTableCell-root": {
-                  borderBottom: "1px solid rgba(224, 224, 224, 0.5)",
-                },
-              }}
-            />
+                {loading ? (
+                  <CircularProgress size={24} color="inherit" />
+                ) : (
+                  <RefreshIcon />
+                )}
+              </IconButton>
+            </Tooltip>
           </Box>
-        </TableContainer>
-      </Paper>
-    </Box>
+
+          {/* Error Alert */}
+          {error && (
+            <Alert
+              severity="error"
+              sx={{ mb: 3 }}
+              onClose={() => setError(null)}
+            >
+              <AlertTitle>Lỗi</AlertTitle>
+              {error}
+            </Alert>
+          )}
+
+          {/* Summary Cards */}
+          {!error && dataBatch.length > 0 && (
+            <Grid2 container spacing={3} sx={{ mb: 3 }}>
+              <Grid2 size={{ mobile: 12, tablet: 6, desktop: 4 }}>
+                <Card
+                  sx={{
+                    height: "100%",
+                    background:
+                      "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                  }}
+                >
+                  <CardContent sx={{ color: "white", textAlign: "center" }}>
+                    <InventoryIcon sx={{ fontSize: 40, mb: 1, opacity: 0.9 }} />
+                    <Typography variant="h4" component="div" fontWeight="bold">
+                      {summary.totalItems}
+                    </Typography>
+                    <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                      Tổng số mặt hàng
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid2>
+
+              <Grid2 size={{ mobile: 12, tablet: 6, desktop: 4 }}>
+                <Card
+                  sx={{
+                    height: "100%",
+                    background:
+                      "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
+                  }}
+                >
+                  <CardContent sx={{ color: "white", textAlign: "center" }}>
+                    <WarningIcon sx={{ fontSize: 40, mb: 1, opacity: 0.9 }} />
+                    <Typography variant="h4" component="div" fontWeight="bold">
+                      {summary.expiredItems}
+                    </Typography>
+                    <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                      Đã hết hạn
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid2>
+
+              <Grid2 size={{ mobile: 12, tablet: 6, desktop: 4 }}>
+                <Card
+                  sx={{
+                    height: "100%",
+                    background:
+                      "linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)",
+                  }}
+                >
+                  <CardContent sx={{ color: "white", textAlign: "center" }}>
+                    <WarningIcon sx={{ fontSize: 40, mb: 1, opacity: 0.9 }} />
+                    <Typography variant="h4" component="div" fontWeight="bold">
+                      {summary.expiringSoon}
+                    </Typography>
+                    <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                      Sắp hết hạn (≤7 ngày)
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid2>
+            </Grid2>
+          )}
+
+          <Divider sx={{ mb: 3 }} />
+
+          {/* Main Table */}
+          <Paper
+            elevation={0}
+            sx={{
+              borderRadius: 3,
+              overflow: "hidden",
+              border: "1px solid",
+              borderColor: "divider",
+              background: "linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%)",
+            }}
+          >
+            <Box sx={{ position: "relative" }}>
+              {loading && (
+                <Box
+                  sx={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    bgcolor: "rgba(255, 255, 255, 0.8)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    zIndex: 1,
+                    backdropFilter: "blur(2px)",
+                  }}
+                >
+                  <CircularProgress size={40} />
+                </Box>
+              )}
+
+              <CTable
+                tableHeaderTitle={tableHeader}
+                data={paginatedData.map((item) => ({
+                  ...item,
+                  "data-expired": item.isExpired,
+                  "data-expiring-soon":
+                    !item.isExpired && item.daysUntilExpiration <= 7,
+                }))}
+                total={total}
+                page={page}
+                size={size}
+                handleChangePage={handleChangePage}
+                handleChangeRowsPerPage={handleChangeRowsPerPage}
+                emptyMessage={
+                  error
+                    ? "Có lỗi xảy ra khi tải dữ liệu"
+                    : "Không có dữ liệu chi tiết lô hàng"
+                }
+                sx={{
+                  "& .MuiTableHead-root": {
+                    "& .MuiTableCell-head": {
+                      color: "black",
+                      fontWeight: "bold",
+                      fontSize: "0.875rem",
+                    },
+                  },
+                  "& .MuiTableRow-root:hover": {
+                    bgcolor: "action.hover",
+                    transform: "scale(1.001)",
+                    transition: "all 0.2s ease-in-out",
+                  },
+                  "& .MuiTableRow-root": {
+                    '&[data-expired="true"]': {
+                      bgcolor: "rgba(244, 67, 54, 0.05)",
+                      "&:hover": {
+                        bgcolor: "rgba(244, 67, 54, 0.1)",
+                      },
+                    },
+                    '&[data-expiring-soon="true"]': {
+                      bgcolor: "rgba(255, 152, 0, 0.05)",
+                      "&:hover": {
+                        bgcolor: "rgba(255, 152, 0, 0.1)",
+                      },
+                    },
+                  },
+                  "& .MuiTableCell-root": {
+                    borderBottom: "1px solid rgba(224, 224, 224, 0.5)",
+                  },
+                }}
+              />
+            </Box>
+          </Paper>
+        </Box>
+      </Fade>
+    </Container>
   );
 };
 
