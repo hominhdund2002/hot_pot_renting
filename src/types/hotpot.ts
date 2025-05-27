@@ -66,6 +66,7 @@ export interface CreateHotPotCustomFormSchema {
 export interface IngredientTypeProps {
   ingredientTypeId: number;
   minQuantity: number;
+  ingredientTypeName?: string;
 }
 
 export interface updateComboCustomSchema {
