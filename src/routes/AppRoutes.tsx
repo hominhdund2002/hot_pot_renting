@@ -249,13 +249,11 @@ const AppRoute: React.FC = () => {
           path={config.adminRoutes.DetailHotpotType}
           element={<TableHotpotDetailPage />}
         />
-
         <Route
           key="importProducts"
           path={config.adminRoutes.importProduct}
           element={<ImportProductPage />}
         />
-
         <Route
           key="manageBatch"
           path={config.adminRoutes.manageBatch}
