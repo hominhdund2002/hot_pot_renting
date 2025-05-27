@@ -9,18 +9,21 @@ import {
   TablePagination,
   CircularProgress,
   Alert,
+  Tooltip,
+  Chip,
+  Stack,
 } from "@mui/material";
-import { format } from "date-fns";
 import { getUnassignedPickups } from "../../../api/Services/rentalService";
-import { PagedResult, RentOrderDetail } from "../../../types/rentalTypes";
+import {
+  PagedResult,
+  RentOrderDetailResponse,
+} from "../../../types/rentalTypes";
 import AssignStaffDialog from "../dialog/AssignStaffDialog";
-
 // Import styled components
 import {
   StyledContainer,
   StyledPaper,
 } from "../../../components/StyledComponents";
-
 // Import unassigned pickups specific styled components
 import {
   PageTitle,
@@ -35,6 +38,7 @@ import {
   EmptyMessage,
   LoadingContainer,
 } from "../../../components/manager/styles/UnassignedPickupsStyles";
+import { formatDate } from "../../../utils/formatters";
 
 const translateStatus = (status: string): string => {
   switch (status.toLowerCase()) {
@@ -54,17 +58,15 @@ const translateStatus = (status: string): string => {
 };
 
 const UnassignedPickups: React.FC = () => {
-  const [pickups, setPickups] = useState<PagedResult<RentOrderDetail> | null>(
-    null
-  );
+  const [pickups, setPickups] =
+    useState<PagedResult<RentOrderDetailResponse> | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(0);
   // Changed default rowsPerPage to match one of the options in rowsPerPageOptions
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [selectedPickup, setSelectedPickup] = useState<RentOrderDetail | null>(
-    null
-  );
+  const [selectedPickup, setSelectedPickup] =
+    useState<RentOrderDetailResponse | null>(null);
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
 
   const fetchPickups = async () => {
@@ -72,13 +74,15 @@ const UnassignedPickups: React.FC = () => {
     setError(null);
     try {
       const data = await getUnassignedPickups(page + 1, rowsPerPage);
-      setPickups(data);
+      setPickups(data.data as PagedResult<RentOrderDetailResponse>);
+      return data; // Return the data for promise chaining
     } catch (err) {
-      setError(
+      const errorMessage =
         err instanceof Error
           ? err.message
-          : "An error occurred while fetching pickups"
-      );
+          : "An error occurred while fetching pickups";
+      setError(errorMessage);
+      throw err; // Rethrow to allow catching in the calling function
     } finally {
       setLoading(false);
     }
@@ -99,22 +103,32 @@ const UnassignedPickups: React.FC = () => {
     setPage(0);
   };
 
-  const handleAssignClick = (pickup: RentOrderDetail) => {
+  const handleAssignClick = (pickup: RentOrderDetailResponse) => {
     setSelectedPickup(pickup);
     setAssignDialogOpen(true);
   };
 
-  const handleAssignSuccess = () => {
-    fetchPickups();
-    setAssignDialogOpen(false);
-    setSelectedPickup(null);
+  const handleAssignSuccess = async () => {
+    try {
+      // First close the dialog and reset the selected pickup
+      setAssignDialogOpen(false);
+      setSelectedPickup(null);
+
+      // Then fetch the updated data
+      await fetchPickups();
+    } catch (error) {
+      setError(
+        error instanceof Error
+          ? error.message
+          : "An error occurred while refreshing pickup data"
+      );
+    }
   };
 
   return (
     <StyledContainer maxWidth="xl">
       <Box sx={{ p: 3 }}>
         <PageTitle variant="h4">Phân công thu hồi</PageTitle>
-
         {error && (
           <Alert
             severity="error"
@@ -129,7 +143,6 @@ const UnassignedPickups: React.FC = () => {
             {error}
           </Alert>
         )}
-
         <StyledPaper elevation={0}>
           {loading && !pickups ? (
             <LoadingContainer>
@@ -141,10 +154,9 @@ const UnassignedPickups: React.FC = () => {
                 <Table>
                   <TableHead>
                     <TableRow>
-                      <HeaderTableCell>ID</HeaderTableCell>
+                      <HeaderTableCell>Mã đơn</HeaderTableCell>
                       <HeaderTableCell>Tên Khách hàng</HeaderTableCell>
                       <HeaderTableCell>Thiết bị</HeaderTableCell>
-                      <HeaderTableCell>Loại</HeaderTableCell>
                       <HeaderTableCell>Ngày trả</HeaderTableCell>
                       <HeaderTableCell>Trạng thái</HeaderTableCell>
                       <HeaderTableCell>Hành động</HeaderTableCell>
@@ -153,7 +165,7 @@ const UnassignedPickups: React.FC = () => {
                   <TableBody>
                     {pickups?.items.length === 0 ? (
                       <StyledTableRow key="empty-row">
-                        <BodyTableCell colSpan={7}>
+                        <BodyTableCell colSpan={6}>
                           <EmptyMessage>
                             Không tìm thấy đơn hàng chưa được phân công
                           </EmptyMessage>
@@ -161,8 +173,8 @@ const UnassignedPickups: React.FC = () => {
                       </StyledTableRow>
                     ) : (
                       pickups?.items.map((pickup) => (
-                        <StyledTableRow key={pickup.id}>
-                          <BodyTableCell>{pickup.id}</BodyTableCell>
+                        <StyledTableRow key={pickup.orderId}>
+                          <BodyTableCell>{pickup.orderCode}</BodyTableCell>
                           <BodyTableCell>
                             <CustomerName variant="body2">
                               {pickup.customerName}
@@ -171,13 +183,41 @@ const UnassignedPickups: React.FC = () => {
                               {pickup.customerPhone}
                             </CustomerPhone>
                           </BodyTableCell>
-                          <BodyTableCell>{pickup.equipmentName}</BodyTableCell>
-                          <BodyTableCell>{pickup.equipmentType}</BodyTableCell>
                           <BodyTableCell>
-                            {format(
-                              new Date(pickup.expectedReturnDate),
-                              "MMM dd, yyyy"
-                            )}
+                            <Stack direction="column" spacing={1}>
+                              {pickup.equipmentItems.slice(0, 2).map((item) => (
+                                <Tooltip
+                                  key={item.detailId}
+                                  title={`${item.type} - ID: ${item.id}`}
+                                >
+                                  <Chip
+                                    label={item.name}
+                                    size="small"
+                                    variant="outlined"
+                                  />
+                                </Tooltip>
+                              ))}
+                              {pickup.equipmentItems.length > 2 && (
+                                <Tooltip
+                                  title={pickup.equipmentItems
+                                    .slice(2)
+                                    .map((item) => item.name)
+                                    .join(", ")}
+                                >
+                                  <Chip
+                                    label={`+${
+                                      pickup.equipmentItems.length - 2
+                                    } more`}
+                                    size="small"
+                                    variant="outlined"
+                                    color="primary"
+                                  />
+                                </Tooltip>
+                              )}
+                            </Stack>
+                          </BodyTableCell>
+                          <BodyTableCell>
+                            {formatDate(pickup.expectedReturnDate)}
                           </BodyTableCell>
                           <BodyTableCell>
                             <StatusChip
@@ -202,7 +242,6 @@ const UnassignedPickups: React.FC = () => {
                   </TableBody>
                 </Table>
               </StyledTableContainer>
-
               <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
                 <TablePagination
                   rowsPerPageOptions={[5, 10, 25]}
@@ -224,7 +263,6 @@ const UnassignedPickups: React.FC = () => {
             </>
           )}
         </StyledPaper>
-
         {selectedPickup && (
           <AssignStaffDialog
             open={assignDialogOpen}

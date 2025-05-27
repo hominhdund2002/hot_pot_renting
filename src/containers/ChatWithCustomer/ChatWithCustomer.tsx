@@ -1,533 +1,434 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable react-hooks/exhaustive-deps */
 // src/components/Chat/ChatWithCustomer.tsx
-import { Box, IconButton, Typography } from "@mui/material";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { StyledPaper } from "../../components/manager/styles/ChatStyles";
+import React, { useCallback, useEffect, useState, useRef } from "react";
+import { Box, Typography, Paper, CircularProgress, Alert } from "@mui/material";
 import useAuth from "../../hooks/useAuth";
-import socketService from "../../api/Services/socketService";
 import chatService from "../../api/Services/chatService";
 import { ChatMessageDto, ChatSessionDto } from "../../types/chat";
-
-// Import extracted components
+// Import components
 import ChatHeader from "./ChatHeader/ChatHeader";
 import ChatInput from "./ChatInput/ChatInput";
 import ChatList from "./ChatList/ChatList";
 import MessageList from "./ChatMessage/MessageList";
-import ConnectionStatus from "./Services/ConnectionStatus";
-import DebugPanel from "./Services/DebugPanel";
-import EmptyChatState from "./Services/EmptyChatState";
 
 const ChatWithCustomer: React.FC = () => {
   const { auth } = useAuth();
   const user = auth.user;
+
+  // Refs for tracking state
+  const reconnecting = useRef(false);
+  const initialized = useRef(false);
+  const loadingSessionsRef = useRef(false);
+
+  // State
   const [selectedChatId, setSelectedChatId] = useState<number | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [showDebug, setShowDebug] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [chatSessions, setChatSessions] = useState<ChatSessionDto[]>([]);
-  const [sessionMessages, setSessionMessages] = useState<
-    Record<number, ChatMessageDto[]>
-  >({});
-  const typingTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+  const [messages, setMessages] = useState<Record<number, ChatMessageDto[]>>(
+    {}
+  );
+  const [unreadChats, setUnreadChats] = useState<Set<number>>(new Set());
 
-  // Initialize Socket.IO connection
-  useEffect(() => {
-    const initializeSocketConnection = async () => {
-      try {
-        setLoading(true);
+  // Get the selected chat
+  const selectedChat = chatSessions.find(
+    (chat) => chat.chatSessionId === selectedChatId
+  );
+  const selectedChatMessages = selectedChatId
+    ? messages[selectedChatId] || []
+    : [];
 
-        // Connect to Socket.IO server
-        socketService.connect();
+  // Load chat sessions with debounce protection
+  const loadChatSessions = useCallback(async () => {
+    // Prevent multiple simultaneous calls
+    if (loadingSessionsRef.current) return false;
 
-        // Authenticate with Socket.IO
-        if (user?.id) {
-          socketService.authenticate(user.id, "Manager");
-          setIsConnected(true);
-        }
-
-        // Load active chat sessions
-        await refreshSessions();
-
-        setLoading(false);
-      } catch (err) {
-        setError(
-          err instanceof Error
-            ? err.message
-            : "Failed to connect to chat service"
-        );
-        setLoading(false);
+    loadingSessionsRef.current = true;
+    try {
+      // Get active sessions
+      const response = await chatService.getUserSessions(true);
+      if (response.success && response.data) {
+        setChatSessions(response.data);
       }
-    };
 
-    initializeSocketConnection();
+      // Get unassigned sessions
+      const unassignedResponse = await chatService.getUnassignedSessions();
+      if (unassignedResponse.success && unassignedResponse.data) {
+        setChatSessions((prev) => {
+          const existingIds = new Set(prev.map((s) => s.chatSessionId));
+          const newSessions = unassignedResponse.data!.filter(
+            (s) => !existingIds.has(s.chatSessionId)
+          );
+          return [...prev, ...newSessions];
+        });
+      }
 
-    // Set up Socket.IO event listeners
-    socketService.on("onNewChatRequest", handleNewChatRequest);
-    socketService.on("onChatTaken", handleChatTaken);
-    socketService.on("onReceiveMessage", handleReceiveMessage);
-    socketService.on("onMessageRead", handleMessageRead);
-    socketService.on("onChatEnded", handleChatEnded);
+      loadingSessionsRef.current = false;
+      return true;
+    } catch (err) {
+      console.error("Không thể tải danh sách cuộc trò chuyện:", err);
+      setError("Không thể tải danh sách cuộc trò chuyện");
+      loadingSessionsRef.current = false;
+      return false;
+    }
+  }, []);
 
-    // Clean up on unmount
-    return () => {
-      socketService.disconnect();
-    };
-  }, [user?.id]);
+  // Load messages for a specific chat session
+  const loadMessagesForSession = useCallback(
+    async (sessionId: number) => {
+      // Skip if we already have messages for this session
+      if (messages[sessionId] && messages[sessionId].length > 0) return;
 
-  // Socket.IO event handlers
-  const handleNewChatRequest = useCallback((data: any) => {
+      try {
+        const msgResponse = await chatService.getSessionMessages(sessionId);
+        if (msgResponse.success && msgResponse.data) {
+          setMessages((prev) => ({
+            ...prev,
+            [sessionId]: msgResponse.data || [],
+          }));
+        }
+      } catch (err) {
+        console.error(
+          `Không thể tải tin nhắn cho cuộc trò chuyện ${sessionId}:`,
+          err
+        );
+      }
+    },
+    [messages]
+  );
+
+  // Handle chat selection
+  const handleSelectChat = useCallback(
+    (chatId: number) => {
+      setSelectedChatId(chatId);
+
+      // Load messages for this chat if needed
+      loadMessagesForSession(chatId);
+
+      // Remove from unread chats
+      setUnreadChats((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(chatId);
+        return newSet;
+      });
+    },
+    [loadMessagesForSession]
+  );
+
+  // Send a message
+  const handleSendMessage = useCallback(
+    async (message: string) => {
+      if (!selectedChatId || !message.trim()) return;
+
+      // Create a temporary message
+      const tempId = -Date.now();
+      const tempMessage: ChatMessageDto = {
+        chatMessageId: tempId,
+        chatSessionId: selectedChatId,
+        senderUserId: user?.id || 0,
+        senderName: user?.name || "Bạn",
+        receiverUserId: selectedChat?.customerId || 0,
+        receiverName: selectedChat?.customerName || "Khách hàng",
+        message: message,
+        createdAt: new Date().toISOString(),
+        isBroadcast: false,
+      };
+
+      // Add to UI immediately
+      setMessages((prev) => ({
+        ...prev,
+        [selectedChatId]: [...(prev[selectedChatId] || []), tempMessage],
+      }));
+
+      try {
+        // Send to server
+        const response = await chatService.sendMessage(selectedChatId, message);
+        if (response.success && response.data) {
+          // Replace temp message with real one
+          setMessages((prev) => {
+            const currentMessages = prev[selectedChatId] || [];
+            return {
+              ...prev,
+              [selectedChatId]: currentMessages.map((msg) =>
+                msg.chatMessageId === tempId ? response.data! : msg
+              ),
+            };
+          });
+        }
+      } catch (error) {
+        console.error("Gửi tin nhắn thất bại:", error);
+        // Mark message as failed
+        setMessages((prev) => {
+          const currentMessages = prev[selectedChatId] || [];
+          return {
+            ...prev,
+            [selectedChatId]: currentMessages.map((msg) =>
+              msg.chatMessageId === tempId ? { ...msg, failed: true } : msg
+            ),
+          };
+        });
+      }
+    },
+    [selectedChatId, selectedChat, user]
+  );
+
+  // Join a chat as manager
+  const handleJoinChat = useCallback(
+    async (sessionId: number) => {
+      try {
+        const response = await chatService.joinChatSession(sessionId);
+        if (response.success && response.data) {
+          // Update the chat in our list
+          setChatSessions((prev) =>
+            prev.map((chat) =>
+              chat.chatSessionId === sessionId
+                ? {
+                    ...chat,
+                    managerId: user?.id,
+                    managerName: user?.name || "Bạn",
+                  }
+                : chat
+            )
+          );
+          return true;
+        }
+        return false;
+      } catch (error) {
+        console.error("Tham gia cuộc trò chuyện thất bại:", error);
+        return false;
+      }
+    },
+    [user]
+  );
+
+  // End a chat session
+  const handleEndChat = useCallback(async () => {
+    if (!selectedChatId) return;
+
+    try {
+      const response = await chatService.endChatSession(selectedChatId);
+      if (response.success) {
+        // Update the chat in our list
+        setChatSessions((prev) =>
+          prev.map((chat) =>
+            chat.chatSessionId === selectedChatId
+              ? { ...chat, isActive: false }
+              : chat
+          )
+        );
+        // Clear selection
+        setSelectedChatId(null);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("Kết thúc cuộc trò chuyện thất bại:", error);
+      return false;
+    }
+  }, [selectedChatId]);
+
+  // SignalR event handlers - memoized with minimal dependencies
+  const handleNewChat = useCallback((data: any) => {
+    console.log("Nhận cuộc trò chuyện mới:", data);
+
+    // Add to our list if it's not already there
     setChatSessions((prev) => {
-      // Check if we already have this session
-      if (
-        prev.some((session) => session.chatSessionId === data.chatSessionId)
-      ) {
+      if (prev.some((chat) => chat.chatSessionId === data.chatSessionId)) {
         return prev;
       }
 
-      // Add new session
-      return [
-        ...prev,
-        {
-          chatSessionId: data.chatSessionId,
-          customerId: data.customerId,
-          customerName: data.customerName,
-          topic: data.topic,
-          isActive: true,
-          createdAt: new Date(data.createdAt),
-          updatedAt: new Date(data.createdAt),
-        },
-      ];
+      const newChat = {
+        chatSessionId: data.chatSessionId,
+        customerId: data.customerId,
+        customerName: data.customerName,
+        isActive: true,
+        topic: data.topic,
+        createdAt: new Date().toISOString(),
+      };
+
+      return [...prev, newChat];
+    });
+
+    // Mark as unread
+    setUnreadChats((prev) => {
+      const newSet = new Set(prev);
+      newSet.add(data.chatSessionId);
+      return newSet;
     });
   }, []);
 
-  const handleChatTaken = useCallback(
+  const handleNewMessage = useCallback(
     (data: any) => {
-      // If another manager took the chat, remove it from our list
-      if (data.managerId !== user?.id) {
-        setChatSessions((prev) =>
-          prev.filter((session) => session.chatSessionId !== data.sessionId)
-        );
-      }
-    },
-    [user?.id]
-  );
+      console.log("Nhận tin nhắn mới:", data);
 
-  const handleReceiveMessage = useCallback(
-    (data: any) => {
-      // Add message to the appropriate chat session
-      setSessionMessages((prev) => {
-        const sessionId = data.chatSessionId || selectedChatId;
-        if (!sessionId) return prev;
+      const sessionId = data.sessionId;
 
-        const messages = prev[sessionId] || [];
+      // Add to our messages
+      setMessages((prev) => {
+        const currentMessages = prev[sessionId] || [];
 
-        // Check if we already have this message
-        if (messages.some((msg) => msg.chatMessageId === data.messageId)) {
+        // Skip if we already have this message
+        if (
+          currentMessages.some((msg) => msg.chatMessageId === data.messageId)
+        ) {
           return prev;
         }
 
-        // Add new message
-        const newMessages = [
-          ...messages,
-          {
-            chatMessageId: data.messageId,
-            senderUserId: data.senderId,
-            senderName: data.senderName || "User",
-            receiverUserId: data.receiverId,
-            receiverName: data.receiverName || "User",
-            message: data.message,
-            isRead: false,
-            createdAt: new Date(data.createdAt),
-          },
-        ];
+        // Create message object
+        const newMessage: ChatMessageDto = {
+          chatMessageId: data.messageId,
+          chatSessionId: sessionId,
+          senderUserId: data.senderId,
+          senderName: data.senderName || "Không xác định",
+          receiverUserId: data.receiverId || 0,
+          receiverName: data.receiverName || "Quản lý",
+          message: data.content,
+          createdAt: data.timestamp || new Date().toISOString(),
+          isBroadcast: data.isBroadcast || false,
+        };
 
         return {
           ...prev,
-          [sessionId]: newMessages,
+          [sessionId]: [...currentMessages, newMessage],
         };
       });
 
-      // Mark message as read if it's for the selected chat
-      if (selectedChatId && data.receiverId === user?.id) {
-        markMessageAsRead(data.messageId);
-      }
-    },
-    [selectedChatId, user?.id]
-  );
+      // Mark as unread if it's not the currently selected chat
+      setUnreadChats((prev) => {
+        if (sessionId === selectedChatId) return prev;
 
-  const handleMessageRead = useCallback((messageId: number) => {
-    // Update message read status
-    setSessionMessages((prev) => {
-      const updated = { ...prev };
-
-      // Find the message in all sessions
-      Object.keys(updated).forEach((sessionIdStr) => {
-        const sessionId = parseInt(sessionIdStr);
-        updated[sessionId] = updated[sessionId].map((msg) =>
-          msg.chatMessageId === messageId ? { ...msg, isRead: true } : msg
-        );
+        const newSet = new Set(prev);
+        newSet.add(sessionId);
+        return newSet;
       });
-
-      return updated;
-    });
-  }, []);
-
-  const handleChatEnded = useCallback(
-    (sessionId: number) => {
-      // Update chat session status
-      setChatSessions((prev) =>
-        prev.map((session) =>
-          session.chatSessionId === sessionId
-            ? { ...session, isActive: false }
-            : session
-        )
-      );
-
-      // If the ended chat is the selected one, clear selection
-      if (selectedChatId === sessionId) {
-        setSelectedChatId(null);
-      }
     },
     [selectedChatId]
   );
 
-  // API functions
-  const refreshSessions = useCallback(async () => {
-    try {
-      const response = await chatService.getActiveSessions();
-      if (response.success && response.data) {
-        setChatSessions(response.data);
+  const handleChatAccepted = useCallback((data: any) => {
+    console.log("Cuộc trò chuyện được chấp nhận:", data);
 
-        // Load messages for each session
-        response.data.forEach((session) => {
-          loadSessionMessages(session.chatSessionId);
-        });
-      }
-      return true;
-    } catch (err) {
-      console.error("Failed to refresh sessions:", err);
-      setError("Failed to load chat sessions");
-      return false;
-    }
+    // Update the chat in our list
+    setChatSessions((prev) =>
+      prev.map((chat) =>
+        chat.chatSessionId === data.chatSessionId
+          ? {
+              ...chat,
+              managerId: data.managerId,
+              managerName: data.managerName,
+            }
+          : chat
+      )
+    );
   }, []);
 
-  const loadSessionMessages = useCallback(async (sessionId: number) => {
-    try {
-      const response = await chatService.getSessionMessages(sessionId);
-      if (response.success && response.data) {
-        setSessionMessages((prev) => ({
-          ...prev,
-          [sessionId]: response.data || [], // Add fallback to empty array
-        }));
-      }
-      return true;
-    } catch (err) {
-      console.error(`Failed to load messages for session ${sessionId}:`, err);
-      return false;
-    }
+  const handleChatEnded = useCallback((data: any) => {
+    console.log("Cuộc trò chuyện kết thúc:", data);
+
+    // Update the chat in our list
+    setChatSessions((prev) =>
+      prev.map((chat) =>
+        chat.chatSessionId === data.sessionId
+          ? { ...chat, isActive: false }
+          : chat
+      )
+    );
+
+    // Clear selection if it was the selected chat
+    setSelectedChatId((current) =>
+      current === data.sessionId ? null : current
+    );
   }, []);
 
-  const sendMessage = useCallback(
-    async (
-      senderId: number,
-      receiverId: number,
-      message: string,
-      _sessionId: number
-    ) => {
-      try {
-        const response = await chatService.sendMessage(
-          senderId,
-          receiverId,
-          message
-        );
-        if (response.success && response.data) {
-          // The Socket.IO notification is handled in the chatService
-          return true;
-        }
-        return false;
-      } catch (err) {
-        console.error("Failed to send message:", err);
-        return false;
-      }
-    },
-    []
-  );
-
-  const markMessageAsRead = useCallback(
-    async (messageId: number) => {
-      try {
-        // Find the message to get the sender ID
-        let senderId = 0;
-        Object.values(sessionMessages).forEach((messages) => {
-          const message = messages.find((m) => m.chatMessageId === messageId);
-          if (message) {
-            senderId = message.senderUserId;
-          }
-        });
-
-        if (senderId) {
-          await chatService.markMessageAsRead(messageId, senderId);
-        }
-
-        // Update local state
-        setSessionMessages((prev) => {
-          const updated = { ...prev };
-
-          Object.keys(updated).forEach((sessionIdStr) => {
-            const sessionId = parseInt(sessionIdStr);
-            updated[sessionId] = updated[sessionId].map((msg) =>
-              msg.chatMessageId === messageId ? { ...msg, isRead: true } : msg
-            );
-          });
-
-          return updated;
-        });
-
-        return true;
-      } catch (err) {
-        console.error("Failed to mark message as read:", err);
-        return false;
-      }
-    },
-    [sessionMessages]
-  );
-
-  const endChatSession = useCallback(
-    async (sessionId: number) => {
-      try {
-        const session = chatSessions.find((s) => s.chatSessionId === sessionId);
-        if (!session) return false;
-
-        const response = await chatService.endChatSession(
-          sessionId,
-          session.customerId,
-          user?.id
-        );
-
-        if (response.success) {
-          // Update local state
-          setChatSessions((prev) =>
-            prev.map((s) =>
-              s.chatSessionId === sessionId ? { ...s, isActive: false } : s
-            )
-          );
-
-          // Clear selection if this was the selected chat
-          if (selectedChatId === sessionId) {
-            setSelectedChatId(null);
-          }
-
-          return true;
-        }
-        return false;
-      } catch (err) {
-        console.error("Failed to end chat session:", err);
-        return false;
-      }
-    },
-    [chatSessions, selectedChatId, user?.id]
-  );
-
-  const acceptChat = useCallback(
-    async (sessionId: number) => {
-      try {
-        const session = chatSessions.find((s) => s.chatSessionId === sessionId);
-        if (!session || !user?.id) return false;
-
-        const response = await chatService.assignManagerToSession(
-          sessionId,
-          user.id,
-          user.name || "Manager",
-          session.customerId
-        );
-
-        if (response.success && response.data) {
-          // Update local state
-          setChatSessions((prev) =>
-            prev.map((s) =>
-              s.chatSessionId === sessionId
-                ? {
-                    ...s,
-                    managerId: user.id,
-                    managerName: user.name || "Manager",
-                  }
-                : s
-            )
-          );
-
-          return true;
-        }
-        return false;
-      } catch (err) {
-        console.error("Failed to accept chat:", err);
-        return false;
-      }
-    },
-    [chatSessions, user]
-  );
-
-  // Helper functions
-  const getSessionMessages = useCallback(
-    (sessionId: number) => {
-      return sessionMessages[sessionId] || [];
-    },
-    [sessionMessages]
-  );
-
-  // Reconnect function
-  const handleReconnect = useCallback(async () => {
-    setError(null);
-    try {
-      await socketService.disconnect();
-      socketService.connect();
-
-      if (user?.id) {
-        socketService.authenticate(user.id, "Manager");
-        setIsConnected(true);
-      }
-
-      await refreshSessions();
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Failed to reconnect to chat service"
-      );
-    }
-  }, [refreshSessions, user?.id]);
-
-  // Memoized values
-  const selectedChat = useMemo(
-    () => chatSessions.find((c) => c.chatSessionId === selectedChatId),
-    [chatSessions, selectedChatId]
-  );
-
-  const chatMessages = useMemo(
-    () => (selectedChatId ? getSessionMessages(selectedChatId) : []),
-    [selectedChatId, getSessionMessages]
-  );
-
-  // Sort chats by last activity
-  const sortedChats = useMemo(
-    () =>
-      [...chatSessions].sort((a, b) => {
-        const dateA = a.updatedAt
-          ? new Date(a.updatedAt)
-          : new Date(a.createdAt);
-        const dateB = b.updatedAt
-          ? new Date(b.updatedAt)
-          : new Date(b.createdAt);
-        return dateB.getTime() - dateA.getTime();
-      }),
-    [chatSessions]
-  );
-
-  // Calculate unread counts for each chat
-  const unreadCounts = useMemo(() => {
-    const counts = new Map<number, number>();
-    chatSessions.forEach((session) => {
-      const sessionMessages = getSessionMessages(session.chatSessionId);
-      const unreadCount = sessionMessages.filter(
-        (msg) => !msg.isRead && msg.receiverUserId === user?.id
-      ).length;
-      counts.set(session.chatSessionId, unreadCount);
-    });
-    return counts;
-  }, [chatSessions, getSessionMessages, user?.id]);
-
-  // Callbacks
-  const handleChatSelect = useCallback(
-    (chatId: number) => {
-      setSelectedChatId(chatId);
-      loadSessionMessages(chatId);
-      // Mark unread messages as read
-      const messages = getSessionMessages(chatId);
-      messages.forEach((message) => {
-        if (!message.isRead && message.receiverUserId === user?.id) {
-          markMessageAsRead(message.chatMessageId);
-        }
-      });
-    },
-    [loadSessionMessages, getSessionMessages, markMessageAsRead, user?.id]
-  );
-
-  const handleSendMessage = useCallback(
-    (message: string) => {
-      if (selectedChatId && selectedChat && user?.id) {
-        sendMessage(user.id, selectedChat.customerId, message, selectedChatId)
-          .then((success) => {
-            if (!success) {
-              setError("Failed to send message");
-            }
-          })
-          .catch((err) => {
-            setError("Failed to send message");
-            console.error(err);
-          });
-      }
-    },
-    [selectedChatId, selectedChat, sendMessage, user?.id]
-  );
-
-  const handleEndChat = useCallback(() => {
-    if (selectedChatId) {
-      endChatSession(selectedChatId)
-        .then((success) => {
-          if (!success) {
-            setError("Failed to end chat session");
-          }
-        })
-        .catch((err) => {
-          setError("Failed to end chat session");
-          console.error(err);
-        });
-    }
-  }, [selectedChatId, endChatSession]);
-
-  const handleAssignManager = useCallback(
-    (managerId: number) => {
-      if (selectedChatId && managerId === user?.id) {
-        acceptChat(selectedChatId)
-          .then((success) => {
-            if (!success) {
-              setError("Failed to assign manager");
-            }
-          })
-          .catch((err) => {
-            setError("Failed to assign manager");
-            console.error(err);
-          });
-      }
-    },
-    [selectedChatId, acceptChat, user?.id]
-  );
-
-  // Effects
-  // Mark messages as read when they are viewed
+  // Load messages for selected chat
   useEffect(() => {
     if (selectedChatId) {
-      chatMessages.forEach((message) => {
-        if (!message.isRead && message.receiverUserId === user?.id) {
-          markMessageAsRead(message.chatMessageId);
-        }
-      });
+      loadMessagesForSession(selectedChatId);
     }
-  }, [selectedChatId, chatMessages, markMessageAsRead, user?.id]);
+  }, [selectedChatId, loadMessagesForSession]);
 
-  // Clean up typing indicator timeout on unmount
+  // Register SignalR event handlers - only once
   useEffect(() => {
+    // Set up event handlers
+    chatService.onNewChat(handleNewChat);
+    chatService.onNewMessage(handleNewMessage);
+    chatService.onChatAccepted(handleChatAccepted);
+    chatService.onChatEnded(handleChatEnded);
+    chatService.onNewBroadcastMessage(handleNewMessage);
+
+    // Clean up event handlers on unmount
     return () => {
-      if (typingTimeoutRef.current) {
-        clearTimeout(typingTimeoutRef.current);
-      }
+      chatService.off("newChatSession");
+      chatService.off("newMessage");
+      chatService.off("chatAccepted");
+      chatService.off("chatEnded");
+      chatService.off("newBroadcastMessage");
     };
-  }, []);
+  }, [handleNewChat, handleNewMessage, handleChatAccepted, handleChatEnded]);
 
-  // Loading and error states
-  if (loading && chatSessions.length === 0) {
+  // Initialize chat service - only once
+  useEffect(() => {
+    const initChat = async () => {
+      if (initialized.current) return;
+
+      setLoading(true);
+      try {
+        if (user?.id) {
+          initialized.current = true;
+
+          // Connect to SignalR
+          const connected = await chatService.initialize(user.id, "Manager");
+          setIsConnected(connected);
+
+          if (connected) {
+            // Load initial data
+            await loadChatSessions();
+          } else {
+            setError("Không thể kết nối đến dịch vụ trò chuyện");
+          }
+        }
+      } catch (err) {
+        setError("Không thể khởi tạo dịch vụ trò chuyện");
+        console.error(err);
+      }
+      setLoading(false);
+    };
+
+    // Initialize only once
+    initChat();
+
+    // Connection check interval with proper cooldown
+    const intervalId = setInterval(() => {
+      const connected = chatService.isSocketConnected();
+      setIsConnected(connected);
+
+      // Only try to reconnect if we're not already trying and user is logged in
+      if (!connected && user?.id && !reconnecting.current) {
+        reconnecting.current = true;
+        console.log("Attempting to reconnect...");
+
+        chatService.initialize(user.id, "Manager").then((success) => {
+          reconnecting.current = false;
+          if (success) {
+            console.log("Đã kết nối lại thành công");
+            // Reload data after reconnection
+            loadChatSessions();
+          }
+        });
+      }
+    }, 15000); // Check every 15 seconds instead of 5
+
+    // Proper cleanup
+    return () => {
+      clearInterval(intervalId);
+      chatService.disconnect();
+      initialized.current = false;
+    };
+  }, [user?.id, loadChatSessions]);
+
+  // Trạng thái đang tải
+  if (loading) {
     return (
       <Box
         sx={{
@@ -537,11 +438,13 @@ const ChatWithCustomer: React.FC = () => {
           height: "100vh",
         }}
       >
-        <Typography>Đang tải cuộc trò chuyện...</Typography>
+        <CircularProgress />
+        <Typography sx={{ ml: 2 }}>Đang tải cuộc trò chuyện...</Typography>
       </Box>
     );
   }
 
+  // Trạng thái lỗi
   if (error && chatSessions.length === 0) {
     return (
       <Box
@@ -552,80 +455,132 @@ const ChatWithCustomer: React.FC = () => {
           height: "100vh",
         }}
       >
-        <Typography color="error">{error}</Typography>
+        <Alert severity="error">{error}</Alert>
       </Box>
     );
   }
 
   return (
-    <StyledPaper
+    <Paper
       elevation={3}
       sx={{
         width: "80vw",
         height: "80vh",
         display: "flex",
         overflow: "hidden",
+        borderRadius: 2,
+        boxShadow: 3,
       }}
     >
-      {/* Left Sidebar */}
-      <Box sx={{ display: "flex", flexDirection: "column", width: 280 }}>
+      {/* Danh sách trò chuyện */}
+      <Box sx={{ width: 280, borderRight: "1px solid rgba(0, 0, 0, 0.12)" }}>
+        <Box sx={{ p: 2, borderBottom: "1px solid rgba(0, 0, 0, 0.12)" }}>
+          <Typography variant="h6">Cuộc trò chuyện</Typography>
+        </Box>
         <ChatList
-          chatSessions={sortedChats}
+          chats={chatSessions}
           selectedChatId={selectedChatId}
-          unreadCounts={unreadCounts}
-          onChatSelect={handleChatSelect}
+          onSelectChat={handleSelectChat}
+          unreadChats={unreadChats}
         />
-        <ConnectionStatus
-          isConnected={isConnected}
-          chatSessionsCount={chatSessions.length}
-          onReconnect={handleReconnect}
-        />
+        <Box
+          sx={{
+            p: 1,
+            borderTop: "1px solid rgba(0, 0, 0, 0.12)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <Typography
+            variant="caption"
+            color={isConnected ? "success.main" : "error.main"}
+          >
+            {isConnected ? "Đã kết nối" : "Mất kết nối"}
+          </Typography>
+          <Typography variant="caption">
+            {chatSessions.length} cuộc trò chuyện
+          </Typography>
+        </Box>
       </Box>
 
-      {/* Chat Area */}
+      {/* Khu vực trò chuyện */}
       <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
         {selectedChat ? (
           <>
             <ChatHeader
-              selectedChat={selectedChat}
+              chat={selectedChat}
               onEndChat={handleEndChat}
-              onAssignManager={handleAssignManager}
+              onJoinChat={() => handleJoinChat(selectedChat.chatSessionId)}
+              isManager={Number(selectedChat.managerId) === Number(user?.id)}
+              canJoin={!selectedChat.managerId && selectedChat.isActive}
+            />
+            <MessageList
+              messages={selectedChatMessages}
               currentUserId={user?.id}
             />
-            <MessageList messages={chatMessages} loading={loading} />
-            <ChatInput onSendMessage={handleSendMessage} />
+            <ChatInput
+              onSendMessage={handleSendMessage}
+              disabled={
+                !selectedChat.isActive ||
+                !selectedChat.managerId ||
+                Number(selectedChat.managerId) !== Number(user?.id)
+              }
+            />
+            {(!selectedChat.isActive ||
+              !selectedChat.managerId ||
+              Number(selectedChat.managerId) !== Number(user?.id)) && (
+              <Box sx={{ p: 1, bgcolor: "background.paper" }}>
+                <Typography
+                  variant="caption"
+                  color="error"
+                  align="center"
+                  sx={{ display: "block" }}
+                >
+                  {!selectedChat.isActive
+                    ? "Cuộc trò chuyện này đã kết thúc."
+                    : !selectedChat.managerId
+                    ? "Bạn cần tham gia cuộc trò chuyện này trước khi gửi tin nhắn."
+                    : "Bạn không phải là người quản lý được phân công cho cuộc trò chuyện này."}
+                </Typography>
+              </Box>
+            )}
           </>
         ) : (
-          <EmptyChatState />
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "100%",
+              p: 3,
+            }}
+          >
+            <Typography variant="h6" color="text.secondary" gutterBottom>
+              Chọn một cuộc trò chuyện để bắt đầu
+            </Typography>
+            <Typography variant="body2" color="text.secondary" align="center">
+              Chọn một cuộc trò chuyện từ danh sách bên trái để xem và trả lời
+              tin nhắn.
+              {unreadChats.size > 0 && (
+                <Box
+                  component="span"
+                  sx={{
+                    display: "block",
+                    mt: 1,
+                    fontWeight: "bold",
+                    color: "warning.main",
+                  }}
+                >
+                  Bạn có {unreadChats.size} cuộc trò chuyện chưa đọc.
+                </Box>
+              )}
+            </Typography>
+          </Box>
         )}
       </Box>
-
-      {/* Debug Panel */}
-      {showDebug && (
-        <DebugPanel
-          isConnected={isConnected}
-          userId={user?.id}
-          chatSessionsCount={chatSessions.length}
-          selectedChatId={selectedChatId}
-          error={error}
-          accessToken={auth.accessToken}
-          onClose={() => setShowDebug(false)}
-        />
-      )}
-
-      {/* Debug Toggle Button */}
-      <Box sx={{ position: "absolute", bottom: 10, right: 10 }}>
-        <IconButton
-          size="small"
-          onClick={() => setShowDebug(!showDebug)}
-          sx={{ opacity: 0.3, "&:hover": { opacity: 1 } }}
-        >
-          <span role="img" aria-label="debug">
-            🐞
-          </span>
-        </IconButton>
-      </Box>
-    </StyledPaper>
+    </Paper>
   );
 };
 
