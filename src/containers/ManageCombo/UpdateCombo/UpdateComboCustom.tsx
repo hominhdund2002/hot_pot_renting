@@ -27,8 +27,8 @@ import RestaurantMenuIcon from "@mui/icons-material/RestaurantMenu";
 import adminComboAPI from "../../../api/Services/adminComboAPI";
 import { toast } from "react-toastify";
 import { useNavigate, useParams } from "react-router";
-import IngredientsTypeSelectorModal from "../../Createcombo/ModalCombo/ModalIngredientType";
 import { updateComboCustomSchema } from "../../../types/hotpot";
+import IngredientsTypeSelect from "../Modal/IngredientsTypeSelect";
 
 const StyledCard = styled(Card)(() => ({
   borderRadius: 16,
@@ -113,7 +113,7 @@ const HotpotCustomComboUpdate: React.FC = () => {
       id: ingredient.id || idx,
       ingredientTypeId: ingredient.ingredientTypeId || 0,
       minQuantity: ingredient.minQuantity || 1,
-      name: ingredient.name,
+      ingredientTypeName: ingredient.name,
     }));
 
     console.log(updatedIngredients, "up");
@@ -330,7 +330,7 @@ const HotpotCustomComboUpdate: React.FC = () => {
                               gap: 1,
                             }}
                           >
-                            {ingredient.name}
+                            {ingredient.ingredientTypeName}
                           </Typography>
                           <Typography
                             variant="body2"
@@ -443,7 +443,7 @@ const HotpotCustomComboUpdate: React.FC = () => {
       </StyledCard>
 
       {openModal && (
-        <IngredientsTypeSelectorModal
+        <IngredientsTypeSelect
           open={openModal}
           handleCloseVegetableModal={() => setOpenModal(false)}
           onSendVegetable={handleModalSubmit}
